@@ -1,0 +1,2 @@
+import Link from 'next/link'
+export default function AuthError(){return <main className="section container" style={{maxWidth:680}}><h1 className="app-title">Verification link problem</h1><div className="card"><p>The link is expired, already used, or the URL settings are wrong. Sign up again or request a new link.</p><p className="small">For Vercel, set Supabase Site URL to https://mort-web.vercel.app and add https://mort-web.vercel.app/** to Redirect URLs.</p><Link className="btn primary" href="/login">Back to login</Link></div></main>}
