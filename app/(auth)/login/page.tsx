@@ -22,7 +22,6 @@ export default async function Login({ searchParams }: { searchParams?: Promise<R
         { icon: '✓', text: 'Browse local jobs near you' },
         { icon: '✓', text: 'Track applications and earnings' },
         { icon: '✓', text: 'Check in safely on active jobs' },
-        { icon: '✓', text: 'Build your XP and reputation' },
       ]}
     >
       <div className="auth-form-heading">
