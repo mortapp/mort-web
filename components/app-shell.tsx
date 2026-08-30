@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { RoleBadge } from '@/components/ui'
+import { Logomark } from '@/components/logomark'
 
 type NavItem = { href: string; icon: string; label: string; badge?: number; roles?: string[] }
 
@@ -67,7 +68,7 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <Link href="/" className="logo" onClick={() => setSidebarOpen(false)}>
-            <span className="logo-mark">M</span>
+            <Logomark size={28} />
             <span>MORT</span>
           </Link>
         </div>

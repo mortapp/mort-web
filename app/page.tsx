@@ -1,6 +1,10 @@
-// Calibrated Liquid Glass: the landing page uses refractive depth to support, not compete with, the marketplace’s real navigation and safety story.
+// MORT homepage — an immersive night: the voyage fills the hero, the job lifecycle
+// is drawn as a "crossing," and the sections stay restrained and editorial.
 import Link from 'next/link'
 import { SiteHeader } from '@/components/site-header'
+import { MortHero } from '@/components/mort-hero'
+import { MortVoyage } from '@/components/mort-voyage'
+import { Logomark } from '@/components/logomark'
 import { CategoryTile } from '@/components/ui'
 import { createClient } from '@/lib/supabase/server'
 
@@ -15,59 +19,31 @@ const FEATURED_CATEGORIES = [
   { category: 'trash help', label: 'Trash help' },
 ]
 
-const features = [
-  { icon: '🔍', title: 'Teen job feed', text: 'Browse nearby dog walking, lawn care, trash help, errands, tutoring, cleaning, and simple local gigs.' },
-  { icon: '✅', title: 'Verified adults only', text: 'Adults and businesses submit verification details and must be approved by a MORT admin before they can post.' },
-  { icon: '🛡️', title: 'Guardian Mode', text: 'Parents connect via invite codes, see safety pings, and can pause a connected teen\'s account.' },
-  { icon: '💬', title: 'Safe messaging', text: 'Messages stay inside MORT, are scanned for common risk patterns, and can be reported in one tap.' },
-  { icon: '📸', title: 'Proof + completion', text: 'Teens submit proof photos and notes. Adults confirm. Admins can review any dispute.' },
-  { icon: '🏆', title: 'XP + trust system', text: 'Levels, streaks, badges, challenges, and hustle history make the platform addictive and trustworthy.' },
+const crossing: [string, string][] = [
+  ['Discover', 'A teen sees a job nearby — without exposing unnecessary private location.'],
+  ['Apply', 'A quick application. MORT never pretends the teen was already accepted.'],
+  ['Accept & schedule', 'The poster chooses someone, and both agree on a time.'],
+  ['Start with a PIN', 'The job only goes active through MORT’s start flow — not a random button.'],
+  ['Work & finish', 'Safety tools stay available; completion is confirmed where applicable.'],
+  ['Completed', 'It joins both histories, reputation grows, and reviews can follow.'],
+]
+
+const pillars = [
+  { icon: '🧭', title: 'Move', text: 'Discover and complete real work nearby — yard work, pet care, moving help, event prep and other approved local jobs.' },
+  { icon: '🛡️', title: 'Trust', text: 'Identities, reputation, history and verification give both sides a reason to rely on each other — no blank-slate strangers.' },
+  { icon: '✦', title: 'Safety', text: 'Approximate location, private messaging, reporting, check-ins, an optional guardian, and PIN-based job start — never behind a paywall.' },
 ]
 
 const roles = [
-  {
-    icon: '🔥',
-    title: 'For Teens',
-    color: 'var(--rose-gold)',
-    items: ['Browse & apply to local jobs', 'Build XP and earn badges', 'Safety check-ins & pings', 'Track earnings & applications', 'Guardian-approved safety'],
-    cta: 'Start hustling',
-    href: '/signup',
-  },
-  {
-    icon: '💼',
-    title: 'For Adults',
-    color: 'var(--blue)',
-    items: ['Post jobs after verification', 'Review teen applicants', 'Message safely inside app', 'Confirm completion & pay', 'Leave reviews & ratings'],
-    cta: 'Post a job',
-    href: '/signup',
-  },
-  {
-    icon: '🛡️',
-    title: 'For Guardians',
-    color: 'var(--soft-pink)',
-    items: ['Connect via invite code', 'See all teen applications', 'Approve or reject jobs', 'See safety pings', 'Pause a connected teen\'s account'],
-    cta: 'Protect your teen',
-    href: '/signup',
-  },
+  { icon: '🔥', title: 'For teens', color: 'var(--primary)', items: ['Discover → apply → schedule → work → complete', 'Build a reputation that travels with you', 'Privacy-first location, in-app messaging'], cta: 'Start your hustle', href: '/signup' },
+  { icon: '🧭', title: 'For adults', color: 'var(--accent-blue)', items: ['Post → review applicants → accept → confirm', 'Verified identities and real ratings', 'Responsible for lawful, age-appropriate work'], cta: 'Post a job', href: '/signup' },
+  { icon: '🛡️', title: 'For guardians', color: 'var(--muted2)', items: ['Connect with an invite code', 'See applications and safety pings', 'Approve or pause any job'], cta: 'Protect your teen', href: '/signup' },
 ]
 
-const levels = [
-  { level: 1, name: 'New Hustler', xp: '0 XP', cls: 'l1' },
-  { level: 2, name: 'Trusted Helper', xp: '100 XP', cls: 'l2' },
-  { level: 3, name: 'Local Pro', xp: '300 XP', cls: 'l3' },
-  { level: 4, name: 'Verified Hustler', xp: '600 XP', cls: 'l4' },
-  { level: 5, name: 'MORT Elite', xp: '1000 XP', cls: 'l5' },
-]
-
-const badges = [
-  { icon: '🐕', label: 'Dog Walker' },
-  { icon: '🌿', label: 'Lawn Helper' },
-  { icon: '⚡', label: 'Fast Responder' },
-  { icon: '⭐', label: '5-Star Worker' },
-  { icon: '🛡️', label: 'Guardian Verified' },
-  { icon: '✅', label: 'Safe Check-In Streak' },
-  { icon: '🌅', label: 'Weekend Warrior' },
-  { icon: '🏆', label: 'Top Earner' },
+const safety = [
+  { cls: 'card danger-card', tile: 'card-icon-tile', icon: '🚨', title: 'SOS', text: 'One tap sends an emergency ping to guardians and admins with your last known job location.' },
+  { cls: 'card highlight', tile: 'card-icon-tile blue', icon: '✅', title: 'Safety check-ins', text: 'Teens check in when they arrive, start and finish. Guardians see every ping.' },
+  { cls: 'card', tile: 'card-icon-tile', icon: '🛡️', title: 'Verified adults', text: 'Every adult is reviewed by admins before they can post jobs or contact teens.' },
 ]
 
 export default async function Home() {
@@ -84,202 +60,109 @@ export default async function Home() {
     <>
       <SiteHeader isSignedIn={!!user} />
       <main>
-        {/* Hero */}
-        <section className="hero container hero-grid">
-          <div>
-            <div className="kicker">Teen-safe local hustle marketplace</div>
-            <h1>Local jobs for teens.<br />Built with safety first.</h1>
-            <p className="lead">MORT helps teens 13–17 find nearby real-life work while giving adults, guardians, and admins the controls needed to keep the marketplace clean and safe.</p>
-            <div className="row-actions" style={{marginTop:32,gap:12}}>
-              <Link className="btn primary lg" href="/signup">Create free account</Link>
-              <Link className="btn lg" href="/signup?next=%2Fapp%2Fteen%2Fjobs">Browse jobs</Link>
-              <Link className="btn ghost lg" href="/#how">See how it works</Link>
-            </div>
-            <div style={{display:'flex',gap:24,marginTop:40,flexWrap:'wrap'}}>
-              <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <span style={{color:'var(--primary)',fontSize:18}}>✓</span>
-                <span style={{fontSize:14,color:'var(--muted2)'}}>Free for teens</span>
-              </div>
-              <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <span style={{color:'var(--accent-pink)',fontSize:18}}>✓</span>
-                <span style={{fontSize:14,color:'var(--muted2)'}}>Guardian safety controls</span>
-              </div>
-              <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <span style={{color:'var(--accent-blue)',fontSize:18}}>✓</span>
-                <span style={{fontSize:14,color:'var(--muted2)'}}>Verified adults only</span>
-              </div>
-            </div>
+        {/* Immersive hero — the voyage fills the screen */}
+        <section className="mort-hero-section">
+          <MortHero />
+          <div className="mort-cta-row">
+            <Link className="btn primary lg" href="/signup">Get MORT — it’s free</Link>
+            <Link className="btn ghost lg" href="/#crossing">See how it works</Link>
           </div>
-
-          {/* Decorative preview — floating job + safety cards over a gradient-to-solid
-              blob, not a flat overlay (principle 11). Demonstrates the real card
-              language (JobCard / Status / role colors) instead of empty hero space. */}
-          <div className="hero-visual" aria-hidden="true">
-            <div className="hero-visual-glow" />
-            <div className="overlay-gradient-side" />
-            <div className="hero-card hero-card-back">
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-                <span className="pill blue">🐕 Dog walking</span>
-                <span className="status green">Safe</span>
-              </div>
-              <h3 style={{fontSize:15,marginBottom:4}}>Safety check-in received</h3>
-              <p style={{fontSize:12.5}}>Maya checked in at 4:12 PM — job in progress.</p>
-            </div>
-            <div className="hero-card hero-card-front">
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
-                <span className="pill rose">🌿 Lawn care</span>
-                <span className="status blue">Open</span>
-              </div>
-              <h3 style={{marginBottom:6}}>Weekend yard cleanup</h3>
-              <p style={{fontSize:13,marginBottom:16}}>2 hours · Broad Ripple · Verified homeowner</p>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                <span className="job-card-pay">$45</span>
-                <span className="status green">Verified host</span>
-              </div>
-            </div>
-          </div>
+          <div className="mort-assur"><b>Free</b> for teens · <b>Guardian</b> controls · <b>Verified</b> adults only</div>
+          <div className="mort-scrollhint">explore</div>
         </section>
 
-
-        {/* Popular categories — the actual point of MORT, made the biggest
-            thing on the page instead of a buried filter dropdown. */}
-        <section id="categories" className="section container" style={{paddingTop:0}}>
-          <div className="kicker">Real local work</div>
-          <h2>Tutoring. Lawn care. Dog walking. Real jobs, not gig-app filler.</h2>
-          <p className="lead" style={{marginTop:8,marginBottom:32}}>Every job on MORT is something a teen can actually do nearby, for someone actually in their community.</p>
-          <div className="grid four">
-            {FEATURED_CATEGORIES.map(c => (
-              <CategoryTile
-                key={c.category}
-                category={c.category}
-                label={c.label}
-                count={counts[c.category] || 0}
-                href={`/signup?next=${encodeURIComponent(`/app/teen/jobs?category=${c.category}`)}`}
-              />
+        {/* The crossing — the job lifecycle as a short voyage */}
+        <section id="crossing" className="section container mort-narrow mort-center">
+          <div className="kicker">The crossing</div>
+          <h2>Every job is a short voyage.</h2>
+          <p className="lead mort-lead-center">From the moment a teen applies to the moment the work is done, MORT tracks exactly where things stand — and who acts next.</p>
+          <div className="card mort-crossing-wrap" style={{ marginTop: 32, textAlign: 'left' }}>
+            <MortVoyage />
+          </div>
+          <div className="mort-steps" style={{ textAlign: 'left' }}>
+            {crossing.map((s, i) => (
+              <div className="mort-step" key={s[0]}>
+                <div className="n">{i + 1}</div>
+                <div><h4>{s[0]}</h4><p>{s[1]}</p></div>
+              </div>
             ))}
           </div>
         </section>
 
-        {/* Features */}
-        <section id="how" className="section container">
-          <div className="kicker">Platform features</div>
-          <h2>Everything MORT needs in one place.</h2>
-          <div className="grid three" style={{marginTop:32}}>
-            {features.map(f => (
-              <div className="card" key={f.title}>
-                <div className="card-icon-tile">{f.icon}</div>
-                <h3>{f.title}</h3>
-                <p style={{marginTop:6}}>{f.text}</p>
+        {/* Move · Trust · Safety */}
+        <section className="section container mort-center">
+          <div className="kicker">Move · Trust · Safety</div>
+          <h2>Not a gig app. Its own category.</h2>
+          <p className="lead mort-lead-center">MORT is local opportunity infrastructure — identity, job states, evidence and accountability wrapped around real nearby work.</p>
+          <div className="grid three" style={{ marginTop: 32, textAlign: 'left' }}>
+            {pillars.map(p => (
+              <div className="card" key={p.title}>
+                <div className="card-icon-tile">{p.icon}</div>
+                <h3>{p.title}</h3>
+                <p style={{ marginTop: 6 }}>{p.text}</p>
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Real local work — live categories */}
+        <section id="categories" className="section container mort-center">
+          <div className="kicker">Real local work</div>
+          <h2>Tutoring. Lawn care. Dog walking. Real jobs, not gig-app filler.</h2>
+          <p className="lead mort-lead-center">Every job on MORT is something a teen can actually do nearby, for someone in their community.</p>
+          <div className="grid four" style={{ marginTop: 32 }}>
+            {FEATURED_CATEGORIES.map(c => (
+              <CategoryTile key={c.category} category={c.category} label={c.label} count={counts[c.category] || 0}
+                href={`/signup?next=${encodeURIComponent(`/app/teen/jobs?category=${c.category}`)}`} />
             ))}
           </div>
         </section>
 
         {/* Roles */}
-        <section id="roles" className="section container">
-          <div className="kicker">Who uses MORT</div>
-          <h2>Built for every person in the hustle.</h2>
-          <div className="grid three" style={{marginTop:32}}>
+        <section id="roles" className="section container mort-center">
+          <div className="kicker">Who it’s for</div>
+          <h2>Related experiences, tuned to each side.</h2>
+          <div className="grid three" style={{ marginTop: 32, textAlign: 'left' }}>
             {roles.map(r => (
-              <div className="card highlight" key={r.title} style={{borderColor:`${r.color}22`}}>
-                <div style={{fontSize:32,marginBottom:12}}>{r.icon}</div>
-                <h3 style={{color:r.color}}>{r.title}</h3>
-                <ul style={{listStyle:'none',padding:0,margin:'12px 0 20px',display:'flex',flexDirection:'column',gap:8}}>
+              <div className="card highlight" key={r.title}>
+                <div style={{ fontSize: 30, marginBottom: 12 }}>{r.icon}</div>
+                <h3 style={{ color: r.color }}>{r.title}</h3>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '12px 0 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {r.items.map(item => (
-                    <li key={item} style={{display:'flex',alignItems:'center',gap:8,fontSize:14,color:'var(--muted2)'}}>
-                      <span style={{color:r.color,fontSize:12}}>✓</span> {item}
+                    <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13.5, color: 'var(--muted2)' }}>
+                      <span style={{ color: r.color, fontSize: 12, marginTop: 3 }}>✓</span> {item}
                     </li>
                   ))}
                 </ul>
-                <Link href={r.href} className="btn primary" style={{width:'100%',justifyContent:'center'}}>{r.cta}</Link>
+                <Link href={r.href} className="btn primary" style={{ width: '100%', justifyContent: 'center' }}>{r.cta}</Link>
               </div>
             ))}
           </div>
         </section>
 
-        {/* XP System */}
-        <section className="section container">
-          <div className="kicker">Gamification</div>
-          <h2>Level up your hustle.</h2>
-          <p className="lead" style={{marginBottom:32}}>Teens earn XP for every job completed, safety check-in, and positive review. Build your reputation from New Hustler to MORT Elite.</p>
-          <div className="grid two" style={{gap:24}}>
-            <div>
-              <h3 style={{marginBottom:16}}>XP Levels</h3>
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                {levels.map(l => (
-                  <div key={l.level} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',border:'1px solid var(--line)',borderRadius:12,background:'var(--surface)'}}>
-                    <div style={{display:'flex',alignItems:'center',gap:12}}>
-                      <span style={{fontSize:20,fontWeight:900,color:'var(--muted)',width:24,textAlign:'center'}}>{l.level}</span>
-                      <span className={`level-badge ${l.cls}`}>Lv{l.level} {l.name}</span>
-                    </div>
-                    <span style={{fontSize:12,color:'var(--muted)'}}>{l.xp}</span>
-                  </div>
-                ))}
+        {/* Safety — never premium */}
+        <section className="section container mort-center">
+          <div className="kicker">Safety, never premium</div>
+          <h2>Built in from the very first screen.</h2>
+          <p className="lead mort-lead-center">MORT can’t guarantee anyone’s safety and doesn’t claim to read every message — but report, block and the Safety Center are free for everyone, always.</p>
+          <div className="grid three" style={{ marginTop: 32, textAlign: 'left' }}>
+            {safety.map(s => (
+              <div className={s.cls} key={s.title}>
+                <div className={s.tile}>{s.icon}</div>
+                <h3>{s.title}</h3>
+                <p style={{ marginTop: 6 }}>{s.text}</p>
               </div>
-            </div>
-            <div>
-              <h3 style={{marginBottom:16}}>Badges you can earn</h3>
-              <div style={{display:'flex',flexWrap:'wrap',gap:10}}>
-                {badges.map(b => (
-                  <span key={b.label} className="badge-chip earned">{b.icon} {b.label}</span>
-                ))}
-              </div>
-              <div className="card" style={{marginTop:20,borderColor:'rgba(232,182,164,0.2)'}}>
-                <h4 style={{color:'var(--muted)',marginBottom:8}}>Trust Score</h4>
-                <p style={{fontSize:14}}>Your trust score is built from completed jobs, average rating, response rate, and safety check-in reliability. Adults see it before accepting you.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* Safety */}
-        <section className="section container">
-          <div className="kicker">Safety first</div>
-          <h2>The safest way for teens to work locally.</h2>
-          <div className="grid three" style={{marginTop:32}}>
-            <div className="card danger-card">
-              <div className="card-icon-tile">🚨</div>
-              <h3>SOS Button</h3>
-              <p>One tap sends an emergency ping to guardians and admins with your last known job location.</p>
-            </div>
-            <div className="card highlight">
-              <div className="card-icon-tile blue">✅</div>
-              <h3>Safety Check-ins</h3>
-              <p>Teens check in when they arrive, start, and finish. Guardians see every ping the next time they open MORT.</p>
-            </div>
-            <div className="card">
-              <div className="card-icon-tile">🛡️</div>
-              <h3>Adult Verification</h3>
-              <p>Every adult is reviewed by admins before they can post jobs or contact teens.</p>
-            </div>
-            <div className="card">
-              <div className="card-icon-tile blue">👁️</div>
-              <h3>Guardian Mode</h3>
-              <p>Parents connect via invite code and can approve jobs, see activity, and pause a connected teen&apos;s account.</p>
-            </div>
-            <div className="card">
-              <div className="card-icon-tile yellow">💬</div>
-              <h3>Monitored Messages</h3>
-              <p>All messages stay inside MORT. Suspicious language triggers automatic flags for review.</p>
-            </div>
-            <div className="card">
-              <div className="card-icon-tile yellow">⚠️</div>
-              <h3>Report System</h3>
-              <p>Any user can report jobs, messages, or accounts. Reports go straight to MORT admins for review.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="section container" style={{textAlign:'center',paddingBottom:80}}>
-          <div style={{maxWidth:600,margin:'0 auto'}}>
-            <div className="kicker" style={{justifyContent:'center'}}>Ready to hustle?</div>
-            <h2>Start earning today.</h2>
-            <p className="lead" style={{margin:'16px auto 32px'}}>Join thousands of teens finding safe local work in their neighborhood. Free to join, free to apply.</p>
-            <div className="row-actions" style={{justifyContent:'center',gap:12}}>
-              <Link className="btn primary lg" href="/signup">Create free account</Link>
-              <Link className="btn lg" href="/login">Sign in</Link>
-            </div>
+        {/* Final CTA */}
+        <section className="section container mort-center" style={{ paddingBottom: 90 }}>
+          <div className="card" style={{ maxWidth: 760, margin: '0 auto', padding: '56px 30px' }}>
+            <div className="kicker" style={{ justifyContent: 'center' }}>Start the crossing</div>
+            <h2>Earn nearby. Move smart.</h2>
+            <p className="lead mort-lead-center" style={{ margin: '12px auto 28px' }}>Create an account in under a minute. Safety tools are on from the very first screen.</p>
+            <Link className="btn primary lg" href="/signup">Get MORT</Link>
           </div>
         </section>
       </main>
@@ -288,40 +171,40 @@ export default async function Home() {
         <div className="container">
           <div className="footer-grid">
             <div>
-              <Link href="/" className="logo" style={{marginBottom:16}}>
-                <span className="logo-mark">M</span>
+              <Link href="/" className="logo" style={{ marginBottom: 16 }}>
+                <Logomark size={26} />
                 <span>MORT</span>
               </Link>
-              <p style={{fontSize:13,maxWidth:260,marginTop:12}}>The teen-safe local hustle marketplace. Connecting teens 13–17 with safe local work opportunities.</p>
+              <p style={{ fontSize: 13, maxWidth: 260, marginTop: 12 }}>Local opportunity infrastructure for teenagers. Earn nearby. Move smart. Stay safe.</p>
             </div>
             <div>
-              <h4 style={{marginBottom:12}}>Platform</h4>
+              <h4 style={{ marginBottom: 12 }}>Product</h4>
               <div className="footer-links">
-                <Link href="/#how">How it works</Link>
+                <Link href="/#crossing">How it works</Link>
                 <Link href="/#roles">For teens</Link>
                 <Link href="/#roles">For adults</Link>
                 <Link href="/safety">Safety</Link>
               </div>
             </div>
             <div>
-              <h4 style={{marginBottom:12}}>Legal</h4>
+              <h4 style={{ marginBottom: 12 }}>Legal</h4>
               <div className="footer-links">
                 <Link href="/legal/terms">Terms of service</Link>
                 <Link href="/legal/privacy">Privacy policy</Link>
               </div>
             </div>
             <div>
-              <h4 style={{marginBottom:12}}>Account</h4>
+              <h4 style={{ marginBottom: 12 }}>Account</h4>
               <div className="footer-links">
                 <Link href="/signup">Create account</Link>
-                <Link href="/login">Login</Link>
+                <Link href="/login">Sign in</Link>
                 <Link href="/signup?next=%2Fapp%2Fteen%2Fjobs">Browse jobs</Link>
               </div>
             </div>
           </div>
           <div className="footer-bottom">
-            <span>© 2026 MORT. Teen-safe local hustle marketplace.</span>
-            <span>Not a payment processor. Users record a payment preference off-platform.</span>
+            <span>© 2026 MORT. Teen-safe local opportunity infrastructure.</span>
+            <span>Not a payment processor. Compensation is arranged off-platform.</span>
           </div>
         </div>
       </footer>

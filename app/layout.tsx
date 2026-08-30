@@ -1,12 +1,21 @@
-// Calibrated Liquid Glass: metadata and the app icon reinforce a single, legible refractive brand system.
+// MORT — a calm night with light in it. The voyage atmosphere sits behind every
+// route (restrained inside /app); everything else inherits the design-system tokens.
 import './globals.css'
+import { MortAtmosphere } from '@/components/mort-atmosphere'
 
 export const metadata = {
-  title: 'MORT — Teen-safe local hustles',
-  description: 'MORT connects teens with safe local jobs, guardian tools, adult posting, moderation, and admin review.',
-  icons: { icon: '/manus-storage/mort-prism-mark_5e06d745.png' }
+  title: 'MORT — Earn nearby. Move smart.',
+  description: 'MORT is teen-safe local opportunity infrastructure: teens 13–17 find real nearby work, adults and businesses post legitimate local jobs, and guardians, moderation and admins keep it safe.',
+  icons: { icon: '/mort-mark.svg' }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="en"><body>{children}</body></html>
+  return (
+    <html lang="en">
+      <body>
+        <MortAtmosphere />
+        {children}
+      </body>
+    </html>
+  )
 }

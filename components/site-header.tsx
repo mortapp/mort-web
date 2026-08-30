@@ -3,6 +3,7 @@
 // Calibrated Liquid Glass: navigation has a stable opaque backdrop and a deliberate mobile drawer rather than disappearing links.
 import Link from 'next/link'
 import { useState } from 'react'
+import { Logomark } from '@/components/logomark'
 
 interface SiteHeaderProps {
   isSignedIn?: boolean
@@ -16,7 +17,7 @@ export function SiteHeader({ isSignedIn = false }: SiteHeaderProps) {
     <header className="site-header">
       <div className="container">
         <Link href="/" className="logo" onClick={close}>
-          <span className="logo-mark">M</span>
+          <Logomark size={26} />
           <span>MORT</span>
         </Link>
         <button className="site-nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded={open} aria-controls="public-navigation" onClick={() => setOpen((value) => !value)}>

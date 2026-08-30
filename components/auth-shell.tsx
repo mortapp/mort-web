@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Logomark } from '@/components/logomark'
 
 // Calibrated Liquid Glass: the auth shell keeps one confident visual plane on desktop
 // while collapsing to a clear, low-distraction form on small screens.
@@ -18,7 +19,7 @@ export function AuthShell({ kicker, title, description, bullets, children }: Aut
       <aside className="auth-brand-panel">
         <div className="auth-brand-halo" aria-hidden="true" />
         <Link href="/" className="logo auth-logo">
-          <span className="logo-mark">M</span>
+          <Logomark size={30} />
           <span>MORT</span>
         </Link>
         <div className="auth-brand-content">
