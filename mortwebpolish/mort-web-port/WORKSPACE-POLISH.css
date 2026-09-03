@@ -1,0 +1,46 @@
+/* =====================================================================
+   MORT WORKSPACE POLISH  (ported from the standalone MORT Workspace)
+   Additive layer only — enhances existing classes, removes nothing,
+   and never overrides the app's semantic metric color-coding.
+   ===================================================================== */
+
+/* Cards lift on hover (they already brighten) — adds the Workspace depth */
+.metric-card { transition: background var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition); }
+.card.hoverable:hover, a.card:hover, .metric-card:hover, .job-card:hover,
+.thread-card:hover, .category-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(156,192,238,0.12);
+}
+
+/* Metric icon tiles get a soft top shine + settle on hover */
+.metric-card-icon { transition: transform var(--transition); }
+.metric-card:hover .metric-card-icon { transform: translateY(-1px) scale(1.05); }
+
+/* Sidebar active item — brighter guiding-light indicator; icons nudge on hover */
+.sidebar-link.active::before { box-shadow: 0 0 10px rgba(156,192,238,0.7); }
+.sidebar-link-icon { transition: transform var(--transition); }
+.sidebar-link:hover .sidebar-link-icon { transform: translateY(-1px) scale(1.08); }
+
+/* Primary button — a touch more dawn-glow on hover */
+.btn.primary:hover { box-shadow: var(--shadow-sm), 0 8px 26px rgba(156,192,238,0.34); }
+
+/* Status journey → feels like the "crossing": gradient done-connectors,
+   a stronger glowing current node */
+.status-journey-connector.done { background: linear-gradient(90deg, #eef3fb, #9cc0ee); }
+.status-journey-dot.done { background: linear-gradient(180deg, #fff, #9cc0ee); box-shadow: 0 0 10px rgba(156,192,238,0.5); }
+.status-journey-dot.current { box-shadow: 0 0 0 4px var(--primary-tint-bg), 0 0 14px rgba(156,192,238,0.55); }
+
+/* Dashboard stat tiles rise in, one beat apart (scoped to .stats so dense
+   job lists stay stable) */
+@keyframes mortRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.stats .metric-card { animation: mortRise .5s cubic-bezier(.2,.8,.2,1) both; }
+.stats .metric-card:nth-child(2) { animation-delay: .06s; }
+.stats .metric-card:nth-child(3) { animation-delay: .12s; }
+.stats .metric-card:nth-child(4) { animation-delay: .18s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stats .metric-card { animation: none; }
+  .card.hoverable:hover, a.card:hover, .metric-card:hover, .job-card:hover,
+  .thread-card:hover, .category-tile:hover { transform: none; }
+  .metric-card:hover .metric-card-icon, .sidebar-link:hover .sidebar-link-icon { transform: none; }
+}
