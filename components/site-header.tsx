@@ -2,7 +2,7 @@
 
 // Calibrated Liquid Glass: navigation has a stable opaque backdrop and a deliberate mobile drawer rather than disappearing links.
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Logomark } from '@/components/logomark'
 
 interface SiteHeaderProps {
@@ -12,6 +12,11 @@ interface SiteHeaderProps {
 export function SiteHeader({ isSignedIn = false }: SiteHeaderProps) {
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
+  useEffect(() => {
+    const escape = (event: KeyboardEvent) => { if (open && event.key === 'Escape') { setOpen(false); document.querySelector<HTMLButtonElement>('.site-nav-toggle')?.focus() } }
+    window.addEventListener('keydown', escape)
+    return () => window.removeEventListener('keydown', escape)
+  }, [open])
 
   return (
     <header className="site-header">
@@ -24,7 +29,7 @@ export function SiteHeader({ isSignedIn = false }: SiteHeaderProps) {
           <span aria-hidden="true">{open ? '×' : '☰'}</span>
         </button>
         <nav id="public-navigation" className={open ? 'open' : undefined} aria-label="Public navigation">
-          <Link href="/#how" onClick={close}>How it works</Link>
+          <Link href="/#crossing" onClick={close}>How it works</Link>
           <Link href="/#roles" onClick={close}>Roles</Link>
           <Link href="/safety" onClick={close}>Safety</Link>
           <a href="https://legal.mortapp.org" onClick={close}>Legal</a>

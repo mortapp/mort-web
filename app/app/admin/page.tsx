@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, Status, MetricCard, AdminReviewCard } from '@/components/ui'
 import { CountUp } from '@/components/count-up'
@@ -84,7 +85,7 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
     <>
       {proofStorageIssue && (
         <div className="warning-box" style={{ marginBottom: 16 }}>
-          <strong>⚠️ Storage note</strong>
+          <strong><Icon name="⚠️" size={18} /> Storage note</strong>
           <p style={{ marginTop: 6, fontSize: 13 }}>{proofStorageIssue}</p>
         </div>
       )}
@@ -115,7 +116,7 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
     <>
       {ticketsError && (
         <div className="warning-box" style={{ marginBottom: 16 }}>
-          <strong>⚠️ Support tables aren&apos;t set up yet</strong>
+          <strong><Icon name="⚠️" size={18} /> Support tables aren&apos;t set up yet</strong>
           <p style={{ marginTop: 6, fontSize: 13 }}>{ticketsError.message}</p>
         </div>
       )}
@@ -179,7 +180,7 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
 
       {needsHelpPings && needsHelpPings.length > 0 && (
         <div className="sos-card" style={{ marginBottom: 24, textAlign: 'left' }}>
-          <h3 style={{ color: 'var(--danger)', marginBottom: 10 }}>🚨 Active &quot;needs help&quot; safety pings</h3>
+          <h3 style={{ color: 'var(--danger)', marginBottom: 10 }}><Icon name="🚨" size={18} /> Active &quot;needs help&quot; safety pings</h3>
           {needsHelpPings.map((p: any) => (
             <div key={p.id} style={{ fontSize: 13, marginBottom: 6, fontFamily: 'monospace' }}>
               teen {p.teen_id.slice(0, 8)}… · {new Date(p.created_at).toLocaleString()} {p.note ? `— ${p.note}` : ''}

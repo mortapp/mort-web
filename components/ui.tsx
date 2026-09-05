@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Icon } from './mort/icon'
 import { Fragment } from 'react'
 
 // Calibrated Liquid Glass: shared visual primitives favor clear labels and honest states over decorative but misleading copy.
@@ -137,7 +138,7 @@ export const StatusBadge = Status
 const roleIcons: Record<string, string> = { teen: '🔥', adult: '💼', guardian: '🛡️', admin: '🔐', none: '·' }
 export function RoleBadge({ role }: { role?: string | null }) {
   const key = role || 'none'
-  return <span className={`role-badge ${key}`}>{roleIcons[key] || '·'} {key}</span>
+  return <span className={`role-badge ${key}`}><Icon name={roleIcons[key]} size={14} /> {key}</span>
 }
 
 // =====================================================================
@@ -154,7 +155,7 @@ interface MetricCardProps {
 export function MetricCard({ label, value, sub, icon, color, trend }: MetricCardProps) {
   return (
     <div className="metric-card">
-      {icon && <div className="metric-card-icon">{icon}</div>}
+      {icon && <div className="metric-card-icon"><Icon name={icon} /></div>}
       <span className="small">{label}</span>
       <strong style={color ? { color } : undefined}>{value}</strong>
       {sub && <div className="metric-card-sub">{sub}</div>}
@@ -195,7 +196,7 @@ interface EmptyStateProps {
 export function EmptyState({ icon = '📭', title, text, href, action }: EmptyStateProps) {
   return (
     <div className="empty-state">
-      <div className="empty-icon">{icon}</div>
+      <div className="empty-icon"><Icon name={icon} /></div>
       <h3>{title}</h3>
       {text && <p>{text}</p>}
       {href && action && (
@@ -244,7 +245,7 @@ export function CategoryPill({ category }: { category?: string | null }) {
   const key = category.toLowerCase()
   const color = categoryColors[key] || 'muted'
   const icon = categoryIcons[key] || '⚡'
-  return <span className={`pill ${color}`}>{icon} {category}</span>
+  return <span className={`pill ${color}`}><Icon name={icon} /> {category}</span>
 }
 
 // =====================================================================
@@ -266,7 +267,7 @@ export function CategoryTile({ category, label, count, href, active }: CategoryT
   const icon = categoryIcons[key] || '⚡'
   return (
     <Link href={href} className={`category-tile ${active ? 'active' : ''}`}>
-      <div className={`category-tile-icon ${color}`}>{icon}</div>
+      <div className={`category-tile-icon ${color}`}><Icon name={icon} /></div>
       <h3 className="category-tile-label">{label || category}</h3>
       <span className="category-tile-count">
         {count && count > 0 ? `${count} open job${count === 1 ? '' : 's'}` : 'Explore jobs'}
@@ -299,7 +300,7 @@ export function JobCard({ title, category, city, state, locationText, descriptio
   const icon = categoryIcons[key] || '⚡'
   return (
     <Link href={href} className="job-card">
-      <div className={`job-card-icon ${tileColor}`}>{icon}</div>
+      <div className={`job-card-icon ${tileColor}`}><Icon name={icon} /></div>
       <div className="job-card-body">
         <div className="job-card-top-row">
           <h3 className="job-card-title">{title}</h3>
@@ -312,7 +313,7 @@ export function JobCard({ title, category, city, state, locationText, descriptio
         <div className="job-card-badges">
           <Status value={status} />
           {requiresGuardianApproval && (
-            <span className="pill tooltip" data-tooltip="This teen's guardian must approve the application first">🛡️ Guardian req.</span>
+            <span className="pill tooltip" data-tooltip="This teen's guardian must approve the application first"><Icon name="shield" size={14} /> Guardian req.</span>
           )}
         </div>
       </div>
@@ -389,13 +390,13 @@ function buildJourneySteps(status?: string | null): JourneyStep[] {
 export function StatusJourney({ status }: { status?: string | null }) {
   const steps = buildJourneySteps(status)
   return (
-    <div className="status-journey">
+    <div className="status-journey" role="list" aria-label="Application progress">
       {steps.map((step, i) => (
         <Fragment key={step.label}>
-          {i > 0 && <div className={`status-journey-connector ${steps[i - 1].state === 'done' ? 'done' : ''}`} />}
-          <div className="status-journey-step">
-            <div className={`status-journey-dot ${step.state}`} />
-            <span className="status-journey-label">{step.label}</span>
+          {i > 0 && <div aria-hidden="true" className={`status-journey-connector ${steps[i - 1].state === 'done' ? 'done' : ''}`} />}
+          <div className="status-journey-step" role="listitem" aria-current={step.state === 'current' ? 'step' : undefined}>
+            <div aria-hidden="true" className={`status-journey-dot ${step.state}`} />
+            <span className="status-journey-label">{step.label}<span className="visually-hidden"> — {step.state}</span></span>
           </div>
         </Fragment>
       ))}
@@ -447,7 +448,7 @@ export function MessageThreadCard({ title, preview, scannerStatus, updatedAt, ac
   return (
     <Link href={href} className={`thread-card ${active ? 'active' : ''}`}>
       <div style={{ display: 'flex', gap: 12 }}>
-        <div className="icon-tile-sm">💬</div>
+        <div className="icon-tile-sm"><Icon name="💬" size={18} /></div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
             <h3 style={{ fontSize: 14 }}>{title}</h3>
@@ -474,7 +475,7 @@ interface SafetyActionCardProps {
 export function SafetyActionCard({ icon, title, description, variant, children }: SafetyActionCardProps) {
   return (
     <div className={`safety-action-card ${variant}`}>
-      <div style={{ fontSize: 44, marginBottom: 10 }}>{icon}</div>
+      <div style={{ fontSize: 44, marginBottom: 10 }}><Icon name={icon} /></div>
       <h2 style={{ fontSize: 22, marginBottom: 8, color: variant === 'urgent' ? 'var(--red)' : 'var(--green)' }}>{title}</h2>
       <p style={{ marginBottom: 20, fontSize: 14 }}>{description}</p>
       {children}
@@ -499,7 +500,7 @@ export function AdminReviewCard({ icon = '📋', iconColor = 'muted', title, sub
     <div className="admin-review-card">
       <div className="admin-review-card-header">
         <div style={{ display: 'flex', gap: 12, flex: 1, minWidth: 0 }}>
-          <div className={`job-card-icon ${iconColor}`}>{icon}</div>
+          <div className={`job-card-icon ${iconColor}`}><Icon name={icon} /></div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <h3>{title}</h3>
             {subtitle && <p style={{ fontSize: 13, marginTop: 2 }}>{subtitle}</p>}
@@ -589,7 +590,7 @@ export function BadgeRow({ badges }: { badges: Badge[] }) {
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
       {badges.map(b => (
         <span key={b.label} className={`badge-chip ${b.earned ? 'earned' : ''}`} title={b.earned ? 'Earned!' : 'Not yet earned'}>
-          {b.icon} {b.label}
+          <Icon name={b.icon} size={14} /> {b.label}
         </span>
       ))}
     </div>

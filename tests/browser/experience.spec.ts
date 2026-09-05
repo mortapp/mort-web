@@ -1,0 +1,162 @@
+import { test, expect, chromium } from '@playwright/test'
+
+test('public routes, all required viewports, no overflow or client errors', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/')
+  await expect(page.locator('.mort-world')).toHaveAttribute('data-webgl-ready', 'true')
+  for (const [width,height] of [[390,844],[430,932],[768,1024],[1024,768],[1366,768],[1440,900],[1920,1080],[2560,1080]]) {
+    await page.setViewportSize({ width, height })
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${width}px overflow`).toBe(true)
+    await page.screenshot({ path: `qa-artifacts/home-${width}.png` })
+  }
+  for (const route of ['/login','/signup','/reset-password','/update-password','/safety','/legal/privacy','/legal/terms']) {
+    await page.goto(route)
+    await expect(page.locator('main')).toBeVisible()
+    for (const width of [390,1440]) {
+      await page.setViewportSize({ width, height: 900 })
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${route} at ${width}px`).toBe(true)
+    }
+  }
+  expect(errors).toEqual([])
+})
+
+test('real primary drag, hover exclusion, right-button exclusion, release and controls', async ({ page }) => {
+  await page.goto('/')
+  const world = page.locator('.mort-world')
+  await expect(world).toHaveAttribute('data-webgl-ready','true')
+  await expect(world).toHaveAttribute('data-frames', /\d+/)
+  const area = await page.locator('.hero-art-zone').boundingBox()
+  if (!area) throw new Error('Hero interaction zone missing')
+  const x = area.x + 80, y = area.y + 100
+  await page.mouse.move(x,y)
+  await page.mouse.move(x+150,y+80,{steps:12})
+  expect(Number(await world.getAttribute('data-energy'))).toBe(0)
+  await page.mouse.down({button:'right'})
+  await page.mouse.move(x+220,y+40,{steps:12})
+  await page.mouse.up({button:'right'})
+  expect(Number(await world.getAttribute('data-energy'))).toBe(0)
+  await page.mouse.down()
+  await page.mouse.move(x+60,y+160,{steps:15})
+  await expect.poll(async()=>Number(await world.getAttribute('data-energy'))).toBeGreaterThan(.01)
+  await expect.poll(async()=>Number(await world.getAttribute('data-physics-displacement'))).toBeGreaterThan(.0001)
+  await page.mouse.up()
+  await expect(page.locator('html')).not.toHaveAttribute('data-scene-dragging','true')
+  await expect.poll(async()=>Number(await world.getAttribute('data-energy'))).toBeLessThan(.001)
+  await page.getByRole('button',{name:'Pause atmosphere',exact:true}).click()
+  await expect(world).toHaveAttribute('data-scene-status','paused')
+  const frames = await world.getAttribute('data-frames')
+  await page.waitForTimeout(400)
+  expect(await world.getAttribute('data-frames')).toBe(frames)
+  await page.reload()
+  await expect(world).toHaveAttribute('data-scene-status','paused')
+  await page.getByRole('button',{name:'Resume atmosphere',exact:true}).click()
+  await page.getByRole('link',{name:'Start your crossing',exact:true}).click()
+  await expect(page).toHaveURL(/signup/)
+  await page.getByLabel('Email address').fill('qa@example.test')
+  await expect(page.getByLabel('Email address')).toHaveValue('qa@example.test')
+  expect(Number(await world.getAttribute('data-energy') || 0)).toBe(0)
+})
+
+test('voyage selection survives reduced-motion remount and has keyboard access', async ({ page }) => {
+  await page.goto('/#crossing')
+  const completed=page.getByRole('button',{name:'06 Completed',exact:true})
+  await completed.click()
+  await expect(completed).toHaveAttribute('aria-pressed','true')
+  await expect(page.locator('#voyage-description')).toContainText('Take the experience with you.')
+  await page.emulateMedia({reducedMotion:'reduce'})
+  await expect(page.locator('.mort-world')).toHaveAttribute('data-scene-status','reduced')
+  await expect(page.locator('.mort-world canvas')).toHaveCount(0)
+  await expect(page.locator('.world-fallback')).toHaveCSS('opacity','1')
+  await page.emulateMedia({reducedMotion:'no-preference'})
+  await expect(page.locator('#voyage-view canvas')).toBeVisible()
+  await expect(completed).toHaveAttribute('aria-pressed','true')
+  await page.getByRole('button',{name:'01 Discover',exact:true}).focus()
+  await page.keyboard.press('Space')
+  await expect(page.locator('#voyage-description')).toContainText('Find your starting point.')
+  await page.screenshot({path:'qa-artifacts/voyage.png'})
+})
+
+test('touch horizontal intent activates while vertical gestures scroll', async ({ browser }) => {
+  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true})
+  const page=await context.newPage()
+  await page.goto('/')
+  await expect(page.locator('.mort-world')).toHaveAttribute('data-webgl-ready','true')
+  await page.locator('.hero-art-zone').scrollIntoViewIfNeeded()
+  const rect=await page.locator('.hero-art-zone').boundingBox()
+  if(!rect)throw new Error('Missing touch zone')
+  const cdp=await context.newCDPSession(page)
+  const x=rect.x+40,y=rect.y+Math.min(100,rect.height/2)
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]})
+  for(let i=1;i<=10;i++)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+i*18,y:y+2}]})
+  await expect.poll(async()=>Number(await page.locator('.mort-world').getAttribute('data-energy'))).toBeGreaterThan(.01)
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]})
+  await expect.poll(async()=>Number(await page.locator('.mort-world').getAttribute('data-energy'))).toBeLessThan(.001)
+  const before=await page.evaluate(()=>scrollY)
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:180,y:600}]})
+  for(let i=1;i<=8;i++)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:181,y:600-i*35}]})
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]})
+  await expect.poll(()=>page.evaluate(()=>scrollY)).toBeGreaterThan(before)
+  expect(Number(await page.locator('.mort-world').getAttribute('data-energy'))).toBeLessThan(.001)
+  await context.close()
+})
+
+test('WebGL loss falls back and keyboard skip link reaches main', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('.mort-world')).toHaveAttribute('data-webgl-ready','true')
+  await page.locator('.mort-world canvas').evaluate((canvas: HTMLCanvasElement) => {
+    const gl=canvas.getContext('webgl2')
+    gl?.getExtension('WEBGL_lose_context')?.loseContext()
+  })
+  await expect(page.locator('.mort-world')).toHaveAttribute('data-scene-status','fallback')
+  await expect(page.getByRole('heading',{level:1})).toBeVisible()
+  await page.keyboard.press('Tab')
+  await expect(page.getByRole('link',{name:'Skip to content'})).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('#main-content')).toBeFocused()
+  await page.screenshot({path:'qa-artifacts/webgl-fallback.png'})
+})
+
+test('all protected route families remain behind authentication', async ({ request }) => {
+  const routes=['/app','/app/onboarding','/app/profile','/app/messages','/app/messages/qa-check','/app/safety','/app/verify','/app/support','/app/support/qa-check','/app/challenges','/app/team-hustles','/app/payments','/app/teen/jobs','/app/teen/jobs/qa-check','/app/teen/applications','/app/teen/active','/app/teen/earnings','/app/teen/saved','/app/adult','/app/adult/jobs','/app/adult/jobs/qa-check','/app/adult/post-job','/app/adult/applications','/app/guardian','/app/admin','/app/reports/new']
+  for(const route of routes){const response=await request.get(route,{maxRedirects:0});expect(response.status(),route).toBe(307);expect(response.headers().location,route).toContain('/login')}
+})
+
+test('mobile navigation opens, closes with Escape, and follows links', async ({ page }) => {
+  await page.setViewportSize({width:390,height:844})
+  await page.goto('/')
+  const toggle=page.getByRole('button',{name:'Toggle navigation'})
+  await toggle.click()
+  await expect(toggle).toHaveAttribute('aria-expanded','true')
+  await page.keyboard.press('Escape')
+  await expect(toggle).toHaveAttribute('aria-expanded','false')
+  await expect(toggle).toBeFocused()
+  await toggle.click()
+  await page.getByRole('navigation',{name:'Public navigation'}).getByRole('link',{name:'Safety',exact:true}).click()
+  await expect(page).toHaveURL(/\/safety$/)
+  await expect(page.getByRole('heading',{level:1})).toHaveText('MORT Safety')
+})
+
+test('WebGL unavailable at startup retains composed fallback and usable links', async () => {
+  const browser=await chromium.launch({args:['--disable-webgl']})
+  const page=await browser.newPage()
+  await page.goto('http://localhost:3000')
+  await expect(page.locator('.mort-world')).toHaveAttribute('data-scene-status','fallback')
+  await expect(page.locator('.world-fallback')).toHaveCSS('opacity','1')
+  await expect(page.getByRole('heading',{level:1})).toBeVisible()
+  await page.getByRole('link',{name:'Start your crossing',exact:true}).click()
+  await expect(page).toHaveURL(/signup/)
+  await browser.close()
+})
+
+test('quiet renderer obeys the 30 FPS budget with physics awake', async ({ page }) => {
+  await page.goto('/login')
+  const world=page.locator('.mort-world')
+  await expect(world).toHaveAttribute('data-frames',/\d+/)
+  const before=Number(await world.getAttribute('data-frames'))
+  await page.waitForTimeout(2000)
+  const rendered=Number(await world.getAttribute('data-frames'))-before
+  expect(rendered).toBeGreaterThan(0)
+  expect(rendered).toBeLessThanOrEqual(72)
+})

@@ -1,6 +1,7 @@
 // MORT — a calm night with light in it. The voyage atmosphere sits behind every
 // route (restrained inside /app); everything else inherits the design-system tokens.
 import './globals.css'
+import './cinematic.css'
 import { MortAtmosphere } from '@/components/mort-atmosphere'
 
 export const metadata = {
@@ -13,6 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        <a className="skip-link" href="#main-content">Skip to content</a>
         <MortAtmosphere />
         {children}
       </body>

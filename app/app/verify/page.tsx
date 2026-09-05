@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, Status } from '@/components/ui'
 import { acceptGuardianInvite, createGuardianInvite, saveTeenVerification, submitBusinessVerification } from './actions'
@@ -22,7 +23,7 @@ export default async function Verify({ searchParams }: { searchParams?: Promise<
 
       <div className="grid two">
         <form action={saveTeenVerification} className="card form">
-          <div className="card-icon-tile">🔥</div>
+          <div className="card-icon-tile"><Icon name="🔥" size={18} /></div>
           <h3>Teen verification</h3>
           <p style={{fontSize:13,marginBottom:4}}>Use this for 13–17 teen worker setup. No SSN. Keep sensitive docs out of this starter.</p>
           <label>Bio<textarea name="bio" placeholder="What kind of work can you do?" /></label>
@@ -35,7 +36,7 @@ export default async function Verify({ searchParams }: { searchParams?: Promise<
         </form>
 
         <form action={submitBusinessVerification} className="card form">
-          <div className="card-icon-tile blue">💼</div>
+          <div className="card-icon-tile blue"><Icon name="💼" size={18} /></div>
           <h3>Adult / business verification</h3>
           <p style={{fontSize:13,marginBottom:4}}>Adults should be approved before posting jobs.</p>
           <label>Business / display name<input name="business_name" required /></label>
@@ -45,7 +46,7 @@ export default async function Verify({ searchParams }: { searchParams?: Promise<
         </form>
 
         <div className="card">
-          <div className="card-icon-tile">🛡️</div>
+          <div className="card-icon-tile"><Icon name="🛡️" size={18} /></div>
           <h3>Guardian invite code</h3>
           <p style={{fontSize:13,marginBottom:12}}>Teen creates a one-time code. Copy it from the success message right after creation — the live backend stores only a hashed version after that.</p>
           <form action={createGuardianInvite} className="form">
@@ -65,7 +66,7 @@ export default async function Verify({ searchParams }: { searchParams?: Promise<
         </div>
 
         <form action={acceptGuardianInvite} className="card form">
-          <div className="card-icon-tile blue">🔗</div>
+          <div className="card-icon-tile blue"><Icon name="🔗" size={18} /></div>
           <h3>Guardian accepts invite</h3>
           <label>Invite code<input name="invite_code" required placeholder="ABC123" style={{textTransform:'uppercase'}} /></label>
           <SubmitButton pendingLabel="Connecting…">Connect as guardian</SubmitButton>

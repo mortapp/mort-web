@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import Link from 'next/link'
 import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, Status, ApplicationCard } from '@/components/ui'
@@ -50,7 +51,7 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
 
       {needsHelp.length > 0 && (
         <div className="sos-card" style={{ marginBottom: 24, textAlign: 'left' }}>
-          <h3 style={{ color: 'var(--red)', marginBottom: 10 }}>🚨 Recent &quot;needs help&quot; pings</h3>
+          <h3 style={{ color: 'var(--red)', marginBottom: 10 }}><Icon name="🚨" size={18} /> Recent &quot;needs help&quot; pings</h3>
           {needsHelp.slice(0, 5).map((p: any) => (
             <div key={p.id} style={{ fontSize: 13, marginBottom: 6 }}>
               {new Date(p.created_at).toLocaleString()} {p.note ? `— ${p.note}` : ''}
@@ -62,7 +63,7 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
 
       {/* Pending approvals */}
       <div style={{ marginBottom: 24 }}>
-        <h3 style={{ marginBottom: 16 }}>⏳ Pending approvals ({pendingApps?.length || 0})</h3>
+        <h3 style={{ marginBottom: 16 }}><Icon name="⏳" size={18} /> Pending approvals ({pendingApps?.length || 0})</h3>
         {!pendingApps?.length ? (
           <div className="card">
             <p style={{ fontSize: 13 }}>No applications are waiting on your approval right now.</p>
@@ -93,7 +94,7 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
         <h3 style={{marginBottom:16}}>Connected teens ({connections?.length || 0})</h3>
         {!connections?.length ? (
           <div className="empty-state">
-            <div className="empty-icon">🛡️</div>
+            <div className="empty-icon"><Icon name="🛡️" size={18} /></div>
             <h3>No teens connected</h3>
             <p>Ask your teen to generate an invite code from their Verification page, then enter it here.</p>
             <Link href="/app/verify" className="btn primary" style={{marginTop:16,display:'inline-flex'}}>Connect a teen</Link>
@@ -117,7 +118,7 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
                         {paused && <span className="status red">Paused</span>}
                       </div>
                       {c.profiles?.xp_points !== undefined && (
-                        <div style={{fontSize:11,color:'var(--muted)',marginTop:4}}>⚡ {c.profiles.xp_points} XP earned</div>
+                        <div style={{fontSize:11,color:'var(--muted)',marginTop:4}}><Icon name="⚡" size={18} /> {c.profiles.xp_points} XP earned</div>
                       )}
                     </div>
                   </div>
@@ -144,7 +145,7 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
       {/* Recent applications */}
       {apps && apps.length > 0 && (
         <div className="card" style={{marginBottom:24}}>
-          <h3 style={{marginBottom:16}}>📋 Recent applications</h3>
+          <h3 style={{marginBottom:16}}><Icon name="📋" size={18} /> Recent applications</h3>
           <div className="table-wrap">
             <table className="table">
               <thead>
@@ -174,10 +175,10 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
 
       {/* Safety pings */}
       <div className="card">
-        <h3 style={{marginBottom:16}}>🛡️ Safety pings</h3>
+        <h3 style={{marginBottom:16}}><Icon name="🛡️" size={18} /> Safety pings</h3>
         {!pings?.length ? (
           <div style={{textAlign:'center',padding:'32px 0',color:'var(--muted)'}}>
-            <div style={{fontSize:32,marginBottom:8}}>📡</div>
+            <div style={{fontSize:32,marginBottom:8}}><Icon name="📡" size={18} /></div>
             <p>No safety pings yet from connected teens.</p>
           </div>
         ) : (

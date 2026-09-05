@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import { requireUser } from '@/lib/auth'
 import { savePaymentPreference } from '@/app/app/actions'
 import { PageHeaderWithActions } from '@/components/ui'
@@ -17,7 +18,7 @@ export default async function Payments({ searchParams }: { searchParams?: Promis
       <Toast message={sp?.message} />
 
       <div className="warning-box" style={{ marginBottom: 20 }}>
-        ⚠️ Payment preference saving is disabled by design in this web build. Do not add bank details, card numbers, SSNs, or service-role keys.
+        <Icon name="⚠️" size={18} /> Payment preference saving is disabled by design in this web build. Do not add bank details, card numbers, SSNs, or service-role keys.
       </div>
 
       <form action={savePaymentPreference} className="card form" style={{ maxWidth: 480 }}>

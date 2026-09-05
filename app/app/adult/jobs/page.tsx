@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import Link from 'next/link'
 import { requireRole } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
@@ -26,7 +27,7 @@ export default async function MyJobs({ searchParams }: { searchParams?: Promise<
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {jobs.map((j: any) => (
             <div className="job-card" key={j.id} style={{ cursor: 'default' }}>
-              <div className={`job-card-icon ${j.status === 'open' ? 'rose' : 'muted'}`}>💼</div>
+              <div className={`job-card-icon ${j.status === 'open' ? 'rose' : 'muted'}`}><Icon name="💼" size={18} /></div>
               <div className="job-card-body">
                 <div className="job-card-top-row">
                   <h3 className="job-card-title">{j.title}</h3>

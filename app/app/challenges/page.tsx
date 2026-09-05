@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, XPBar } from '@/components/ui'
 export const dynamic = 'force-dynamic'
@@ -139,7 +140,7 @@ export default async function Challenges() {
       <div className="challenge-card active-challenge" style={{marginBottom:24}}>
         <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
           <div style={{display:'flex',gap:12}}>
-            <div className="icon-tile-sm">🌅</div>
+            <div className="icon-tile-sm"><Icon name="🌅" size={18} /></div>
             <div>
               <div style={{fontSize:11,color:'var(--primary)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:2}}>Weekly challenge</div>
               <h3 style={{margin:0}}>{weeklyChallenge.title}</h3>
@@ -168,7 +169,7 @@ export default async function Challenges() {
         {challenges.map(c => (
           <div key={c.title} className={`challenge-card ${c.active ? 'active-challenge' : ''}`}>
             <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:8,marginBottom:12}}>
-              <div className="icon-tile-sm">{c.icon}</div>
+              <div className="icon-tile-sm"><Icon name={c.icon} /></div>
               <span className="challenge-xp">+{c.xp} XP</span>
             </div>
             <h3 style={{marginBottom:6}}>{c.title}</h3>
@@ -188,7 +189,7 @@ export default async function Challenges() {
 
       {/* Safety note */}
       <div className="card info-card" style={{marginTop:24}}>
-        <h4 style={{marginBottom:8}}>🛡️ Safety-gated challenges</h4>
+        <h4 style={{marginBottom:8}}><Icon name="🛡️" size={18} /> Safety-gated challenges</h4>
         <p style={{fontSize:14}}>Challenges never incentivize unsafe behavior. Guardian controls and reporting remain active at all times. Challenges are earned through safe, completed work only.</p>
       </div>
     </>

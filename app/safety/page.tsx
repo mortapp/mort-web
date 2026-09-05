@@ -1,10 +1,11 @@
+import { Icon } from '@/components/mort/icon'
 import { SiteHeader } from '@/components/site-header'
 
 export default function SafetyPage() {
   return (
     <>
       <SiteHeader />
-      <main className="section container">
+      <main id="main-content" tabIndex={-1} className="section container">
         <div className="kicker">Safety first</div>
         <h1 style={{ marginBottom: 12 }}>MORT Safety</h1>
         <p className="lead" style={{ marginBottom: 20 }}>
@@ -12,7 +13,7 @@ export default function SafetyPage() {
         </p>
 
         <div className="emergency-disclaimer" style={{ marginBottom: 32, maxWidth: 720 }}>
-          ⚠️ <strong>MORT is not a replacement for calling 911 or local emergency services.</strong> If you or someone else is in immediate danger, call emergency services first.
+          <Icon name="⚠️" size={18} /> <strong>MORT is not a replacement for calling 911 or local emergency services.</strong> If you or someone else is in immediate danger, call emergency services first.
         </div>
 
         <div className="grid two">

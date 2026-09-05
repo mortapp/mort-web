@@ -1,9 +1,10 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { RoleBadge } from '@/components/ui'
 import { Logomark } from '@/components/logomark'
+import { Icon } from '@/components/mort/icon'
 
 type NavItem = { href: string; icon: string; label: string; badge?: number; roles?: string[] }
 
@@ -49,6 +50,27 @@ function getLevelInfo(xp: number) {
 export function AppShell({ children, role = 'none', displayName, xp = 0, verificationStatus }: Props) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const sidebar = useRef<HTMLElement>(null)
+  const toggle = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    const media = matchMedia('(max-width: 768px)')
+    const sync = () => { if (sidebar.current) sidebar.current.inert = media.matches && !sidebarOpen }
+    sync(); media.addEventListener('change', sync)
+    if (sidebarOpen && media.matches) sidebar.current?.querySelector<HTMLElement>('a,button')?.focus()
+    const keydown = (event: KeyboardEvent) => {
+      if (!sidebarOpen) return
+      if (event.key === 'Escape') { setSidebarOpen(false); toggle.current?.focus() }
+      if (event.key === 'Tab' && media.matches) {
+        const nodes = sidebar.current?.querySelectorAll<HTMLElement>('a,button')
+        if (!nodes?.length) return
+        const first = nodes[0], last = nodes[nodes.length - 1]
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+      }
+    }
+    window.addEventListener('keydown', keydown)
+    return () => { media.removeEventListener('change', sync); window.removeEventListener('keydown', keydown) }
+  }, [sidebarOpen])
   const lvl = getLevelInfo(xp)
   const xpPct = Math.min(100, (xp / lvl.next) * 100)
 
@@ -65,7 +87,7 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
   return (
     <div className="app-shell">
       {/* Sidebar */}
-      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+      <aside ref={sidebar} id="app-navigation" className={`sidebar ${sidebarOpen ? 'open' : ''}`} aria-label="Workspace navigation">
         <div className="sidebar-header">
           <Link href="/" className="logo" onClick={() => setSidebarOpen(false)}>
             <Logomark size={28} />
@@ -87,20 +109,21 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
           </div>
         )}
 
-        <nav className="sidebar-nav">
+        <nav className="sidebar-nav" aria-label="Your workspace">
           {sections.map(section => (
             <div key={section.label}>
               <div className="sidebar-section">{section.label}</div>
               {section.items.map(item => {
-                const isActive = pathname === item.href || (item.href !== '/app' && pathname.startsWith(item.href))
+                const isActive = pathname === item.href || (item.href !== '/app' && pathname.startsWith(item.href + '/') && !visibleItems.some(other => other.href !== item.href && other.href.startsWith(item.href + '/') && (pathname === other.href || pathname.startsWith(other.href + '/'))))
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={`sidebar-link ${isActive ? 'active' : ''}`}
+                    aria-current={isActive ? 'page' : undefined}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <span className="sidebar-link-icon">{item.icon}</span>
+                    <span className="sidebar-link-icon"><Icon name={item.icon} size={18} /></span>
                     <span>{item.label}</span>
                     {item.badge ? <span className="sidebar-link-badge">{item.badge}</span> : null}
                   </Link>
@@ -123,35 +146,42 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
       <div className="app-main">
         <header className="app-topbar">
           <button
+            ref={toggle}
+            type="button"
             className="btn ghost sm sidebar-toggle tooltip"
             onClick={() => setSidebarOpen(!sidebarOpen)}
             aria-label="Toggle navigation"
+            aria-expanded={sidebarOpen}
+            aria-controls="app-navigation"
             data-tooltip="Menu"
           >
-            ☰
+            <Icon name={sidebarOpen ? 'close' : 'menu'} />
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link href="/app/safety" className="btn danger sm">🚨 <span className="hide-mobile">Safety</span></Link>
-            <Link href="/app/messages" className="btn ghost sm">💬 <span className="hide-mobile">Messages</span></Link>
+            <Link href="/app/safety" className="btn danger sm" aria-label="Safety Center"><Icon name="shield" size={17} /><span className="hide-mobile">Safety</span></Link>
+            <Link href="/app/messages" className="btn ghost sm" aria-label="Messages"><Icon name="message" size={17} /><span className="hide-mobile">Messages</span></Link>
           </div>
+          <span className="app-location">Your workspace / {role}</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {verificationStatus && (
               <span className={`status ${verificationStatus === 'approved' ? 'green' : verificationStatus === 'pending' ? 'yellow' : 'muted'}`}>
                 {verificationStatus}
               </span>
             )}
-            <Link href="/app/profile" className="btn ghost sm">👤 {displayName || 'Profile'}</Link>
+            <Link href="/app/profile" className="btn ghost sm"><Icon name="person" size={17} /><span className="profile-name">{displayName || 'Profile'}</span></Link>
           </div>
         </header>
 
-        <main className="app-content">
+        <main id="main-content" tabIndex={-1} className="app-content">
           {children}
         </main>
       </div>
 
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div
+        <button
+          type="button"
+          aria-label="Close workspace navigation"
           style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 49 }}
           onClick={() => setSidebarOpen(false)}
         />

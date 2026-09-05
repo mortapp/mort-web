@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import Link from 'next/link'
 import { requireUser } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
@@ -35,13 +36,13 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
         eyebrow="Teen marketplace"
         description="Apply to jobs near you. Adults review applicants. Guardian approval may be required."
       >
-        <Link href="/app/teen/saved" className="btn">🔖 Saved</Link>
-        <Link href="/app/teen/applications" className="btn">📋 My apps</Link>
+        <Link href="/app/teen/saved" className="btn"><Icon name="🔖" size={18} /> Saved</Link>
+        <Link href="/app/teen/applications" className="btn"><Icon name="📋" size={18} /> My apps</Link>
       </PageHeaderWithActions>
 
       {isPaused && (
         <div className="warning-box" style={{ marginBottom: 20 }}>
-          <strong>⏸ Your account is paused by your guardian.</strong>
+          <strong><Icon name="⏸" size={18} /> Your account is paused by your guardian.</strong>
           <p style={{ marginTop: 6, fontSize: 13 }}>You can still browse, but you can&apos;t apply to jobs or start new chats until they resume it.</p>
         </div>
       )}

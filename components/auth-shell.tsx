@@ -1,3 +1,4 @@
+import { Icon } from './mort/icon'
 import Link from 'next/link'
 import { Logomark } from '@/components/logomark'
 
@@ -15,7 +16,7 @@ interface AuthShellProps {
 
 export function AuthShell({ kicker, title, description, bullets, children }: AuthShellProps) {
   return (
-    <main className="auth-shell">
+    <main id="main-content" tabIndex={-1} className="auth-shell">
       <aside className="auth-brand-panel">
         <div className="auth-brand-halo" aria-hidden="true" />
         <Link href="/" className="logo auth-logo">
@@ -29,7 +30,7 @@ export function AuthShell({ kicker, title, description, bullets, children }: Aut
           <ul className="auth-bullet-list">
             {bullets.map((bullet) => (
               <li key={bullet.text}>
-                <span aria-hidden="true">{bullet.icon}</span>
+                <span aria-hidden="true"><Icon name={bullet.icon} size={17} /></span>
                 <span>{bullet.text}</span>
               </li>
             ))}

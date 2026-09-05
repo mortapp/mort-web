@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import Link from 'next/link'
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, Status, EmptyState } from '@/components/ui'
@@ -24,7 +25,7 @@ export default async function Support({ searchParams }: { searchParams?: Promise
 
       {loadError && (
         <div className="warning-box" style={{ marginBottom: 20 }}>
-          <strong>⚠️ Support tickets could not load</strong>
+          <strong><Icon name="⚠️" size={18} /> Support tickets could not load</strong>
           <p style={{ marginTop: 6, fontSize: 13 }}>{loadError}</p>
         </div>
       )}

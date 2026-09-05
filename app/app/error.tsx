@@ -1,4 +1,5 @@
 'use client'
+import { Icon } from '@/components/mort/icon'
 import { useEffect } from 'react'
 
 export default function AppError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
@@ -8,7 +9,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
 
   return (
     <div className="empty-state">
-      <div className="empty-icon">⚠️</div>
+      <div className="empty-icon"><Icon name="⚠️" size={18} /></div>
       <h3>Something went wrong</h3>
       <p>{error.message || 'An unexpected error occurred loading this page.'}</p>
       <button className="btn primary" style={{ marginTop: 12 }} onClick={() => reset()}>

@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, ApplicationCard, EmptyState } from '@/components/ui'
 import { setApplicationStatus } from '../actions'
@@ -39,7 +40,7 @@ export default async function AdultApplications({ searchParams }: { searchParams
               {a.status !== 'guardian_pending' && a.status !== 'guardian_rejected' && (
                 <form action={startThreadFromApplication} className="row-actions" style={{ marginTop: 8 }}>
                   <input type="hidden" name="application_id" value={a.id} />
-                  <button className="btn ghost sm">💬 Message applicant</button>
+                  <button className="btn ghost sm"><Icon name="💬" size={18} /> Message applicant</button>
                 </form>
               )}
             </ApplicationCard>

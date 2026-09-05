@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, Status } from '@/components/ui'
 import { postJob } from '../actions'
@@ -25,7 +26,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
 
       {!isApproved && (
         <div className="warning-box" style={{marginBottom:20}}>
-          <strong>⚠️ Verification required</strong>
+          <strong><Icon name="⚠️" size={18} /> Verification required</strong>
           <p style={{marginTop:6,fontSize:14}}>Adults must be verified by admin before posting jobs. <a href="/app/verify" style={{color:'var(--warning)',fontWeight:600}}>Submit verification →</a></p>
         </div>
       )}
@@ -90,7 +91,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
 
         <div style={{display:'flex',flexDirection:'column',gap:16}}>
           <div className="card highlight">
-            <h3 style={{marginBottom:12}}>📋 Posting guidelines</h3>
+            <h3 style={{marginBottom:12}}><Icon name="📋" size={18} /> Posting guidelines</h3>
             <div style={{display:'flex',flexDirection:'column',gap:10}}>
               {[
                 'Be specific about what the job involves',
@@ -106,11 +107,11 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
             </div>
           </div>
           <div className="card">
-            <h3 style={{marginBottom:8}}>💳 Payment</h3>
+            <h3 style={{marginBottom:8}}><Icon name="💳" size={18} /> Payment</h3>
             <p style={{fontSize:14}}>MORT does not process, move, hold, guarantee, or enforce payments. Users may record a payment preference such as cash, Cash App, a Square link, flexible, or none. Set a clear pay label so teens know what to expect.</p>
           </div>
           <div className="card danger-card">
-            <h3 style={{marginBottom:8}}>⚠️ Prohibited jobs</h3>
+            <h3 style={{marginBottom:8}}><Icon name="⚠️" size={18} /> Prohibited jobs</h3>
             <p style={{fontSize:14}}>Jobs involving alcohol, tobacco, adult content, dangerous equipment, or anything illegal are strictly prohibited and will be removed.</p>
           </div>
         </div>

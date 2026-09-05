@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import Link from 'next/link'
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, Status } from '@/components/ui'
@@ -37,7 +38,7 @@ export default async function ThreadDetail({ params, searchParams }: { params: P
     <>
       <PageHeaderWithActions title={thread.jobs?.title || 'Conversation'} eyebrow="Messages">
         <Link href="/app/messages" className="btn ghost sm">← All threads</Link>
-        <Link href={`/app/reports/new?target_message_id=&reason=${encodeURIComponent('Off-platform pressure')}&details=${encodeURIComponent('Reporting a concern from thread ' + id)}`} className="btn danger sm">🚩 Report</Link>
+        <Link href={`/app/reports/new?target_message_id=&reason=${encodeURIComponent('Off-platform pressure')}&details=${encodeURIComponent('Reporting a concern from thread ' + id)}`} className="btn danger sm"><Icon name="🚩" size={18} /> Report</Link>
       </PageHeaderWithActions>
 
       <Toast message={sp?.message} />

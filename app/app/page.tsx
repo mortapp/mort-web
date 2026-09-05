@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import Link from 'next/link'
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, Status, XPBar, BadgeRow, MetricCard } from '@/components/ui'
@@ -71,7 +72,7 @@ export default async function Dashboard() {
       {/* Quick Actions */}
       <div className="grid three" style={{marginBottom:24}}>
         <Link className="card hoverable" href="/app/onboarding" style={{textDecoration:'none'}}>
-          <div className="card-icon-tile">🎯</div>
+          <div className="card-icon-tile"><Icon name="🎯" size={18} /></div>
           <h3>1. Onboarding</h3>
           <p style={{fontSize:'var(--text-sm)',marginTop:6}}>Choose role, city, DOB, skills, and payment preference.</p>
           <div style={{marginTop:16}}>
@@ -79,7 +80,7 @@ export default async function Dashboard() {
           </div>
         </Link>
         <Link className="card hoverable" href="/app/verify" style={{textDecoration:'none'}}>
-          <div className="card-icon-tile blue">✅</div>
+          <div className="card-icon-tile blue"><Icon name="✅" size={18} /></div>
           <h3>2. Verification</h3>
           <p style={{fontSize:'var(--text-sm)',marginTop:6}}>Teen setup, guardian invite, or adult/business verification.</p>
           <div style={{marginTop:16}}>
@@ -87,7 +88,7 @@ export default async function Dashboard() {
           </div>
         </Link>
         <Link className="card highlight hoverable" href="/app/teen/jobs" style={{textDecoration:'none'}}>
-          <div className="card-icon-tile yellow">🔍</div>
+          <div className="card-icon-tile yellow"><Icon name="🔍" size={18} /></div>
           <h3>3. Find jobs</h3>
           <p style={{fontSize:'var(--text-sm)',marginTop:6}}>Browse and apply to real local jobs once your role is ready.</p>
           <div style={{marginTop:16}}>
@@ -108,7 +109,7 @@ export default async function Dashboard() {
               { href:'/app/challenges', icon:'🏆', label:'Challenges' },
             ].map(item => (
               <Link key={item.href} href={item.href} className="quick-link">
-                <span className="quick-link-icon">{item.icon}</span>
+                <span className="quick-link-icon"><Icon name={item.icon} /></span>
                 <span style={{fontSize:'var(--text-sm)',fontWeight:600,color:'var(--muted2)'}}>{item.label}</span>
               </Link>
             ))}
@@ -127,7 +128,7 @@ export default async function Dashboard() {
               { href:'/app/verify', icon:'✅', label:'Verification' },
             ].map(item => (
               <Link key={item.href} href={item.href} className="quick-link">
-                <span className="quick-link-icon">{item.icon}</span>
+                <span className="quick-link-icon"><Icon name={item.icon} /></span>
                 <span style={{fontSize:'var(--text-sm)',fontWeight:600,color:'var(--muted2)'}}>{item.label}</span>
               </Link>
             ))}
@@ -139,7 +140,7 @@ export default async function Dashboard() {
       <div className="card info-card">
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:16}}>
           <div>
-            <h3 style={{marginBottom:6}}>🛡️ Safety center</h3>
+            <h3 style={{marginBottom:6}}><Icon name="🛡️" size={18} /> Safety center</h3>
             <p style={{fontSize:'var(--text-sm)'}}>Check in on active jobs, send safety pings, or report issues.</p>
           </div>
           <div style={{display:'flex',gap:10}}>

@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, Status, EmptyState, CategoryPill } from '@/components/ui'
 import { ProofUpload } from '@/components/proof-upload'
@@ -53,7 +54,7 @@ export default async function Active({ searchParams }: { searchParams?: Promise<
       <Toast message={sp?.message} />
       {storageIssue && (
         <div className="warning-box" style={{ marginBottom: 20 }}>
-          <strong>⚠️ Proof storage isn&apos;t fully set up</strong>
+          <strong><Icon name="⚠️" size={18} /> Proof storage isn&apos;t fully set up</strong>
           <p style={{ marginTop: 6, fontSize: 13 }}>{storageIssue} Ask your admin to finish the Supabase Storage setup in the README (bucket: <code>{PROOF_BUCKET}</code>).</p>
         </div>
       )}

@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, Status } from '@/components/ui'
 import { safetyPing } from '../teen/actions'
@@ -22,52 +23,52 @@ export default async function Safety({ searchParams }: { searchParams?: Promise<
       <Toast message={sp?.message} />
 
       <div className="emergency-disclaimer" style={{ marginBottom: 24 }}>
-        ⚠️ <strong>MORT is not a replacement for calling 911 or local emergency services.</strong> If you or someone else is in immediate danger, call emergency services first — then use MORT to alert your guardian and MORT admins.
+        <Icon name="⚠️" size={18} /> <strong>MORT is not a replacement for calling 911 or local emergency services.</strong> If you or someone else is in immediate danger, call emergency services first — then use MORT to alert your guardian and MORT admins.
       </div>
 
       {/* Big SOS + Safe buttons */}
       <div className="grid two" style={{marginBottom:24,gap:16}}>
         <div className="sos-card">
-          <div style={{fontSize:48,marginBottom:12}}>🚨</div>
+          <div style={{fontSize:48,marginBottom:12}}><Icon name="🚨" size={18} /></div>
           <h2 style={{fontSize:24,marginBottom:8,color:'var(--red)'}}>Need Help?</h2>
           <p style={{marginBottom:24,fontSize:15}}>Tap below to send an emergency ping to your guardian and MORT admin. Use this if you feel unsafe.</p>
           <form action={safetyPing}>
             <input type="hidden" name="status" value="needs_help" />
             <input type="hidden" name="note" value="SOS — I need help immediately." />
             <SubmitButton full variant="sos" size="lg" pendingLabel="Sending SOS…">
-              🚨 SOS — I NEED HELP
+              <Icon name="🚨" size={18} /> SOS — I NEED HELP
             </SubmitButton>
           </form>
         </div>
 
         <div className="safe-card">
-          <div style={{fontSize:48,marginBottom:12}}>✅</div>
+          <div style={{fontSize:48,marginBottom:12}}><Icon name="✅" size={18} /></div>
           <h2 style={{fontSize:24,marginBottom:8,color:'var(--green)'}}>I&apos;m Safe</h2>
           <p style={{marginBottom:24,fontSize:15}}>Send a safety check-in to let your guardian know everything is okay on the job.</p>
           <form action={safetyPing}>
             <input type="hidden" name="status" value="ok" />
             <input type="hidden" name="note" value="I'm safe and okay." />
             <SubmitButton full variant="safe" size="lg" pendingLabel="Checking in…">
-              ✅ I&apos;M SAFE
+              <Icon name="✅" size={18} /> I&apos;M SAFE
             </SubmitButton>
           </form>
         </div>
       </div>
 
       <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 24 }}>
-        ℹ️ Safety pings are saved instantly so guardians and admins see them the next time they open MORT. Real-time push or SMS alerts are not implemented yet — see the README for details.
+        <Icon name="ℹ️" size={18} /> Safety pings are saved instantly so guardians and admins see them the next time they open MORT. Real-time push or SMS alerts are not implemented yet — see the README for details.
       </p>
 
       {/* Custom ping form */}
       <div className="grid two" style={{marginBottom:24}}>
         <div className="card">
-          <h3 style={{marginBottom:16}}>📍 Send a custom check-in</h3>
+          <h3 style={{marginBottom:16}}><Icon name="📍" size={18} /> Send a custom check-in</h3>
           <form action={safetyPing} className="form">
             <label>
               Status
               <select name="status">
-                <option value="ok">✅ I&apos;m okay</option>
-                <option value="needs_help">🚨 I need help</option>
+                <option value="ok"> I&apos;m okay</option>
+                <option value="needs_help"> I need help</option>
               </select>
             </label>
             <label>
@@ -80,7 +81,7 @@ export default async function Safety({ searchParams }: { searchParams?: Promise<
 
         <div style={{display:'flex',flexDirection:'column',gap:16}}>
           <div className="card">
-            <h3 style={{marginBottom:12}}>🚩 What gets flagged</h3>
+            <h3 style={{marginBottom:12}}><Icon name="🚩" size={18} /> What gets flagged</h3>
             <div style={{display:'flex',flexDirection:'column',gap:8}}>
               {[
                 'Off-platform payment pressure',
@@ -98,7 +99,7 @@ export default async function Safety({ searchParams }: { searchParams?: Promise<
             </div>
           </div>
           <Link href="/app/reports/new" className="btn danger" style={{width:'100%',justifyContent:'center',padding:'14px',display:'flex'}}>
-            ⚠️ Report a safety issue
+            <Icon name="⚠️" size={18} /> Report a safety issue
           </Link>
         </div>
       </div>
@@ -108,7 +109,7 @@ export default async function Safety({ searchParams }: { searchParams?: Promise<
         <h3 style={{marginBottom:16}}>Recent safety pings</h3>
         {!pings?.length ? (
           <div style={{textAlign:'center',padding:'32px 0',color:'var(--muted)'}}>
-            <div style={{fontSize:32,marginBottom:8}}>📡</div>
+            <div style={{fontSize:32,marginBottom:8}}><Icon name="📡" size={18} /></div>
             <p>No pings sent yet. Use check-ins during every job.</p>
           </div>
         ) : (

@@ -1,6 +1,7 @@
 'use client'
 
 // Calibrated Liquid Glass: role selection remains visually distinct while setup stays clear and keyboard-friendly.
+import { Icon } from '@/components/mort/icon'
 import { useState } from 'react'
 import { saveOnboarding } from '@/app/app/actions'
 import { SubmitButton } from '@/components/submit-button'
@@ -32,13 +33,14 @@ export function OnboardingForm({ profile, next }: Props) {
               type="button"
               key={r.value}
               onClick={() => setRole(r.value)}
+              aria-pressed={role === r.value}
               className={`card hoverable ${role === r.value ? 'highlight' : ''}`}
               style={{ textAlign: 'left', cursor: 'pointer', position: 'relative' }}
             >
               {role === r.value && (
                 <span style={{ position: 'absolute', top: 14, right: 14, color: 'var(--primary)', fontSize: 16 }}>✓</span>
               )}
-              <div className="card-icon-tile">{r.icon}</div>
+              <div className="card-icon-tile"><Icon name={r.icon} /></div>
               <h3 style={{ fontSize: 15 }}>{r.title}</h3>
               <p style={{ fontSize: 12.5, marginTop: 4 }}>{r.desc}</p>
             </button>
@@ -59,7 +61,7 @@ export function OnboardingForm({ profile, next }: Props) {
 
       {role === 'teen' && (
         <div className="card highlight">
-          <h4 style={{ marginBottom: 12 }}>🔥 Teen details</h4>
+          <h4 style={{ marginBottom: 12 }}><Icon name="🔥" size={18} /> Teen details</h4>
           <div className="grid two">
             <label>Bio<textarea name="bio" placeholder="What kind of work can you do?" /></label>
             <label>Skills (comma-separated)<input name="skills" placeholder="dog walking, trash, tutoring" /></label>
@@ -73,7 +75,7 @@ export function OnboardingForm({ profile, next }: Props) {
 
       {role === 'adult' && (
         <div className="card highlight">
-          <h4 style={{ marginBottom: 12 }}>💼 Business details</h4>
+          <h4 style={{ marginBottom: 12 }}><Icon name="💼" size={18} /> Business details</h4>
           <div className="grid two">
             <label>Business name<input name="business_name" /></label>
             <label>Business type<input name="business_type" placeholder="Homeowner, lawn care, local shop" /></label>
@@ -84,7 +86,7 @@ export function OnboardingForm({ profile, next }: Props) {
 
       {role === 'guardian' && (
         <div className="card highlight">
-          <h4 style={{ marginBottom: 12 }}>🛡️ Guardian details</h4>
+          <h4 style={{ marginBottom: 12 }}><Icon name="🛡️" size={18} /> Guardian details</h4>
           <div className="grid two">
             <label>Emergency contact name<input name="emergency_contact_name" /></label>
             <label>Emergency contact phone<input name="emergency_contact_phone" /></label>

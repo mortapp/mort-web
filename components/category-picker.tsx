@@ -1,4 +1,5 @@
 'use client'
+import { Icon } from './mort/icon'
 import { useState } from 'react'
 import { categoryIcons, categoryColors } from '@/components/ui'
 
@@ -29,10 +30,11 @@ export function CategoryPicker({ name, defaultValue = 'dog walking' }: Props) {
               type="button"
               key={opt}
               onClick={() => setSelected(opt)}
+              aria-pressed={active}
               className={`category-tile ${active ? 'active' : ''}`}
               style={{ padding: '12px 8px', gap: 6, cursor: 'pointer', border: active ? undefined : undefined }}
             >
-              <div className={`category-tile-icon ${color}`} style={{ width: 36, height: 36, borderRadius: 10, fontSize: 16 }}>{icon}</div>
+              <div className={`category-tile-icon ${color}`} style={{ width: 36, height: 36, borderRadius: 10, fontSize: 16 }}><Icon name={icon} /></div>
               <span style={{ fontSize: 11, fontWeight: 650, textTransform: 'capitalize', lineHeight: 1.2 }}>{opt}</span>
             </button>
           )

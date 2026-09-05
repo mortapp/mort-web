@@ -1,4 +1,5 @@
 'use client'
+import { Icon } from './mort/icon'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 
@@ -46,11 +47,12 @@ export function SegmentedTabs({ items, activeKey }: SegmentedTabsProps) {
         <Link
           key={item.key}
           href={item.href}
+          aria-current={item.key === activeKey ? "page" : undefined}
           ref={(el) => { linkRefs.current[item.key] = el }}
           className={`segmented-tab ${item.key === activeKey ? 'active' : ''}`}
           onClick={() => measure(item.key)}
         >
-          {item.icon && <span>{item.icon}</span>}{item.label}
+          {item.icon && <span><Icon name={item.icon} /></span>}{item.label}
         </Link>
       ))}
     </div>

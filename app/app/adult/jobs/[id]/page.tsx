@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, Status, CategoryPill } from '@/components/ui'
 import { setApplicationStatus } from '../../actions'
@@ -52,7 +53,7 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
 
       {storageIssue && (
         <div className="warning-box" style={{ marginBottom: 20 }}>
-          <strong>⚠️ Proof storage note</strong>
+          <strong><Icon name="⚠️" size={18} /> Proof storage note</strong>
           <p style={{ marginTop: 6, fontSize: 13 }}>{storageIssue}</p>
         </div>
       )}
@@ -60,7 +61,7 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
       <h2 style={{ marginBottom: 16 }}>Applicants ({apps?.length || 0})</h2>
       {!apps?.length ? (
         <div className="empty-state">
-          <div className="empty-icon">👥</div>
+          <div className="empty-icon"><Icon name="👥" size={18} /></div>
           <h3>No applicants yet</h3>
           <p>Once teens apply, they&apos;ll show up here for review.</p>
         </div>

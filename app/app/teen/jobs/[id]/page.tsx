@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import Link from 'next/link'
 import { requireUser } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
@@ -15,7 +16,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
 
   if (error || !job) return (
     <div className="empty-state">
-      <div className="empty-icon">❌</div>
+      <div className="empty-icon"><Icon name="❌" size={18} /></div>
       <h3>Job not found</h3>
       <p>This job may have been removed or is no longer available.</p>
       <Link href="/app/teen/jobs" className="btn primary" style={{marginTop:16,display:'inline-flex'}}>Back to jobs</Link>
@@ -41,7 +42,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16}}>
               <CategoryPill category={job.category} />
               <Status value={job.status} />
-              {job.requires_guardian_approval && <span className="pill green">🛡️ Guardian req.</span>}
+              {job.requires_guardian_approval && <span className="pill green"><Icon name="🛡️" size={18} /> Guardian req.</span>}
             </div>
 
             <div style={{marginBottom:20}}>
@@ -83,7 +84,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
 
           {/* Safety notice */}
           <div className="card info-card">
-            <h4 style={{marginBottom:8}}>🛡️ Safety reminder</h4>
+            <h4 style={{marginBottom:8}}><Icon name="🛡️" size={18} /> Safety reminder</h4>
             <p style={{fontSize:13}}>Always check in when you arrive and when you finish. Never share personal contact info outside MORT. If anything feels wrong, use the SOS button.</p>
           </div>
         </div>
@@ -108,12 +109,12 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
             <p style={{fontSize:14,marginBottom:16}}>Not ready to apply? Save this job and come back to it.</p>
             <form action={saveJob}>
               <input type="hidden" name="job_id" value={job.id} />
-              <SubmitButton full variant="ghost" pendingLabel="Saving…">🔖 Save job</SubmitButton>
+              <SubmitButton full variant="ghost" pendingLabel="Saving…"><Icon name="🔖" size={18} /> Save job</SubmitButton>
             </form>
           </div>
 
           <div className="card">
-            <h3 style={{marginBottom:8}}>⚠️ Report this job</h3>
+            <h3 style={{marginBottom:8}}><Icon name="⚠️" size={18} /> Report this job</h3>
             <p style={{fontSize:14,marginBottom:16}}>Something seem off? Report it to our admin team.</p>
             <Link href="/app/reports/new" className="btn danger" style={{width:'100%',justifyContent:'center',display:'flex'}}>
               Report job

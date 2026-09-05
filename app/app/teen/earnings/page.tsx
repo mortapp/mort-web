@@ -1,3 +1,4 @@
+import { Icon } from '@/components/mort/icon'
 import { requireRole } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
 import { PageHeaderWithActions, Status, MetricCard } from '@/components/ui'
@@ -36,7 +37,7 @@ export default async function Earnings() {
         <h3 style={{marginBottom:16}}>Job history</h3>
         {!apps?.length ? (
           <div style={{textAlign:'center',padding:'32px 0',color:'var(--muted)'}}>
-            <div style={{fontSize:32,marginBottom:8}}>💰</div>
+            <div style={{fontSize:32,marginBottom:8}}><Icon name="💰" size={18} /></div>
             <p>No completed jobs yet. Apply to jobs to start earning.</p>
           </div>
         ) : (
@@ -68,7 +69,7 @@ export default async function Earnings() {
       </div>
 
       <div className="card info-card" style={{marginTop:16}}>
-        <h4 style={{marginBottom:8}}>💳 Payment info</h4>
+        <h4 style={{marginBottom:8}}><Icon name="💳" size={18} /> Payment info</h4>
         <p style={{fontSize:14}}>MORT records earnings but does not process payments. Adults pay via cash or Cash App after job completion. Always confirm payment method before starting a job.</p>
       </div>
     </>

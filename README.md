@@ -1,39 +1,32 @@
-# MORT Workspace → mort-web · updates
+# MORT web
 
-Everything I've changed for the "make it the real app" port, in one bundle. Files mirror your
-`mort-web` repo layout, so each drops into the matching path. Every change is verified with
-`npm run build` against your app. **No auth/routing/data-model changes** — same Supabase queries,
-same server actions. This zip grows as I add more.
+Next.js App Router application for local teen work, adult job posting, and guardian oversight. Uses the existing Supabase project and its authorization, RPC, and storage rules.
 
-## What's included
+## Local development
 
-| File → path in mort-web | What it does |
-|---|---|
-| `app/globals.css` | Full stylesheet with the **Workspace polish** layer (hover-lift, sidebar active glow, crossing-style status journey, stat entrance). Restyles the whole app. |
-| `WORKSPACE-POLISH.css` *(paste at end of `app/globals.css`)* | The **same** polish as a paste-only snippet, if you'd rather not swap the whole file. |
-| `components/onboarding-form.tsx` | Onboarding rebuilt as a short **3-step wizard** (Role → About you → Details). Same fields, same `saveOnboarding` action. |
-| `app/app/page.tsx` | Dashboard now shows **"Your active crossing"** — the teen's current job drawn as a voyage (Applied → Accepted → In progress → Completed), wired to their real accepted/in-progress application. Count-up stats were already there. |
-| `components/ui.tsx` | `StatusJourney` extended to cover the full lifecycle (`in_progress`, `proof_submitted`, `completion_pending_release`) so the crossing looks right at every stage — improves it everywhere it's used (applications pages too). Additive: no existing behavior changed. |
-| `components/sparkline.tsx` *(new)* | Tiny dependency-free SVG sparkline that draws itself on (pure CSS). Server component. |
-| `app/app/teen/earnings/page.tsx` | Earnings page now shows an **"Earnings over time"** sparkline — completed pay bucketed into the last 6 months, from the same `applications`→`jobs` query. |
+1. Install Node.js 22 or newer and run `npm ci`.
+2. Copy `.env.local.example` to `.env.local` and fill in the existing project's publishable configuration. Never use a service-role key. Set `NEXT_PUBLIC_SITE_URL` to your local URL for local testing.
+3. Run `npm run dev`.
 
-## How to apply
+## Verification
 
-Copy the files into `mort-web` at the matching paths, then commit + push (Vercel auto-deploys):
+- `npm test`: isolated input-state regression tests.
+- `npm run lint`: ESLint.
+- `npm run typecheck`: TypeScript.
+- `npm run build`: production build.
+- `npm audit`: dependency advisory check.
+- `npx playwright install chromium`, then start production with `npm run start` and run `npm run test:browser` in another terminal. Browser tests use localhost:3000. Screenshots/traces stay in ignored QA folders. They never create accounts or submit production forms.
 
-```bash
-cp -r mort-web-updates/app mort-web-updates/components ./   # into your mort-web repo root
-# For globals.css you can instead paste WORKSPACE-POLISH.css at the end of your current file.
-npm run build   # optional sanity check
-git add -A && git commit -m "Workspace port: onboarding wizard, dashboard crossing, journey lifecycle, polish" && git push
-```
+## Visual architecture
 
-## Heads-up on my base copy
-Built from my snapshot of `mort-web` (~Aug 30). `onboarding-form.tsx` and `app/app/page.tsx`
-are the intended replacements for those screens. For `globals.css` and `components/ui.tsx`, if
-you've edited them since, either eyeball the diff or send me the current `mort-web` (zip) and I'll
-rebase exactly — the `ui.tsx` change is just added `case`s in `buildJourneySteps`.
+`components/mort-atmosphere.tsx` owns lazy loading, reduced motion, pause persistence, and WebGL fallback. The global world lives in `components/mort/scene`: procedural water and terrain, a silver beacon, batched point particles, a ribbon, and a small Rapier spring/impulse simulation. The voyage mounts a separate on-demand renderer only while visible. Shared material tokens live in `app/cinematic.css`, with existing layout primitives in `app/globals.css` and reusable SVG icons in `components/mort/icon.tsx`.
 
-## Coming next (same zip, build-verified)
-⌘K command palette · profile activity heatmap + ratings · richer topbar (search) · safety
-check-in flow.
+The atmosphere is decorative. All meaningful controls and states remain in the DOM. Mouse dragging requires the primary button. Touch zones preserve vertical page scrolling. Pause and reduced motion retain a static composition.
+
+## Safety boundaries
+
+Do not weaken authentication, role checks, RLS, verification gates, storage restrictions, or deliberately disabled payment preferences. See the existing audit and deployment documents for backend limitations and closed-testing procedures. Live role-based QA requires existing test accounts; source inspection and redirect tests do not substitute for authenticated end-to-end testing.
+
+The old root-level upload copies were never imported by App Router; they were removed to eliminate duplicate source and a broken TypeScript input. Their originals remain in Git history at `283de46`.
+
+See `docs/ASTRA_3D_REVAMP_COMPLETION.md` for exact validation evidence and limitations.

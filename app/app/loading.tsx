@@ -2,7 +2,7 @@ import { SkeletonStats, SkeletonGrid, SkeletonLine } from '@/components/ui'
 
 export default function AppLoading() {
   return (
-    <>
+    <div role="status" aria-label="Loading your workspace" aria-busy="true">
       <div className="page-header">
         <div className="page-header-text">
           <SkeletonLine width={120} />
@@ -12,6 +12,6 @@ export default function AppLoading() {
       </div>
       <SkeletonStats />
       <SkeletonGrid count={6} cols="three" />
-    </>
+    </div>
   )
 }
