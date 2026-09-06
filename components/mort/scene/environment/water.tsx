@@ -27,7 +27,8 @@ const fragmentShader = `
     float silver = pow(max(0., w * .5 + fine * .25 + .18), 5.) * lane;
     float distanceToHand = length(p - uPointer);
     float ripple = sin(distanceToHand * 5. - uTime * 5.) * exp(-distanceToHand * .25) * uEnergy;
-    vec3 color = uColor + vec3(.6, .65, .7) * silver * 1.8 + vec3(.18, .24, .3) * max(0., ripple);
+    float broad = pow(max(0., sin(p.y*.8 + sin(p.x*.5+uTime*.4) - uTime*.9)), 12.) * lane;
+    vec3 color = uColor + vec3(.6, .65, .7) * silver * 1.8 + vec3(.12,.19,.24)*broad + vec3(.4, .5, .6) * max(0., ripple);
     float fog = 1. - exp(-length(vWorld - cameraPosition) * .012);
     color = mix(color, vec3(.027, .035, .045), fog);
     gl_FragColor = vec4(color, 1.);
@@ -38,7 +39,7 @@ const fragmentShader = `
 export function Water({ drag }: { drag: RefObject<DragState> }) {
   const material = useRef<ShaderMaterial>(null)
   const time = useRef(0)
-  const uniforms = useMemo(() => ({ uTime: { value: 0 }, uPointer: { value: new Vector2() }, uEnergy: { value: 0 }, uColor: { value: new Color('#080d12') } }), [])
+  const uniforms = useMemo(() => ({ uTime: { value: 0 }, uPointer: { value: new Vector2() }, uEnergy: { value: 0 }, uColor: { value: new Color('#122732') } }), [])
   useFrame((_, dt) => {
     if (!material.current) return
     time.current += Math.min(dt, .05)

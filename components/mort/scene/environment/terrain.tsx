@@ -1,25 +1,23 @@
-import { useMemo } from 'react'
-import { BufferGeometry, Float32BufferAttribute } from 'three'
-function ridge(seed: number, depth: number) {
-  const vertices: number[] = []
-  for (let i = 0; i < 160; i++) {
-    const x = i - 80
-    const height = (n: number) => 2 + Math.pow(Math.sin(n * .056 + seed), 2) * 7 + Math.sin(n * .29 + seed) * .9 + Math.cos(n * 1.13) * .32
-    vertices.push(x, -5, depth, x + 1, height(i + 1), depth, x, height(i), depth)
-    vertices.push(x, -5, depth, x + 1, -5, depth, x + 1, height(i + 1), depth)
+import { useEffect, useMemo } from 'react'
+import { PlaneGeometry } from 'three'
+import type { SceneProfile } from '../profile'
+function landscape(seed:number) {
+  const g=new PlaneGeometry(150,24,180,28)
+  g.rotateX(-Math.PI/2)
+  const p=g.attributes.position
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i),z=p.getZ(i), envelope=Math.pow(Math.max(0,1-Math.abs(z)/13),.65)
+    const h=3+Math.pow(Math.sin(x*.048+seed),2)*10+Math.sin(x*.27+z*.13)*1.2+Math.sin(x*1.04+z*.5)*.35
+    p.setY(i,h*envelope-3)
   }
-  const geometry = new BufferGeometry()
-  geometry.setAttribute('position', new Float32BufferAttribute(vertices, 3))
-  geometry.computeVertexNormals()
-  return geometry
+  g.computeVertexNormals();return g
 }
-export function Terrain() {
-  const far = useMemo(() => ridge(2, -65), [])
-  const near = useMemo(() => ridge(5, -42), [])
+export function Terrain({profile}:{profile:SceneProfile}) {
+  const geometries=useMemo(()=>[landscape(2),landscape(5),landscape(8)],[])
+  useEffect(()=>()=>geometries.forEach(g=>g.dispose()),[geometries])
   return <>
-    <mesh geometry={far}><meshBasicMaterial color="#1b242d" /></mesh>
-    <mesh geometry={near}><meshBasicMaterial color="#0d131a" /></mesh>
-    <mesh position={[14, 14, -70]}><sphereGeometry args={[3.3, 32, 32]} /><meshBasicMaterial color="#cbd0d2" /></mesh>
-    <mesh position={[14.8, 14.5, -69]}><sphereGeometry args={[3.15, 32, 32]} /><meshBasicMaterial color="#0b1119" /></mesh>
+    {geometries.map((g,i)=><mesh key={i} geometry={g} scale={[1,profile==='safety'?.5:1,1]} position={[i*5,profile==='safety'?-4:0,-90+i*22]}><meshStandardMaterial color={['#52616a','#303f48','#17252d'][i]} roughness={.96} /></mesh>)}
+    <mesh position={[profile==='safety'?-20:20,21,-105]}><sphereGeometry args={[3.6,32,24]} /><meshBasicMaterial color="#d8e0df" /></mesh>
+    <mesh position={[profile==='safety'?-19:21.1,21.6,-104]}><sphereGeometry args={[3.45,32,24]} /><meshBasicMaterial color="#40505e" /></mesh>
   </>
 }

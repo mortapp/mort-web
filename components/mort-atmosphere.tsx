@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic'
 import { Component, useEffect, useState, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { useSceneInput } from './mort/scene/input/use-scene-input'
+import { sceneProfile } from './mort/scene/profile'
 
 const World = dynamic(() => import('./mort/scene/world'), { ssr: false })
 class SceneBoundary extends Component<{ children: ReactNode; onFailure: () => void }, { failed: boolean }> {
@@ -12,7 +13,7 @@ class SceneBoundary extends Component<{ children: ReactNode; onFailure: () => vo
   render() { return this.state.failed ? null : this.props.children }
 }
 export function MortAtmosphere() {
-  const quiet = usePathname() !== '/'
+  const profile = sceneProfile(usePathname())
   const [ready, setReady] = useState(false)
   const [reduced, setReduced] = useState(true)
   const [paused, setPaused] = useState(false)
@@ -43,10 +44,10 @@ export function MortAtmosphere() {
     return !value
   })
   return <>
-    <div className={`mort-world ${quiet ? 'is-quiet' : ''}`} aria-hidden="true" data-scene-status={failed ? 'fallback' : reduced ? 'reduced' : paused ? 'paused' : 'running'}>
-      <div className="world-fallback"><div className="fallback-moon" /><div className="fallback-ridge ridge-far" /><div className="fallback-ridge ridge-near" /><div className="fallback-water" /><div className="fallback-beacon" /></div>
+    <div className={`mort-world scene-${profile}`} data-scene-profile={profile} aria-hidden="true" data-scene-status={failed ? 'fallback' : reduced ? 'reduced' : paused ? 'paused' : 'running'}>
+      <div className="world-fallback"><div className="fallback-moon" /><div className="fallback-ridge ridge-far" /><div className="fallback-ridge ridge-near" /><div className="fallback-water" /><div className="fallback-beacon" /><div className="fallback-architecture" /><div className="fallback-weather" /></div>
       {ready && !reduced && !failed && <SceneBoundary onFailure={() => setFailed(true)}>
-        <World quiet={quiet} paused={paused || hidden} drag={drag} onFailure={() => setFailed(true)} />
+        <World profile={profile} paused={paused || hidden} drag={drag} onFailure={() => setFailed(true)} />
       </SceneBoundary>}
       <div className="world-shade" />
     </div>

@@ -7,8 +7,9 @@ export function Beacon({ quiet }: { quiet: boolean }) {
   useFrame((_, delta) => {
     if (!group.current) return
     time.current += Math.min(delta, .05)
-    group.current.rotation.y = -.35 + Math.sin(time.current * .08) * .1
-    group.current.rotation.z = -.17 + Math.sin(time.current * .12) * .015
+    group.current.rotation.y = -.35 + Math.sin(time.current * .28) * .25
+    group.current.rotation.z = -.17 + Math.sin(time.current * .32) * .04
+    group.current.position.y = (quiet ? 1 : 2) + Math.sin(time.current * .65) * .15
   })
   return <group ref={group} position={[4.5, quiet ? 1 : 2, -3]} scale={quiet ? .8 : 1}>
     <mesh rotation={[.12, .15, 0]}>

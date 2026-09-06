@@ -16,7 +16,7 @@ export default function Terms() {
   return (
     <>
       <SiteHeader />
-      <main id="main-content" tabIndex={-1} className="section container" style={{ maxWidth: 780 }}>
+      <main id="main-content" tabIndex={-1} className="section container legal-reading" style={{ maxWidth: 780 }}>
         <div className="kicker">Legal — draft</div>
         <h1 style={{ marginBottom: 12 }}>Terms of Service</h1>
 

@@ -1,0 +1,56 @@
+/* Environmental chapters. Backing is local to reading areas, not the whole world. */
+.world-shade { background: linear-gradient(90deg,#050b12bf 0%,#050b1255 35%,transparent 62%),linear-gradient(0deg,#050b1240,transparent 50%); }
+.scene-home .world-shade { background: linear-gradient(90deg,#030810c9, #03081048 40%,transparent 65%); }
+.scene-safety .world-shade { background: linear-gradient(90deg,#030910cf, #03091038 48%,transparent 72%); }
+.scene-legal .world-shade { background: linear-gradient(90deg,#040a11b0,transparent 75%); }
+.scene-auth .world-shade { background: linear-gradient(90deg,#040a1180,#040a1110 55%,#040a1170); }
+.scene-app .world-shade { background: #04080bb3; }
+.chapter,.manifesto,.safety-chapter,.destination,.crossing-chapter { background: linear-gradient(90deg,#071018cf,#07101896 55%,#07101844); }
+.chapter-heading,.manifesto > h2,.principle-list,.role-editorial,.opportunity-list { text-shadow: 0 2px 20px #0009; }
+.cinema-home .chapter { min-height: 75svh; display: grid; align-content: center; }
+.cinema-home .chapter.safety-chapter { display: grid; }
+.cinema-home .chapter > * { width: 100%; }
+.cinema-home .chapter + .chapter { margin-top: 13svh; }
+.cinema-home .destination { background: linear-gradient(0deg,#061019db,transparent); }
+.hero-copy h1 { text-shadow: 0 4px 45px #0006; }
+.hero-copy > p,.hero-fine { text-shadow: 0 2px 12px #000; }
+.hero-coordinate { color: #c2d1db; }
+.auth-brand-panel { background: linear-gradient(100deg,#06101bd9,#06101b50 60%,transparent); }
+.auth-form-panel { background: linear-gradient(115deg,#07111bcd,#07111be8); backdrop-filter: blur(18px); }
+.auth-brand-note { color: #c8d6e0; }
+.auth-shell { position: relative; }
+.auth-brand-content { text-shadow: 0 2px 16px #0007; }
+.auth-brand-panel::after { content: 'A NEW CHAPTER / MORT'; display: block; color: #bcd0df; font: 9px ui-monospace,monospace; letter-spacing: .24em; position: absolute; bottom: 90px; left: 48px; }
+.app-content .card,.app-content .metric-card { background: linear-gradient(120deg,#c4e2f510,transparent 48%),#0d1723e8; }
+button.card { color: var(--text); font-family: inherit; }
+.app-content .card:focus-visible { outline-color: #d3e9ff; }
+.app-content .metric-card { border-top-color: #c4e0f04a; }
+.app-content .page-header { position: relative; }
+.app-content .page-header::before { content: ''; position: absolute; top: 0; left: -14px; width: 2px; height: 36px; background: linear-gradient(#c6dfef,transparent); }
+.app-content .form .card { border-radius: 7px; }
+/* Local legal documents share the archive atmosphere without changing their text. */
+.legal-reading { background: linear-gradient(120deg,#081421e8,#081421cc) !important; border: 0 !important; border-left: 1px solid #c4deef44 !important; padding: clamp(28px,5vw,64px) !important; margin-block: 9vh !important; backdrop-filter: blur(10px); }
+.legal-reading .card { background: none; border: 0; border-top: 1px solid #c4deef30; border-radius: 0; box-shadow: none; padding: 28px 0; }
+.legal-reading h3 { font-size: 22px; font-weight: 450; }
+.legal-reading .kicker::before { content: 'THE ARCHIVE / '; }
+.scene-safety .fallback-architecture { position: absolute; inset: 15% 5% 10% 57%; border: 18px solid #708b9b; border-bottom: 0; box-shadow: inset 2px 0 #d6ebf5, 35px -25px 0 -20px #9ab6c7; transform: perspective(400px) rotateY(-16deg); }
+.scene-safety .fallback-beacon { width: 5px; top: 43%; height: 100px; left: 77%; clip-path: none; border: 0; background: #e4f5ff; box-shadow: 0 0 55px 20px #b8d5e855; }
+.scene-legal .fallback-architecture { position: absolute; inset: 8% 5% 20% 58%; background: repeating-linear-gradient(90deg,#acd7ed66 0 2px,#638fac10 3px 70px); transform: perspective(600px) rotateY(-25deg); }
+.scene-legal .fallback-beacon,.scene-auth .fallback-beacon,.scene-app .fallback-beacon { display: none; }
+.scene-legal .fallback-weather { position: absolute; inset: 0; background: repeating-linear-gradient(100deg,transparent 0 70px,#b3d7ec30 71px,transparent 72px 120px); mask-image: linear-gradient(transparent,#000,transparent); }
+.scene-auth .fallback-architecture { position: absolute; inset: 55% 0 22%; background: repeating-linear-gradient(90deg,transparent 0 20px,#8199ad55 21px 34px,transparent 35px 52px); }
+.scene-app .world-fallback { background: radial-gradient(ellipse at 85% 65%,#263f52,#07111c 65%); }
+@media(max-width:760px){
+  .world-shade,.scene-home .world-shade,.scene-safety .world-shade { background: linear-gradient(#040b14df,#040b1488 38%,transparent 64%,#040b1455); }
+  .cinema-hero { min-height: 950px; }
+  .cinema-home .chapter { min-height: 70svh; }
+  .chapter,.manifesto,.safety-chapter,.crossing-chapter { background: linear-gradient(90deg,#071018de,#071018a0); }
+  .auth-brand-panel::after { display: none; }
+  .auth-brand-panel { background: linear-gradient(#07101abb,transparent); }
+  .auth-form-panel { background: #07111bdd; }
+  .scene-safety .fallback-architecture { inset: 50% 15% 8% 24%; border-width: 10px; }
+  .scene-safety .fallback-beacon { top: 63%; left: 58%; }
+  .scene-legal .fallback-architecture { inset: 20% 2% 15% 28%; }
+  .legal-reading { margin-inline: 16px !important; width: calc(100% - 32px); }
+}
+@media(prefers-reduced-motion:reduce){ .auth-form-panel,.legal-reading { backdrop-filter: none; } }

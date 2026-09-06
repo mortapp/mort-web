@@ -2,6 +2,7 @@
 // route (restrained inside /app); everything else inherits the design-system tokens.
 import './globals.css'
 import './cinematic.css'
+import './world-chapters.css'
 import { MortAtmosphere } from '@/components/mort-atmosphere'
 
 export const metadata = {

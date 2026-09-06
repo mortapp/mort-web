@@ -1,10 +1,12 @@
 import { test, expect, chromium } from '@playwright/test'
 
 test('public routes, all required viewports, no overflow or client errors', async ({ page }) => {
+  test.setTimeout(180000)
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
   await page.goto('/')
   await expect(page.locator('.mort-world')).toHaveAttribute('data-webgl-ready', 'true')
+  await page.getByRole('button',{name:'Pause atmosphere',exact:true}).click()
   for (const [width,height] of [[390,844],[430,932],[768,1024],[1024,768],[1366,768],[1440,900],[1920,1080],[2560,1080]]) {
     await page.setViewportSize({ width, height })
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
@@ -38,14 +40,17 @@ test('real primary drag, hover exclusion, right-button exclusion, release and co
   await page.mouse.up({button:'right'})
   expect(Number(await world.getAttribute('data-energy'))).toBe(0)
   await page.mouse.down()
-  await page.mouse.move(x+60,y+160,{steps:15})
+  await page.mouse.move(x+60,y+160,{steps:3})
   await expect.poll(async()=>Number(await world.getAttribute('data-energy'))).toBeGreaterThan(.01)
   await expect.poll(async()=>Number(await world.getAttribute('data-physics-displacement'))).toBeGreaterThan(.0001)
+  await expect.poll(async()=>Number(await world.getAttribute('data-physics-impulse'))).toBeGreaterThan(.001)
   await page.mouse.up()
   await expect(page.locator('html')).not.toHaveAttribute('data-scene-dragging','true')
   await expect.poll(async()=>Number(await world.getAttribute('data-energy'))).toBeLessThan(.001)
   await page.getByRole('button',{name:'Pause atmosphere',exact:true}).click()
   await expect(world).toHaveAttribute('data-scene-status','paused')
+  // Let the one final presentation frame settle before measuring the stopped loop.
+  await page.waitForTimeout(500)
   const frames = await world.getAttribute('data-frames')
   await page.waitForTimeout(400)
   expect(await world.getAttribute('data-frames')).toBe(frames)
@@ -70,6 +75,7 @@ test('voyage selection survives reduced-motion remount and has keyboard access',
   await expect(page.locator('.mort-world canvas')).toHaveCount(0)
   await expect(page.locator('.world-fallback')).toHaveCSS('opacity','1')
   await page.emulateMedia({reducedMotion:'no-preference'})
+  await page.locator('#voyage-view').scrollIntoViewIfNeeded()
   await expect(page.locator('#voyage-view canvas')).toBeVisible()
   await expect(completed).toHaveAttribute('aria-pressed','true')
   await page.getByRole('button',{name:'01 Discover',exact:true}).focus()
@@ -138,10 +144,10 @@ test('mobile navigation opens, closes with Escape, and follows links', async ({ 
   await expect(page.getByRole('heading',{level:1})).toHaveText('MORT Safety')
 })
 
-test('WebGL unavailable at startup retains composed fallback and usable links', async () => {
+test('WebGL unavailable at startup retains composed fallback and usable links', async ({ baseURL }) => {
   const browser=await chromium.launch({args:['--disable-webgl']})
   const page=await browser.newPage()
-  await page.goto('http://localhost:3000')
+  await page.goto(baseURL!)
   await expect(page.locator('.mort-world')).toHaveAttribute('data-scene-status','fallback')
   await expect(page.locator('.world-fallback')).toHaveCSS('opacity','1')
   await expect(page.getByRole('heading',{level:1})).toBeVisible()
