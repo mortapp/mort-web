@@ -178,6 +178,23 @@ input:focus,select:focus,textarea:focus { box-shadow: 0 0 0 3px #a6c4ed15; borde
 .auth-bullet-list { gap: 0; }
 main.section.container { margin-block: 30px; padding: 48px 28px 80px; background: #090d13ed; border: 1px solid #e2eaff1f; }
 main.section.container > h1 { font-weight: 500; font-size: clamp(34px,5vw,62px); }
+/* First-light voyage treatment: the ship and horizon remain the visual anchor while the copy reads like a logbook. */
+.voyage-hero { min-height: min(980px, calc(100svh - 60px)); }
+.voyage-hero .hero-copy { max-width: 640px; }
+.voyage-hero .hero-copy > p:not(.voyage-tag) { max-width: 48ch; color: #aebdce; }
+.voyage-wordmark { display: flex; gap: clamp(4px, 1.5vw, 18px); font-size: clamp(76px, 13vw, 168px) !important; font-weight: 200 !important; line-height: .82 !important; letter-spacing: .12em !important; margin: 30px 0 18px !important; filter: drop-shadow(0 10px 30px #0009); }
+.voyage-wordmark span { display: inline-block; color: #e8eef7; background: linear-gradient(176deg, #fff 0%, #eaf1fb 32%, #b9cbe0 68%, #7188a8 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: voyage-write 1s cubic-bezier(.16,.85,.28,1) both; }
+.voyage-wordmark span:nth-child(1) { animation-delay: .15s; }
+.voyage-wordmark span:nth-child(2) { animation-delay: .3s; }
+.voyage-wordmark span:nth-child(3) { animation-delay: .45s; }
+.voyage-wordmark span:nth-child(4) { animation-delay: .6s; }
+@keyframes voyage-write { from { opacity: 0; transform: translateY(24px) scale(.96); filter: blur(12px); } to { opacity: 1; transform: none; filter: blur(0); } }
+.voyage-tag { font-family: Georgia, serif; font-style: italic; font-size: clamp(22px, 3vw, 38px) !important; line-height: 1.2 !important; color: #eaf1fb !important; margin: 0 0 20px !important; }
+.voyage-tag em { color: #9cc0ee; }
+.voyage-hero .hero-art-zone::after { content: ''; position: absolute; inset: 18% 0 10%; background: radial-gradient(ellipse at 58% 70%, #9cc0ee18, transparent 52%), linear-gradient(180deg, transparent 0 65%, #9cc0ee12 66%, transparent 67%); pointer-events: none; animation: horizon-breathe 7s ease-in-out infinite; }
+@keyframes horizon-breathe { 0%, 100% { opacity: .45; transform: translateY(0); } 50% { opacity: .9; transform: translateY(-8px); } }
+.hero-bottom a { color: #e8eef7; }
+@media (prefers-reduced-motion: reduce) { .voyage-wordmark span, .voyage-hero .hero-art-zone::after { animation: none; } .voyage-wordmark span { opacity: 1; transform: none; filter: none; } }
 @media (min-width:1920px) { .chapter { padding-inline: max(112px,calc((100vw - 1376px)/2)); } }
 @media (max-width:1100px) {
   .cinema-hero { padding-inline: 40px; grid-template-columns: 1.3fr 1fr; }
