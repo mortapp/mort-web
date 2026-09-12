@@ -23,7 +23,7 @@ export default async function TicketDetail({ params, searchParams }: { params: P
   return (
     <>
       <PageHeaderWithActions title={ticket.subject} eyebrow={`Support · ${ticket.category}`}>
-        <Link href="/app/support" className="btn ghost sm">← My tickets</Link>
+        <Link href="/app/support" className="btn ghost sm"><span aria-hidden="true">← </span>My tickets</Link>
         <Status value={ticket.status} />
       </PageHeaderWithActions>
       <Toast message={sp?.message} />
