@@ -1,6 +1,11 @@
 import { Icon } from '@/components/mort/icon'
 import { SiteHeader } from '@/components/site-header'
 
+export const metadata = {
+  title: 'Terms of Service — MORT',
+  description: 'MORT Terms of Service: a draft under legal review covering account eligibility, marketplace rules, payments, and account actions.',
+}
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="card" style={{ marginBottom: 16 }}>

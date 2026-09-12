@@ -2,6 +2,11 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/site-header'
 import './safety.css'
 
+export const metadata = {
+  title: 'Safety — MORT',
+  description: 'How MORT keeps teens safer: adult verification, marketplace rules, safety pings, one-tap reporting, Guardian Mode, moderated messaging, and what to do if something goes wrong.',
+}
+
 const chapters = [
   { id: 'before', label: 'Before the job', title: <>Trust starts<br />with context.</>, details: [
     ['Adult verification', 'Adults and businesses submit a verification request before they can post jobs. A human admin reviews and approves or rejects every request.'],

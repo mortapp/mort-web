@@ -14,6 +14,7 @@ const roles = [
   { number: '03', title: 'Room to grow.\nA way to stay close.', role: 'FOR GUARDIANS', text: 'Connect through an invite code. Follow applications and safety check-ins, with approval controls where required.', cta: 'Be part of the journey' },
 ]
 export default async function Home() {
+  const year = new Date().getFullYear()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const { data: openJobs } = await supabase.from('jobs').select('category').eq('status', 'open')
@@ -50,6 +51,6 @@ export default async function Home() {
       </section>
       <section className="chapter destination"><span className="eyeline">YOUR NEXT CHAPTER</span><h2>Make your<br /><em>first move.</em></h2><Link className="btn primary lg" href="/signup">Get started with MORT <span aria-hidden="true"><Icon name="↗" size={18} /></span></Link><p>Earn nearby. Move smart.</p></section>
     </main>
-    <footer className="footer"><div className="container"><div className="footer-grid"><div><Link href="/" className="logo"><Logomark size={26} /><span>MORT</span></Link><p className="footer-description">Local opportunity.<br />Real experience. Your next chapter.</p></div><div><h3>Explore</h3><div className="footer-links"><Link href="#crossing">The crossing</Link><Link href="#roles">Who it’s for</Link><Link href="/safety">Safety</Link></div></div><div><h3>Legal</h3><div className="footer-links"><Link href="/legal/terms">Terms of service</Link><Link href="/legal/privacy">Privacy policy</Link></div></div><div><h3>Your account</h3><div className="footer-links"><Link href="/signup">Create account</Link><Link href="/login">Sign in</Link></div></div></div><div className="footer-bottom"><span>© 2026 MORT</span><span>Compensation is arranged off-platform.</span></div></div></footer>
+    <footer className="footer"><div className="container"><div className="footer-grid"><div><Link href="/" className="logo"><Logomark size={26} /><span>MORT</span></Link><p className="footer-description">Local opportunity.<br />Real experience. Your next chapter.</p></div><div><h3>Explore</h3><div className="footer-links"><Link href="#crossing">The crossing</Link><Link href="#roles">Who it’s for</Link><Link href="/safety">Safety</Link></div></div><div><h3>Legal</h3><div className="footer-links"><Link href="/legal/terms">Terms of service</Link><Link href="/legal/privacy">Privacy policy</Link><a href="https://legal.mortapp.org/accessibility/">Accessibility</a></div></div><div><h3>Your account</h3><div className="footer-links"><Link href="/signup">Create account</Link><Link href="/login">Sign in</Link></div></div></div><div className="footer-bottom"><span>© {year} MORT</span><span>Compensation is arranged off-platform.</span></div></div></footer>
   </>
 }

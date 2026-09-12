@@ -1,6 +1,11 @@
 import { Icon } from '@/components/mort/icon'
 import { SiteHeader } from '@/components/site-header'
 
+export const metadata = {
+  title: 'Privacy Policy — MORT',
+  description: 'MORT Privacy Policy: a draft under legal review covering what data MORT collects, how it is used, and account privacy controls.',
+}
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="card" style={{ marginBottom: 16 }}>
