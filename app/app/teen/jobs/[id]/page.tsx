@@ -30,7 +30,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
         eyebrow="Job detail"
         description={`${job.city}, ${job.state} · ${job.location_text}`}
       >
-        <Link href="/app/teen/jobs" className="btn ghost">← Back to jobs</Link>
+        <Link href="/app/teen/jobs" className="btn ghost"><span aria-hidden="true">← </span>Back to jobs</Link>
       </PageHeaderWithActions>
 
       <Toast message={sp?.message} />
