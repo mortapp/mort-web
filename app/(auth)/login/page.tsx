@@ -5,6 +5,11 @@ import { AuthShell } from '@/components/auth-shell'
 import { Toast } from '@/components/toast'
 import { SubmitButton } from '@/components/submit-button'
 
+export const metadata = {
+  title: 'Sign in — MORT',
+  description: 'Sign in to your MORT account to access your jobs, applications, earnings, and safety tools.',
+}
+
 function requestedDestination(value: string | undefined) {
   return value?.startsWith('/app/') && !value.startsWith('//') ? value : '/app'
 }
