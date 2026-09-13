@@ -31,7 +31,15 @@ section[id] { scroll-margin-top: 88px; }
 .fallback-moon { position: absolute; right: 19%; top: 17%; width: 60px; height: 60px; border-radius: 50%; box-shadow: -8px 3px 0 #b9c1ca; transform: rotate(-25deg); opacity: .6; }
 .fallback-ridge { position: absolute; inset: 38% -5% 25%; clip-path: polygon(0 85%,8% 30%,17% 66%,24% 22%,36% 76%,45% 52%,53% 88%,63% 44%,71% 56%,80% 10%,89% 65%,100% 0,100% 100%,0 100%); background: #171f29; }
 .ridge-near { top: 47%; transform: scaleX(-1); background: #0a1018; }
-.fallback-water { position: absolute; inset: 70% 0 0; background: repeating-linear-gradient(178deg,#1e293544 0 1px,transparent 2px 13px),linear-gradient(#101721,#080b10); }
+.fallback-water { position: absolute; inset: 70% 0 0; background: repeating-linear-gradient(178deg,#1e293544 0 1px,transparent 2px 13px),linear-gradient(#101721,#080b10); animation: fallback-tide 8s ease-in-out infinite; }
+.fallback-ship { position:absolute; left:53%; top:52%; width:170px; height:150px; transform:translate(-50%,-50%) rotate(-3deg); filter:drop-shadow(0 18px 18px #0009); animation: fallback-sail 6s ease-in-out infinite; }
+.fallback-hull { position:absolute; left:5px; bottom:22px; width:160px; height:30px; border-radius:0 0 75% 75%; background:linear-gradient(#a98252,#352c27 72%); clip-path:polygon(0 0,100% 0,84% 72%,68% 100%,20% 100%,7% 70%); }
+.fallback-mast { position:absolute; left:82px; bottom:42px; width:4px; height:100px; background:#9b774d; box-shadow:1px 0 #e6c68c55; }
+.fallback-sail { position:absolute; left:86px; bottom:66px; width:67px; height:74px; background:linear-gradient(120deg,#e5ded0,#847f77); clip-path:polygon(0 0,100% 16%,82% 100%,0 77%); opacity:.88; transform-origin:left bottom; animation: sail-fill 5s ease-in-out infinite; }
+.fallback-wake { position:absolute; left:-50px; bottom:28px; width:110px; height:22px; border-top:2px solid #b7d7e955; border-radius:50%; transform:rotate(-5deg); box-shadow:0 8px 0 #b7d7e933, -20px 16px 0 -7px #b7d7e933; }
+@keyframes fallback-tide { 50% { background-position:0 12px; } }
+@keyframes fallback-sail { 50% { transform:translate(-50%,-54%) rotate(1deg); } }
+@keyframes sail-fill { 50% { transform:skewY(-3deg) scaleX(.95); } }
 .fallback-beacon { position: absolute; width: clamp(130px,22vw,350px); aspect-ratio: .8; left: 64%; top: 30%; border: 2px solid #c5ccd0; transform: rotate(-13deg); clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); background: linear-gradient(115deg,transparent 44%,#bcc8d244 49%,#fff9 50%,#9dabbb55 52%,transparent 57%); }
 .atmosphere-toggle { position: fixed; bottom: 16px; right: 20px; z-index: 45; display: flex; gap: 9px; align-items: center; min-height: 36px; padding: 7px 12px; border: 1px solid #ffffff26; background: #0b0e13eb; color: #c3cad4; border-radius: 4px; font: 10px var(--font); letter-spacing: .035em; cursor: pointer; }
 [data-scene-drag] { touch-action: pan-y; cursor: grab; }
