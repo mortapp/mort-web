@@ -13,7 +13,7 @@ const roles = [
   { number: '02', title: 'Local help.\nA meaningful start.', role: 'FOR ADULTS', text: 'Post lawful, age-appropriate jobs. Review applicants, agree on the work, and help someone in your community get started.', cta: 'Bring a job to MORT' },
   { number: '03', title: 'Room to grow.\nA way to stay close.', role: 'FOR GUARDIANS', text: 'Connect through an invite code. Follow applications and safety check-ins, with approval controls where required.', cta: 'Be part of the journey' },
 ]
-export default async function Home() {
+export default async function Page() {
   const year = new Date().getFullYear()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

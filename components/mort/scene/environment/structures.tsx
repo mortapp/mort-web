@@ -15,6 +15,19 @@ function ArchiveLight(){
   useFrame((_,dt)=>{if(material.current)material.current.uniforms.uTime.value+=Math.min(dt,.05)})
   return <mesh position={[0,0,.1]}><planeGeometry args={[2.3,13]}/><shaderMaterial ref={material} transparent depthWrite={false} blending={AdditiveBlending} uniforms={{uTime:{value:0}}} vertexShader={`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`} fragmentShader={`uniform float uTime;varying vec2 vUv;void main(){float band=exp(-pow((vUv.y-fract(uTime*.12+vUv.x*.15))*12.,2.));float edge=pow(abs(vUv.x-.5)*2.,3.);gl_FragColor=vec4(.55,.8,1.,band*(.25+edge*.35));}`}/></mesh>
 }
+function Longship(){
+  const hull=useRef<Group>(null), sail=useRef<Mesh>(null), t=useRef(0)
+  useFrame((_,dt)=>{t.current+=Math.min(dt,.05); if(hull.current){ hull.current.position.y=Math.sin(t.current*1.1)*.12; hull.current.rotation.z=Math.sin(t.current*.7)*.018 } if(sail.current) sail.current.rotation.y=Math.sin(t.current*.35)*.06 })
+  return <group ref={hull} position={[1.5,-.2,-7]} rotation={[0,.08,0]}>
+    <mesh position={[0,0,0]} rotation={[0,0,Math.PI]}><capsuleGeometry args={[1.35,8,6,18]}/><meshStandardMaterial color="#172a35" metalness={.55} roughness={.32}/></mesh>
+    <mesh position={[0,.7,0]}><boxGeometry args={[6.3,.16,.7]}/><meshStandardMaterial color="#b18a55" metalness={.2} roughness={.65}/></mesh>
+    {[-2.4,-1.2,0,1.2,2.4].map(x=><mesh key={x} position={[x,.84,0]}><boxGeometry args={[.12,.18,.95]}/><meshStandardMaterial color="#d4aa6a"/></mesh>)}
+    <mesh position={[0,3.6,0]}><cylinderGeometry args={[.11,.13,6,10]}/><meshStandardMaterial color="#87643f"/></mesh>
+    <mesh ref={sail} position={[.85,3.65,0]} rotation={[0,0,-.08]}><planeGeometry args={[2.8,4.7,1,8]}/><meshStandardMaterial color="#d7d5c5" side={DoubleSide} roughness={.9}/></mesh>
+    <mesh position={[0,6.65,0]}><sphereGeometry args={[.18,12,8]}/><meshBasicMaterial color="#bfe7f5"/></mesh>
+    <mesh position={[0,.25,.92]} rotation={[0,0,0]}><boxGeometry args={[2.2,.06,.05]}/><meshBasicMaterial color="#d5ecf2" transparent opacity={.7}/></mesh>
+  </group>
+}
 export function Structures({profile}:{profile:SceneProfile}){
   const orbit=useRef<Group>(null),t=useRef(0),glow=useRef<Mesh>(null)
   useFrame((_,dt)=>{t.current+=Math.min(dt,.05);if(orbit.current)orbit.current.rotation.z=t.current*.075;if(glow.current)glow.current.scale.setScalar(1+Math.sin(t.current*.8)*.07)})
@@ -42,6 +55,7 @@ export function Structures({profile}:{profile:SceneProfile}){
     <mesh position={[.2,1+(i%5)*.7,.8]}><boxGeometry args={[.08,.25,.05]}/><meshBasicMaterial color="#afcddd"/></mesh>
   </group>)}</group>
   return <group>
+    <Longship />
     <group position={[21,4,-53]} rotation={[0,-.3,0]}>{[0,1,2].map(i=><group key={i} position={[i*4,0,-i*3]}>
       <mesh position={[0,2+i*2,0]}><cylinderGeometry args={[.35,1.1,14+i*4,6]} /><meshStandardMaterial color="#617888" metalness={.6} roughness={.4}/></mesh>
       <mesh position={[0,10+i*4,0]}><coneGeometry args={[.8,3,6]} /><meshStandardMaterial color="#bdcbd2" metalness={.7} roughness={.3}/></mesh>

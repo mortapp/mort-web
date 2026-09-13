@@ -45,7 +45,7 @@ export function MortAtmosphere() {
   })
   return <>
     <div className={`mort-world scene-${profile}`} data-scene-profile={profile} aria-hidden="true" data-scene-status={failed ? 'fallback' : reduced ? 'reduced' : paused ? 'paused' : 'running'}>
-      <div className="world-fallback"><div className="fallback-moon" /><div className="fallback-ridge ridge-far" /><div className="fallback-ridge ridge-near" /><div className="fallback-water" /><div className="fallback-beacon" /><div className="fallback-architecture" /><div className="fallback-weather" /></div>
+      <div className="world-fallback"><div className="fallback-moon" /><div className="fallback-ridge ridge-far" /><div className="fallback-ridge ridge-near" /><div className="fallback-water" /><div className="fallback-ship" aria-hidden="true"><span className="fallback-sail" /><span className="fallback-mast" /><span className="fallback-hull" /><span className="fallback-wake" /></div><div className="fallback-beacon" /><div className="fallback-architecture" /><div className="fallback-weather" /></div>
       {ready && !reduced && !failed && <SceneBoundary onFailure={() => setFailed(true)}>
         <World profile={profile} paused={paused || hidden} drag={drag} onFailure={() => setFailed(true)} />
       </SceneBoundary>}
