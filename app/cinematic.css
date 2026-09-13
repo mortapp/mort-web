@@ -201,6 +201,25 @@ main.section.container > h1 { font-weight: 500; font-size: clamp(34px,5vw,62px);
 .voyage-tag em { color: #9cc0ee; }
 .voyage-hero .hero-art-zone::after { content: ''; position: absolute; inset: 18% 0 10%; background: radial-gradient(ellipse at 58% 70%, #9cc0ee18, transparent 52%), linear-gradient(180deg, transparent 0 65%, #9cc0ee12 66%, transparent 67%); pointer-events: none; animation: horizon-breathe 7s ease-in-out infinite; }
 @keyframes horizon-breathe { 0%, 100% { opacity: .45; transform: translateY(0); } 50% { opacity: .9; transform: translateY(-8px); } }
+/* The voyage layer stays alive even when WebGL is unavailable: moonlight, swells, wake and wind all move as one sailing system. */
+.voyage-hero .hero-art-zone::before { content: ''; position: absolute; left: -10%; right: -8%; bottom: 11%; height: 38%; opacity: .75; background: repeating-linear-gradient(174deg, transparent 0 18px, #b8d8ef22 19px 20px, transparent 21px 37px), linear-gradient(180deg, transparent, #5d93b522); mask-image: linear-gradient(90deg, transparent, #000 18%, #000 78%, transparent); animation: ocean-swell 9s ease-in-out infinite; pointer-events: none; }
+.voyage-hero .hero-art-zone { isolation: isolate; }
+.voyage-hero .hero-art-zone .beacon-label { animation: beacon-drift 6s ease-in-out infinite; }
+.voyage-hero .hero-art-zone .drag-instruction { animation: tide-label 4s ease-in-out infinite; }
+@keyframes ocean-swell { 0%, 100% { transform: translate3d(-2%, 3px, 0) rotate(-.3deg); opacity: .42; } 50% { transform: translate3d(3%, -9px, 0) rotate(.4deg); opacity: .9; } }
+@keyframes beacon-drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes tide-label { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.voyage-stops { position: relative; }
+.voyage-stops::before { content: ''; position: absolute; left: 0; right: 0; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, #b9d8f088 18%, #fff 50%, #b9d8f088 82%, transparent); transform-origin: left; animation: horizon-line 8s ease-in-out infinite; }
+.voyage-stops button { overflow: hidden; transition: color .35s ease, background .35s ease, padding .35s var(--ease-settle); }
+.voyage-stops button::after { content: ''; position: absolute; left: -30%; bottom: 0; width: 55%; height: 1px; background: #d9efff; opacity: 0; transform: translateX(-100%); transition: opacity .35s, transform .6s var(--ease-settle); }
+.voyage-stops button:hover::after, .voyage-stops button[aria-pressed="true"]::after { opacity: .8; transform: translateX(170%); }
+.voyage-stops button:hover { background: linear-gradient(180deg, #b9d8f00d, #0d1118e8); color: #eef7ff; }
+.voyage-description { animation: logbook-reveal .55s var(--ease-settle) both; }
+@keyframes horizon-line { 0%, 100% { opacity: .25; transform: scaleX(.72); } 50% { opacity: 1; transform: scaleX(1); } }
+@keyframes logbook-reveal { from { opacity: .35; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.hero-bottom a span { display: inline-block; animation: compass-nudge 2.4s ease-in-out infinite; }
+@keyframes compass-nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
 .hero-bottom a { color: #e8eef7; }
 @media (prefers-reduced-motion: reduce) { .voyage-wordmark span, .voyage-hero .hero-art-zone::after { animation: none; } .voyage-wordmark span { opacity: 1; transform: none; filter: none; } }
 @media (min-width:1920px) { .chapter { padding-inline: max(112px,calc((100vw - 1376px)/2)); } }
