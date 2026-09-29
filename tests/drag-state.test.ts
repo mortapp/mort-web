@@ -34,6 +34,17 @@ test('release retains inertia then decays and cancel clears immediately', () => 
   assert.equal(state.energy, 0)
   assert.equal(state.vx, 0)
 })
+test('inertia settles after a long frame gap', () => {
+  const state = createDragState()
+  beginDrag(state, 1, 0, true, 0, 0, 0)
+  moveDrag(state, 1, 100, 0, 16)
+  const heldEnergy = state.energy
+  decayDrag(state, 2)
+  assert.equal(state.energy, heldEnergy)
+  endDrag(state)
+  decayDrag(state, 2)
+  assert.ok(state.energy < .001)
+})
 test('duplicate timestamps and extreme movement stay finite and bounded', () => {
   const state = createDragState()
   beginDrag(state, 1, 0, true, 0, 0, 0)

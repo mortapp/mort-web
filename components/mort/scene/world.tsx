@@ -50,6 +50,7 @@ function CameraRig({ profile, drag }: Pick<Props, 'profile' | 'drag'>) {
   const quiet = profile === 'app' || profile === 'auth'
   const scroll = useRef(0), frames = useRef(0)
   const time = useRef(0)
+  const wallTime = useRef<number | null>(null)
   const wasMobile = useRef<boolean | null>(null)
   useEffect(() => {
     const update = () => { scroll.current = window.scrollY / Math.max(1, window.innerHeight) }
@@ -59,7 +60,9 @@ function CameraRig({ profile, drag }: Pick<Props, 'profile' | 'drag'>) {
   useFrame(({ camera, size }, delta) => {
     const dt = Math.min(delta, .05)
     time.current += dt
-    decayDrag(drag.current, dt)
+    const now = performance.now()
+    decayDrag(drag.current, wallTime.current === null ? dt : (now - wallTime.current) / 1000)
+    wallTime.current = now
     const mobile = size.width < 760
     const targetZ = mobile ? (profile === 'safety' ? 25 : 21) : 16
     const centerX = mobile ? (profile === 'safety' ? 8 : 3.5) : 0
@@ -110,9 +113,9 @@ export default function World({ profile, paused, drag, onFailure }: Props) {
       <Lightformer position={[-5, 5, 3]} scale={[3, 9, 1]} intensity={5} />
       <Lightformer position={[5, 1, 4]} scale={[2, 8, 1]} intensity={3} />
     </Environment>
-    <Sky profile={profile} /><Terrain profile={profile} /><Water drag={drag} />
+    <Sky profile={profile} /><Terrain profile={profile} /><Water drag={drag} profile={profile} />
     <Structures profile={profile} />
-    {(profile === 'home' || profile === 'app') && <Beacon quiet={quiet} />}
+    {profile === 'app' && <Beacon quiet={quiet} />}
     <Mist profile={profile} drag={drag} /><Weather profile={profile} low={low || mobile} drag={drag} /><WindCloth profile={profile} drag={drag} />
     <Particles count={quiet ? 70 : mobile || low ? 140 : 350} drag={drag} />
     <Suspense fallback={null}><Physics gravity={[0, 0, 0]} timeStep={1 / 60} paused={paused}>

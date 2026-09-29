@@ -11,20 +11,22 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<3;i++){v+=a*noise(p);p=p*2.03+7.
 const vertex = `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`
 export function Sky({ profile }: { profile: SceneProfile }) {
   const material = useRef<ShaderMaterial>(null), t = useRef(0)
-  const uniforms = useMemo(() => ({ uTime:{value:0},uSky:{value:new Color(SCENES[profile].sky)},uHorizon:{value:new Color(SCENES[profile].horizon)} }), [profile])
+  const uniforms = useMemo(() => ({ uTime:{value:0},uSky:{value:new Color(SCENES[profile].sky)},uHorizon:{value:new Color(SCENES[profile].horizon)},uWarm:{value:profile==='home'?1:0} }), [profile])
   useFrame((_, dt) => { t.current += Math.min(dt,.05); if(material.current) material.current.uniforms.uTime.value=t.current })
   return <mesh position={[0,30,-130]}>
     <planeGeometry args={[350,180]} />
     <shaderMaterial ref={material} uniforms={uniforms} depthWrite={false} vertexShader={vertex} fragmentShader={`
-      uniform float uTime;uniform vec3 uSky,uHorizon;varying vec2 vUv;${noise}
+      uniform float uTime,uWarm;uniform vec3 uSky,uHorizon;varying vec2 vUv;${noise}
       void main(){vec2 p=vUv;float horizon=exp(-pow((p.y-.33)*5.,2.));
-      vec3 col=mix(uSky*.22,uHorizon*.72,horizon);
+      vec3 col=mix(uSky*mix(.22,.4,uWarm),uHorizon*mix(.72,1.05,uWarm),horizon);
       float cloud=fbm(vec2(p.x*7.-uTime*.022,p.y*13.+uTime*.007));
       float wisps=fbm(vec2(p.x*12.-uTime*.035,p.y*25.));
-      col=mix(col,vec3(.04,.065,.09),smoothstep(.38,.72,cloud)*.72);
-      col+=vec3(.2,.24,.28)*pow(max(0.,wisps-.38),2.)*horizon;
+      col=mix(col,mix(vec3(.04,.065,.09),vec3(.1,.12,.23),uWarm),smoothstep(.38,.72,cloud)*mix(.72,.55,uWarm));
+      col+=mix(vec3(.2,.24,.28),vec3(.55,.33,.31),uWarm)*pow(max(0.,wisps-.38),2.)*horizon;
       float beam=exp(-pow((p.x-.64-(p.y-.4)*.28)*24.,2.));
-      col+=vec3(.19,.22,.23)*beam*horizon;
+      col+=mix(vec3(.19,.22,.23),vec3(.44,.23,.16),uWarm)*beam*horizon;
+      float light=exp(-pow((p.x-.7)*8.,2.))*exp(-pow((p.y-.4)*9.,2.));
+      col+=vec3(.42,.2,.12)*light*uWarm*(.7+.3*sin(uTime*.43));
       float cycle=mod(uTime,24.);float streak=exp(-pow((p.y-.64+(p.x-.55)*.34)*500.,2.))*exp(-pow((p.x-.72+cycle*.09)*18.,2.))*smoothstep(0.,.6,cycle)*(1.-smoothstep(3.,4.,cycle));
       col+=vec3(.45,.63,.8)*streak;
       gl_FragColor=vec4(col,1.);
@@ -48,7 +50,7 @@ export function Mist({ profile, drag }: { profile: SceneProfile; drag: RefObject
   </mesh>
 }
 export function Weather({ profile, low, drag }: { profile: SceneProfile; low: boolean; drag: RefObject<DragState> }) {
-  const rain=SCENES[profile].rain, count=low?90:profile==='app'?60:260
+  const rain=SCENES[profile].rain, warm=profile==='home', count=low?90:profile==='app'?60:260
   const mesh=useRef<Points>(null),t=useRef(0)
   const seeds=useMemo(()=>Float32Array.from({length:count*3},(_,i)=>{const n=Math.sin(i*123.4+7.1)*43875.2;return n-Math.floor(n)}),[count])
   const positions=useMemo(()=>new Float32Array(count*3),[count])
@@ -62,15 +64,15 @@ export function Weather({ profile, low, drag }: { profile: SceneProfile; low: bo
   })
   return <points ref={mesh} frustumCulled={false}>
     <bufferGeometry><bufferAttribute attach="attributes-position" args={[positions,3]} /></bufferGeometry>
-    <shaderMaterial transparent depthWrite={false} blending={AdditiveBlending} uniforms={{uRain:{value:rain?1:0}}} vertexShader={`varying float vDepth;void main(){vec4 p=modelViewMatrix*vec4(position,1.);vDepth=clamp(18./-p.z,.15,1.);gl_Position=projectionMatrix*p;gl_PointSize=clamp(75./-p.z,1.,9.);}`} fragmentShader={`uniform float uRain;varying float vDepth;void main(){vec2 p=gl_PointCoord-.5;float a=uRain>.5?max(0.,1.-abs(p.x)*12.)*(1.-abs(p.y)*2.):smoothstep(.5,.05,length(p));gl_FragColor=vec4(.75,.85,.95,a*vDepth*.55);}`} />
+    <shaderMaterial transparent depthWrite={false} blending={AdditiveBlending} uniforms={{uRain:{value:rain?1:0},uWarm:{value:warm?1:0}}} vertexShader={`varying float vDepth;void main(){vec4 p=modelViewMatrix*vec4(position,1.);vDepth=clamp(18./-p.z,.15,1.);gl_Position=projectionMatrix*p;gl_PointSize=clamp(75./-p.z,1.,9.);}`} fragmentShader={`uniform float uRain,uWarm;varying float vDepth;void main(){vec2 p=gl_PointCoord-.5;float a=uRain>.5?max(0.,1.-abs(p.x)*12.)*(1.-abs(p.y)*2.):smoothstep(.5,.05,length(p));vec3 tint=mix(vec3(.75,.85,.95),vec3(1.,.72,.62),uWarm);gl_FragColor=vec4(tint,a*vDepth*mix(.55,.62,uWarm));}`} />
   </points>
 }
 export function WindCloth({ drag, profile }: { drag: RefObject<DragState>; profile: SceneProfile }) {
   const mat=useRef<ShaderMaterial>(null),t=useRef(0)
-  const uniforms=useMemo(()=>({uTime:{value:0},uForce:{value:0}}),[])
+  const uniforms=useMemo(()=>({uTime:{value:0},uForce:{value:0},uWarm:{value:profile==='home'?1:0}}),[profile])
   useFrame((_,dt)=>{t.current+=Math.min(dt,.05);if(mat.current){mat.current.uniforms.uTime.value=t.current;mat.current.uniforms.uForce.value=drag.current.energy}})
   if(profile==='legal'||profile==='auth'||profile==='app')return null
-  return <group position={[5,4,-7]} rotation={[.2,0,-.2]}>
-    <mesh><planeGeometry args={[9,.5,70,3]} /><shaderMaterial ref={mat} side={DoubleSide} uniforms={uniforms} vertexShader={`uniform float uTime,uForce;varying vec2 vUv;varying float vShade;void main(){vUv=uv;vec3 p=position;float a=(.25+uv.x*.6)*(1.+uForce*2.);p.z+=sin(p.x*1.7-uTime*2.)*a;p.y+=sin(p.x*.8-uTime*1.4)*a*.6;vShade=p.z;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}`} fragmentShader={`varying vec2 vUv;varying float vShade;void main(){vec3 c=mix(vec3(.15,.2,.25),vec3(.8,.85,.9),smoothstep(-.5,.5,vShade));gl_FragColor=vec4(c,1.);}`} /></mesh>
+  return <group position={profile==='home'?[5,9,-25]:[5,4,-7]} rotation={[.2,0,-.2]}>
+    <mesh><planeGeometry args={[9,.5,70,3]} /><shaderMaterial ref={mat} side={DoubleSide} uniforms={uniforms} vertexShader={`uniform float uTime,uForce;varying vec2 vUv;varying float vShade;void main(){vUv=uv;vec3 p=position;float a=(.25+uv.x*.6)*(1.+uForce*2.);p.z+=sin(p.x*1.7-uTime*2.)*a;p.y+=sin(p.x*.8-uTime*1.4)*a*.6;vShade=p.z;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}`} fragmentShader={`uniform float uWarm;varying vec2 vUv;varying float vShade;void main(){float fold=smoothstep(-.5,.5,vShade);vec3 cool=mix(vec3(.15,.2,.25),vec3(.8,.85,.9),fold);vec3 warm=mix(vec3(.16,.2,.29),vec3(.82,.52,.49),fold);gl_FragColor=vec4(mix(cool,warm,uWarm),1.);}`} /></mesh>
   </group>
 }

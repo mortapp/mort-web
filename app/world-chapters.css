@@ -1,6 +1,13 @@
 /* Environmental chapters. Backing is local to reading areas, not the whole world. */
 .world-shade { background: linear-gradient(90deg,#050b12bf 0%,#050b1255 35%,transparent 62%),linear-gradient(0deg,#050b1240,transparent 50%); }
 .scene-home .world-shade { background: linear-gradient(90deg,#030810c9, #03081048 40%,transparent 65%); }
+.scene-home .world-fallback { background: radial-gradient(ellipse at 70% 43%,#975a69 0%,#394768 36%,#111e35 72%,#08101d 100%); }
+.scene-home .fallback-moon { width: 74px; height: 74px; background: #ffcfaa; box-shadow: 0 0 28px 12px #e9a18570, 0 0 130px 56px #d3806545; opacity: .9; transform: none; }
+.scene-home .ridge-far { background: #504760; }
+.scene-home .ridge-near { background: #152d48; }
+.scene-home .fallback-water { background: repeating-linear-gradient(178deg,#deab7855 0 1px,transparent 2px 13px),linear-gradient(#5e4967,#192e48 75%,#0a162b); }
+.scene-home .fallback-wake { border-top-color: #ffdda7aa; box-shadow: 0 8px 0 #ffdda766, -20px 16px 0 -7px #ffdda766; }
+.scene-home .fallback-beacon { display: none; }
 .scene-safety .world-shade { background: linear-gradient(90deg,#030910cf, #03091038 48%,transparent 72%); }
 .scene-legal .world-shade { background: linear-gradient(90deg,#040a11b0,transparent 75%); }
 .scene-auth .world-shade { background: linear-gradient(90deg,#040a1180,#040a1110 55%,#040a1170); }

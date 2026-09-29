@@ -16,8 +16,8 @@ export function Terrain({profile}:{profile:SceneProfile}) {
   const geometries=useMemo(()=>[landscape(2),landscape(5),landscape(8)],[])
   useEffect(()=>()=>geometries.forEach(g=>g.dispose()),[geometries])
   return <>
-    {geometries.map((g,i)=><mesh key={i} geometry={g} scale={[1,profile==='safety'?.5:1,1]} position={[i*5,profile==='safety'?-4:0,-90+i*22]}><meshStandardMaterial color={['#52616a','#303f48','#17252d'][i]} roughness={.96} /></mesh>)}
-    <mesh position={[profile==='safety'?-20:20,21,-105]}><sphereGeometry args={[3.6,32,24]} /><meshBasicMaterial color="#d8e0df" /></mesh>
-    <mesh position={[profile==='safety'?-19:21.1,21.6,-104]}><sphereGeometry args={[3.45,32,24]} /><meshBasicMaterial color="#40505e" /></mesh>
+    {geometries.map((g,i)=><mesh key={i} geometry={g} scale={[1,profile==='safety'?.5:1,1]} position={[i*5,profile==='safety'?-4:0,-90+i*22]}><meshStandardMaterial color={(profile==='home'?['#755b79','#354767','#172b43']:['#52616a','#303f48','#17252d'])[i]} roughness={.96} /></mesh>)}
+    <mesh position={[profile==='safety'?-20:20,21,-105]}><sphereGeometry args={[3.6,32,24]} /><meshBasicMaterial color={profile==='home'?'#ffcea8':'#d8e0df'} fog={profile!=='home'} /></mesh>
+    {profile==='home'?<mesh position={[20,21,-105]}><sphereGeometry args={[5.8,32,24]}/><meshBasicMaterial color="#f9ab82" transparent opacity={.13} depthWrite={false} fog={false}/></mesh>:<mesh position={[profile==='safety'?-19:21.1,21.6,-104]}><sphereGeometry args={[3.45,32,24]} /><meshBasicMaterial color="#40505e" /></mesh>}
   </>
 }

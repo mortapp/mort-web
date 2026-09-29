@@ -24,6 +24,7 @@ export function endDrag(s: DragState, cancel = false) {
   if (cancel) { s.vx = 0; s.vy = 0; s.energy = 0 }
 }
 export function decayDrag(s: DragState, delta: number) {
-  const damping = Math.exp(-3.5 * Math.min(delta, 0.05))
+  if (s.pointerId !== null) return
+  const damping = Math.exp(-3.5 * Math.min(Math.max(delta, 0), 2))
   s.energy *= damping; s.vx *= damping; s.vy *= damping
 }

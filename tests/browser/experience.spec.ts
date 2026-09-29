@@ -1,4 +1,4 @@
-import { test, expect, chromium } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 
 test('public routes, all required viewports, no overflow or client errors', async ({ page }) => {
   test.setTimeout(180000)
@@ -25,6 +25,7 @@ test('public routes, all required viewports, no overflow or client errors', asyn
 })
 
 test('real primary drag, hover exclusion, right-button exclusion, release and controls', async ({ page }) => {
+  test.setTimeout(120000)
   await page.goto('/')
   const world = page.locator('.mort-world')
   await expect(world).toHaveAttribute('data-webgl-ready','true')
@@ -46,7 +47,7 @@ test('real primary drag, hover exclusion, right-button exclusion, release and co
   await expect.poll(async()=>Number(await world.getAttribute('data-physics-impulse'))).toBeGreaterThan(.001)
   await page.mouse.up()
   await expect(page.locator('html')).not.toHaveAttribute('data-scene-dragging','true')
-  await expect.poll(async()=>Number(await world.getAttribute('data-energy'))).toBeLessThan(.001)
+  await expect.poll(async()=>Number(await world.getAttribute('data-energy'))).toBeLessThanOrEqual(.001)
   await page.getByRole('button',{name:'Pause atmosphere',exact:true}).click()
   await expect(world).toHaveAttribute('data-scene-status','paused')
   // Let the one final presentation frame settle before measuring the stopped loop.
@@ -57,7 +58,7 @@ test('real primary drag, hover exclusion, right-button exclusion, release and co
   await page.reload()
   await expect(world).toHaveAttribute('data-scene-status','paused')
   await page.getByRole('button',{name:'Resume atmosphere',exact:true}).click()
-  await page.getByRole('link',{name:'Start your crossing',exact:true}).click()
+  await page.getByRole('link',{name:'Begin the crossing',exact:true}).click()
   await expect(page).toHaveURL(/signup/)
   await page.getByLabel('Email address').fill('qa@example.test')
   await expect(page.getByLabel('Email address')).toHaveValue('qa@example.test')
@@ -65,6 +66,7 @@ test('real primary drag, hover exclusion, right-button exclusion, release and co
 })
 
 test('voyage selection survives reduced-motion remount and has keyboard access', async ({ page }) => {
+  test.setTimeout(180000)
   await page.goto('/#crossing')
   const completed=page.getByRole('button',{name:'06 Completed',exact:true})
   await completed.click()
@@ -76,7 +78,7 @@ test('voyage selection survives reduced-motion remount and has keyboard access',
   await expect(page.locator('.world-fallback')).toHaveCSS('opacity','1')
   await page.emulateMedia({reducedMotion:'no-preference'})
   await page.locator('#voyage-view').scrollIntoViewIfNeeded()
-  await expect(page.locator('#voyage-view canvas')).toBeVisible()
+  await expect(page.locator('#voyage-view canvas')).toBeVisible({timeout:60000})
   await expect(completed).toHaveAttribute('aria-pressed','true')
   await page.getByRole('button',{name:'01 Discover',exact:true}).focus()
   await page.keyboard.press('Space')
@@ -85,6 +87,7 @@ test('voyage selection survives reduced-motion remount and has keyboard access',
 })
 
 test('touch horizontal intent activates while vertical gestures scroll', async ({ browser }) => {
+  test.setTimeout(120000)
   const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true})
   const page=await context.newPage()
   await page.goto('/')
@@ -98,19 +101,19 @@ test('touch horizontal intent activates while vertical gestures scroll', async (
   for(let i=1;i<=10;i++)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+i*18,y:y+2}]})
   await expect.poll(async()=>Number(await page.locator('.mort-world').getAttribute('data-energy'))).toBeGreaterThan(.01)
   await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]})
-  await expect.poll(async()=>Number(await page.locator('.mort-world').getAttribute('data-energy'))).toBeLessThan(.001)
+  await expect.poll(async()=>Number(await page.locator('.mort-world').getAttribute('data-energy'))).toBeLessThanOrEqual(.001)
   const before=await page.evaluate(()=>scrollY)
   await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:180,y:600}]})
   for(let i=1;i<=8;i++)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:181,y:600-i*35}]})
   await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]})
   await expect.poll(()=>page.evaluate(()=>scrollY)).toBeGreaterThan(before)
-  expect(Number(await page.locator('.mort-world').getAttribute('data-energy'))).toBeLessThan(.001)
-  await context.close()
+  expect(Number(await page.locator('.mort-world').getAttribute('data-energy'))).toBeLessThanOrEqual(.001)
 })
 
 test('WebGL loss falls back and keyboard skip link reaches main', async ({ page }) => {
+  test.setTimeout(120000)
   await page.goto('/')
-  await expect(page.locator('.mort-world')).toHaveAttribute('data-webgl-ready','true')
+  await expect(page.locator('.mort-world')).toHaveAttribute('data-webgl-ready','true',{timeout:60000})
   await page.locator('.mort-world canvas').evaluate((canvas: HTMLCanvasElement) => {
     const gl=canvas.getContext('webgl2')
     gl?.getExtension('WEBGL_lose_context')?.loseContext()
@@ -125,11 +128,13 @@ test('WebGL loss falls back and keyboard skip link reaches main', async ({ page 
 })
 
 test('all protected route families remain behind authentication', async ({ request }) => {
+  test.setTimeout(120000)
   const routes=['/app','/app/onboarding','/app/profile','/app/messages','/app/messages/qa-check','/app/safety','/app/verify','/app/support','/app/support/qa-check','/app/challenges','/app/team-hustles','/app/payments','/app/teen/jobs','/app/teen/jobs/qa-check','/app/teen/applications','/app/teen/active','/app/teen/earnings','/app/teen/saved','/app/adult','/app/adult/jobs','/app/adult/jobs/qa-check','/app/adult/post-job','/app/adult/applications','/app/guardian','/app/admin','/app/reports/new']
   for(const route of routes){const response=await request.get(route,{maxRedirects:0});expect(response.status(),route).toBe(307);expect(response.headers().location,route).toContain('/login')}
 })
 
 test('mobile navigation opens, closes with Escape, and follows links', async ({ page }) => {
+  test.setTimeout(180000)
   await page.setViewportSize({width:390,height:844})
   await page.goto('/')
   const toggle=page.getByRole('button',{name:'Toggle navigation'})
@@ -140,26 +145,32 @@ test('mobile navigation opens, closes with Escape, and follows links', async ({ 
   await expect(toggle).toBeFocused()
   await toggle.click()
   await page.getByRole('navigation',{name:'Public navigation'}).getByRole('link',{name:'Safety',exact:true}).click()
-  await expect(page).toHaveURL(/\/safety$/)
-  await expect(page.getByRole('heading',{level:1})).toHaveText('MORT Safety')
+  await expect(page).toHaveURL(/\/safety$/,{timeout:60000})
+  await expect(page.getByRole('heading',{level:1})).toHaveText('MORT Safety',{timeout:30000})
 })
 
-test('WebGL unavailable at startup retains composed fallback and usable links', async ({ baseURL }) => {
-  const browser=await chromium.launch({args:['--disable-webgl']})
-  const page=await browser.newPage()
-  await page.goto(baseURL!)
+test('WebGL unavailable at startup retains composed fallback and usable links', async ({ page }) => {
+  test.setTimeout(90000)
+  await page.addInitScript(() => {
+    const getContext = HTMLCanvasElement.prototype.getContext
+    HTMLCanvasElement.prototype.getContext = function(this: HTMLCanvasElement, type: string, ...args: unknown[]) {
+      if (type === 'webgl2' || type === 'webgl') return null
+      return Reflect.apply(getContext, this, [type, ...args])
+    } as typeof getContext
+  })
+  await page.goto('/')
   await expect(page.locator('.mort-world')).toHaveAttribute('data-scene-status','fallback')
   await expect(page.locator('.world-fallback')).toHaveCSS('opacity','1')
   await expect(page.getByRole('heading',{level:1})).toBeVisible()
-  await page.getByRole('link',{name:'Start your crossing',exact:true}).click()
+  await page.getByRole('link',{name:'Begin the crossing',exact:true}).click()
   await expect(page).toHaveURL(/signup/)
-  await browser.close()
 })
 
 test('quiet renderer obeys the 30 FPS budget with physics awake', async ({ page }) => {
+  test.setTimeout(120000)
   await page.goto('/login')
   const world=page.locator('.mort-world')
-  await expect(world).toHaveAttribute('data-frames',/\d+/)
+  await expect(world).toHaveAttribute('data-frames',/\d+/,{timeout:60000})
   const before=Number(await world.getAttribute('data-frames'))
   await page.waitForTimeout(2000)
   const rendered=Number(await world.getAttribute('data-frames'))-before

@@ -206,6 +206,12 @@ main.section.container > h1 { font-weight: 500; font-size: clamp(34px,5vw,62px);
 .voyage-hero .hero-art-zone { isolation: isolate; }
 .voyage-hero .hero-art-zone .beacon-label { animation: beacon-drift 6s ease-in-out infinite; }
 .voyage-hero .hero-art-zone .drag-instruction { animation: tide-label 4s ease-in-out infinite; }
+body:has(.mort-world[data-scene-status="paused"]) .voyage-hero *,
+body:has(.mort-world[data-scene-status="paused"]) .voyage-hero *::before,
+body:has(.mort-world[data-scene-status="paused"]) .voyage-hero *::after,
+body:has(.mort-world[data-scene-status="paused"]) .fallback-water,
+body:has(.mort-world[data-scene-status="paused"]) .fallback-ship,
+body:has(.mort-world[data-scene-status="paused"]) .fallback-sail { animation-play-state: paused !important; }
 @keyframes ocean-swell { 0%, 100% { transform: translate3d(-2%, 3px, 0) rotate(-.3deg); opacity: .42; } 50% { transform: translate3d(3%, -9px, 0) rotate(.4deg); opacity: .9; } }
 @keyframes beacon-drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
 @keyframes tide-label { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
