@@ -1,4 +1,3 @@
-import { Icon } from '@/components/mort/icon'
 import { requireRole } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
 import { PageHeaderWithActions, ApplicationCard, EmptyState, CategoryPill, StatusJourney } from '@/components/ui'
@@ -36,7 +35,7 @@ export default async function Applications({ searchParams }: { searchParams?: Pr
                 {canMessage && (
                   <form action={startThreadFromApplication} className="row-actions" style={{ marginTop: 8 }}>
                     <input type="hidden" name="application_id" value={a.id} />
-                    <button className="btn ghost sm"><Icon name="💬" size={18} /> Message</button>
+                    <button className="btn ghost sm">💬 Message</button>
                   </form>
                 )}
               </ApplicationCard>

@@ -1,5 +1,4 @@
 'use client'
-import { Icon } from '@/components/mort/icon'
 import { useEffect } from 'react'
 import Link from 'next/link'
 
@@ -9,9 +8,9 @@ export default function RootError({ error, reset }: { error: Error & { digest?: 
   }, [error])
 
   return (
-    <main id="main-content" tabIndex={-1} className="section container" style={{ textAlign: 'center' }}>
+    <main className="section container" style={{ textAlign: 'center' }}>
       <div className="empty-state" style={{ maxWidth: 480, margin: '0 auto' }}>
-        <div className="empty-icon"><Icon name="⚠️" size={18} /></div>
+        <div className="empty-icon">⚠️</div>
         <h3>Something went wrong</h3>
         <p>{error.message || 'An unexpected error occurred.'}</p>
         <div className="row-actions" style={{ marginTop: 16 }}>

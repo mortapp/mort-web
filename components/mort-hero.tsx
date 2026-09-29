@@ -1,23 +1,47 @@
 'use client'
-import { Icon } from '@/components/mort/icon'
-import Link from 'next/link'
-import { motion, useReducedMotion } from 'motion/react'
+
+// The MORT wordmark writes itself on in light, then a tagline types out beneath it.
+import { useEffect, useRef } from 'react'
+
 export function MortHero() {
-  const reduced = useReducedMotion()
-  return <section className="cinema-hero voyage-hero" aria-labelledby="hero-title">
-    <div className="hero-coordinate" aria-hidden="true">MORT / FIRST LIGHT<span>01 — LOCAL OPPORTUNITY</span></div>
-    <motion.div className="hero-copy" initial={false} animate={{ opacity: 1, y: 0 }}>
-      <div className="eyeline"><span /> LOCAL OPPORTUNITY, FOR TEENS 13–17</div>
-      <h1 id="hero-title" className="voyage-wordmark" aria-label="MORT"><span>M</span><span>O</span><span>R</span><span>T</span></h1>
-      <p className="voyage-tag">Earn nearby. <em>Move smart.</em></p>
-      <p>Real work in your own neighborhood — dog walking, yard care, tutoring — held inside a calm, guardian-watched crossing from the first message to the last handshake.</p>
-      <div className="hero-actions"><Link className="btn primary lg" href="/signup">Begin the crossing <span aria-hidden="true"><Icon name="→" size={18} /></span></Link><Link className="text-link" href="#crossing">How safety works <span aria-hidden="true">↓</span></Link></div>
-      <div className="hero-fine">A clear voyage from discovery to completion. No one crosses alone.</div>
-    </motion.div>
-    <motion.div className="hero-art-zone" data-scene-drag="true" aria-label="Decorative interactive ocean atmosphere" initial={false} animate={reduced ? {} : { opacity: [0, 1] }} transition={{ duration: 1.5 }}>
-      <span className="beacon-label">THE VOYAGE<span>There is a way forward.</span></span>
-      <span className="drag-instruction"><span aria-hidden="true"><Icon name="↔" size={18} /></span> Hold &amp; drag to move the atmosphere</span>
-    </motion.div>
-    <div className="hero-bottom"><span>MOVE WITH PURPOSE.</span><Link href="#crossing">SCROLL TO SAIL <span aria-hidden="true">↓</span></Link><span>BUILT AROUND REAL LIFE.</span></div>
-  </section>
+  const line = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    const node = line.current
+    if (!node) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      node.textContent = 'Earn nearby · Move smart'
+      return
+    }
+    const phrases = ['Earn nearby.', 'Move smart.', 'Build real experience.']
+    let pi = 0, ci = 0, deleting = false, timer: ReturnType<typeof setTimeout>
+    const tick = () => {
+      const word = phrases[pi]
+      if (!deleting) {
+        node.textContent = word.slice(0, ++ci)
+        if (ci === word.length) { deleting = true; timer = setTimeout(tick, 1500); return }
+        timer = setTimeout(tick, 60 + Math.random() * 40)
+      } else {
+        node.textContent = word.slice(0, --ci)
+        if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; timer = setTimeout(tick, 320); return }
+        timer = setTimeout(tick, 32)
+      }
+    }
+    timer = setTimeout(tick, 900)
+    return () => clearTimeout(timer)
+  }, [])
+
+  return (
+    <div className="mort-hero-brand">
+      <div className="mort-eyebrow">Local opportunity infrastructure</div>
+      <h1 className="mort-wordmark" aria-label="MORT">
+        <span className="ltr" aria-hidden="true">M</span>
+        <span className="ltr" aria-hidden="true">O</span>
+        <span className="ltr" aria-hidden="true">R</span>
+        <span className="ltr" aria-hidden="true">T</span>
+      </h1>
+      <p className="mort-typed"><span ref={line} /><span className="mort-caret" /></p>
+      <p className="lead">Find real local work, connect safely, and build experience while you earn — for teens 13–17, with the structure and accountability the informal world never had.</p>
+    </div>
+  )
 }

@@ -368,6 +368,29 @@ function buildJourneySteps(status?: string | null): JourneyStep[] {
         { label: 'Accepted', state: 'current' },
         { label: 'Completed', state: 'upcoming' },
       ]
+    case 'in_progress':
+      return [
+        { label: 'Applied', state: 'done' },
+        { label: 'Accepted', state: 'done' },
+        { label: 'In progress', state: 'current' },
+        { label: 'Completed', state: 'upcoming' },
+      ]
+    case 'proof_submitted':
+      return [
+        { label: 'Applied', state: 'done' },
+        { label: 'Accepted', state: 'done' },
+        { label: 'In progress', state: 'done' },
+        { label: 'Proof review', state: 'current' },
+        { label: 'Completed', state: 'upcoming' },
+      ]
+    case 'completion_pending_release':
+      return [
+        { label: 'Applied', state: 'done' },
+        { label: 'Accepted', state: 'done' },
+        { label: 'Proof approved', state: 'done' },
+        { label: 'Payout', state: 'current' },
+        { label: 'Completed', state: 'upcoming' },
+      ]
     case 'disputed':
       return [
         { label: 'Applied', state: 'done' },

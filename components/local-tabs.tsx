@@ -1,5 +1,4 @@
 'use client'
-import { Icon } from './mort/icon'
 import { useEffect, useRef, useState } from 'react'
 
 interface TabDef {
@@ -61,9 +60,8 @@ export function LocalTabs({ tabs }: Props) {
             ref={(el) => { btnRefs.current[tab.key] = el }}
             className={`segmented-tab ${tab.key === active ? 'active' : ''}`}
             onClick={() => setActive(tab.key)}
-            aria-pressed={tab.key === active}
           >
-            {tab.icon && <span><Icon name={tab.icon} /></span>}{tab.label}
+            {tab.icon && <span>{tab.icon}</span>}{tab.label}
             {!!tab.badge && <span className="tab-badge" style={{ marginLeft: 6 }}>{tab.badge}</span>}
           </button>
         ))}

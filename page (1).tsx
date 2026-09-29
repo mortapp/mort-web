@@ -2,6 +2,7 @@ import { requireRole } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
 import { PageHeaderWithActions, Status, MetricCard } from '@/components/ui'
 import { CountUp } from '@/components/count-up'
+import { Sparkline } from '@/components/sparkline'
 export const dynamic = 'force-dynamic'
 
 export default async function Earnings() {
@@ -17,6 +18,23 @@ export default async function Earnings() {
   const completed = (apps||[]).filter((a: any) => a.status === 'completed').length
   const active = (apps||[]).filter((a: any) => a.status === 'accepted').length
 
+  // Monthly earnings series for the sparkline — completed pay bucketed over the
+  // last 6 months (empty months included so the line has a real shape).
+  const now = new Date()
+  const months = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1)
+    return { key: `${d.getFullYear()}-${d.getMonth()}`, label: d.toLocaleString('en-US', { month: 'short' }), cents: 0 }
+  })
+  const monthIdx: Record<string, number> = {}
+  months.forEach((m, i) => { monthIdx[m.key] = i })
+  for (const a of apps || []) {
+    if (a.status !== 'completed' || !a.created_at) continue
+    const d = new Date(a.created_at)
+    const k = `${d.getFullYear()}-${d.getMonth()}`
+    if (k in monthIdx) months[monthIdx[k]].cents += (a.jobs?.pay_amount_cents || 0)
+  }
+  const series = months.map(m => Math.round(m.cents / 100))
+
   return (
     <>
       <PageHeaderWithActions
@@ -30,6 +48,19 @@ export default async function Earnings() {
         <MetricCard icon="✅" label="Completed jobs" value={<CountUp value={completed} />} />
         <MetricCard icon="⚙️" label="Active jobs" value={<CountUp value={active} />} color={active ? 'var(--warning)' : undefined} />
         <MetricCard icon="📋" label="Total tracked" value={<CountUp value={apps?.length || 0} />} />
+      </div>
+
+      <div className="card" style={{marginBottom:16}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,gap:12,flexWrap:'wrap'}}>
+          <h3>Earnings over time</h3>
+          <span className="small">last 6 months</span>
+        </div>
+        <Sparkline data={series} height={110} ariaLabel="Tracked earnings over the last 6 months" />
+        <div style={{display:'flex',justifyContent:'space-between',marginTop:8}}>
+          {months.map(m => (
+            <span key={m.key} style={{fontSize:11,fontWeight:600,color:'var(--muted)'}}>{m.label}</span>
+          ))}
+        </div>
       </div>
 
       <div className="card">

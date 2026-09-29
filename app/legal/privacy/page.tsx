@@ -1,10 +1,4 @@
-import { Icon } from '@/components/mort/icon'
 import { SiteHeader } from '@/components/site-header'
-
-export const metadata = {
-  title: 'Privacy Policy — MORT',
-  description: 'MORT Privacy Policy: a draft under legal review covering what data MORT collects, how it is used, and account privacy controls.',
-}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -21,12 +15,12 @@ export default function Privacy() {
   return (
     <>
       <SiteHeader />
-      <main id="main-content" tabIndex={-1} className="section container legal-reading" style={{ maxWidth: 780 }}>
+      <main className="section container" style={{ maxWidth: 780 }}>
         <div className="kicker">Legal — draft</div>
         <h1 style={{ marginBottom: 12 }}>Privacy Policy</h1>
 
         <div className="warning-box" style={{ marginBottom: 28 }}>
-          <strong><Icon name="⚠️" size={18} /> This is a draft, not a final legal document.</strong> MORT handles data belonging to minors and must complete a full legal and compliance review — including applicable child-privacy law — before public launch. This page does not claim COPPA or other regulatory compliance is complete.
+          <strong>⚠️ This is a draft, not a final legal document.</strong> MORT handles data belonging to minors and must complete a full legal and compliance review — including applicable child-privacy law — before public launch. This page does not claim COPPA or other regulatory compliance is complete.
         </div>
 
         <Section title="Account data">

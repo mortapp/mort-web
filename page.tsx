@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { requireUser } from '@/lib/auth'
-import { PageHeaderWithActions, Status, XPBar, BadgeRow, MetricCard } from '@/components/ui'
+import { PageHeaderWithActions, Status, XPBar, BadgeRow, MetricCard, StatusJourney } from '@/components/ui'
 import { CountUp } from '@/components/count-up'
+import { centsToDollars } from '@/lib/money'
 export const dynamic = 'force-dynamic'
 
 function getLevelInfo(xp: number) {
@@ -30,6 +31,19 @@ export default async function Dashboard() {
   const lvl = getLevelInfo(xp)
   const role = profile?.role || 'none'
 
+  // The teen's current job, drawn as a voyage — its live "crossing".
+  let activeApp: any = null
+  if (role === 'teen') {
+    const { data: act } = await supabase
+      .from('applications')
+      .select('*, jobs(*)')
+      .eq('teen_id', user.id)
+      .in('status', ['accepted', 'in_progress', 'proof_submitted', 'completion_pending_release'])
+      .order('updated_at', { ascending: false })
+      .limit(1)
+    activeApp = act?.[0] || null
+  }
+
   const allBadges = [
     { icon: '🐕', label: 'Dog Walker', earned: false },
     { icon: '🌿', label: 'Lawn Helper', earned: false },
@@ -57,6 +71,30 @@ export default async function Dashboard() {
         <MetricCard icon="📋" label="Applications" value={<CountUp value={appsCount ?? 0} />} sub={`${activeCount ?? 0} active`} />
         <MetricCard icon="⚡" label="XP points" value={<CountUp value={xp} />} sub={`Level ${lvl.level} — ${lvl.name}`} color="var(--warning)" />
       </div>
+
+      {/* Active crossing — the teen's current job drawn as a voyage */}
+      {activeApp && (
+        <div className="card highlight" style={{ marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 18 }}>
+            <div>
+              <div className="small" style={{ marginBottom: 4 }}>Your active crossing</div>
+              <h3 style={{ fontSize: 18 }}>{activeApp.jobs?.title || 'Active job'}</h3>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 6, fontSize: 13, color: 'var(--muted2)' }}>
+                <span style={{ color: 'var(--primary)', fontWeight: 700 }}>{activeApp.jobs?.pay_label || centsToDollars(activeApp.jobs?.pay_amount_cents)}</span>
+                {activeApp.jobs?.category && <span>· {activeApp.jobs.category}</span>}
+                {activeApp.jobs?.starts_at && <span>· {new Date(activeApp.jobs.starts_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>}
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+              <Status value={activeApp.status} />
+              <Link href="/app/teen/active" className="btn primary sm">Open →</Link>
+            </div>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <StatusJourney status={activeApp.status} />
+          </div>
+        </div>
+      )}
 
       {/* XP Progress */}
       <div className="card" style={{marginBottom:24}}>
