@@ -99,7 +99,6 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
               category={j.category}
               city={j.city}
               state={j.state}
-              locationText={j.location_text}
               description={j.description}
               payLabel={j.pay_label || centsToDollars(j.pay_amount_cents)}
               status={j.status}
