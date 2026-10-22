@@ -4,12 +4,14 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { RoleBadge } from '@/components/ui'
 import { Logomark } from '@/components/logomark'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 type NavItem = { href: string; icon: string; label: string; badge?: number; roles?: string[] }
 
 const navItems: NavItem[] = [
-  { href: '/app', icon: '⚡', label: 'Dashboard' },
-  { href: '/app/teen/jobs', icon: '🔍', label: 'Browse jobs', roles: ['teen','admin'] },
+  { href: '/app', icon: '⌂', label: 'Dashboard' },
+  { href: '/app/marketplace', icon: '⌕', label: 'Marketplace' },
+  { href: '/app/teen/jobs', icon: '⌕', label: 'Browse jobs', roles: ['teen','admin'] },
   { href: '/app/teen/applications', icon: '📋', label: 'Applications', roles: ['teen','admin'] },
   { href: '/app/teen/active', icon: '⚙️', label: 'Active jobs', roles: ['teen','admin'] },
   { href: '/app/teen/saved', icon: '🔖', label: 'Saved jobs', roles: ['teen','admin'] },
@@ -53,9 +55,18 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
   const xpPct = Math.min(100, (xp / lvl.next) * 100)
 
   const visibleItems = navItems.filter(item => !item.roles || item.roles.includes(role))
+  const exploreHref = role === 'teen' ? '/app/teen/jobs' : role === 'adult' ? '/app/adult/jobs' : '/app/marketplace'
+  const activityHref = role === 'teen' ? '/app/teen/applications' : role === 'adult' ? '/app/adult/applications' : role === 'guardian' ? '/app/guardian' : role === 'admin' ? '/app/admin' : '/app'
+  const mobileItems = [
+    { href: '/app/marketplace', icon: '⌂', label: 'Home' },
+    { href: exploreHref, icon: '⌕', label: 'Explore' },
+    { href: activityHref, icon: '◷', label: 'Activity' },
+    { href: '/app/messages', icon: '✉', label: 'Inbox' },
+    { href: '/app/profile', icon: '○', label: 'Profile' },
+  ]
 
   const sections: { label: string; items: NavItem[] }[] = [
-    { label: 'Main', items: visibleItems.filter(i => ['Dashboard','Browse jobs','Applications','Active jobs','Saved jobs','Earnings','Challenges','Team hustles'].includes(i.label)) },
+    { label: 'Main', items: visibleItems.filter(i => ['Dashboard','Marketplace','Browse jobs','Applications','Active jobs','Saved jobs','Earnings','Challenges','Team hustles'].includes(i.label)) },
     { label: 'Adult', items: visibleItems.filter(i => ['Adult home','Post a job','My jobs','Applicants'].includes(i.label)) },
     { label: 'Guardian', items: visibleItems.filter(i => ['Guardian'].includes(i.label)) },
     { label: 'Account', items: visibleItems.filter(i => ['Messages','Safety center','Payment prefs','Profile','Support','Report issue'].includes(i.label)) },
@@ -140,6 +151,7 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
                 {verificationStatus}
               </span>
             )}
+            <ThemeToggle className="btn ghost sm theme-toggle" />
             <Link href="/app/profile" className="btn ghost sm">👤 {displayName || 'Profile'}</Link>
           </div>
         </header>
@@ -148,6 +160,19 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
           {children}
         </main>
       </div>
+
+      {/* Five-destination mobile navigation */}
+      <nav className="mobile-bottom-nav" aria-label="Primary navigation">
+        {mobileItems.map(item => {
+          const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+          return (
+            <Link key={item.label} href={item.href} className={`mobile-bottom-nav-item ${isActive ? 'active' : ''}`} aria-current={isActive ? 'page' : undefined}>
+              <span className="mobile-bottom-nav-icon" aria-hidden="true">{item.icon}</span>
+              <span className="mobile-bottom-nav-label">{item.label}</span>
+            </Link>
+          )
+        })}
+      </nav>
 
       {/* Mobile overlay */}
       {sidebarOpen && (
