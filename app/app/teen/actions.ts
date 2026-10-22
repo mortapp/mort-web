@@ -36,10 +36,26 @@ export async function saveJob(formData: FormData) {
   const { supabase, user } = await requireRole(['teen'])
   const job_id = v(formData,'job_id')
   if (!job_id) redirectTo('/app/teen/saved', 'Missing job.')
-  let { data: folder } = await supabase.from('user_saved_job_folders').select('*').eq('user_id', user.id).eq('name','Saved').maybeSingle()
-  if (!folder) { const res = await supabase.from('user_saved_job_folders').insert({ user_id: user.id, name: 'Saved' }).select('*').single(); folder = res.data }
-  if (folder) await supabase.from('saved_job_folder_items').insert({ folder_id: folder.id, job_id })
   const destination = v(formData,'return_to') === 'marketplace' ? `/app/marketplace?job=${encodeURIComponent(job_id)}` : `/app/teen/jobs/${job_id}`
+
+  const { data: existingFolder, error: folderLookupError } = await supabase
+    .from('user_saved_job_folders').select('*').eq('user_id', user.id).eq('name','Saved').maybeSingle()
+  if (folderLookupError) redirectTo(destination, 'Could not load saved jobs. Try again.')
+
+  let folder = existingFolder
+  if (!folder) {
+    const created = await supabase.from('user_saved_job_folders')
+      .insert({ user_id: user.id, name: 'Saved' }).select('*').single()
+    if (created.error || !created.data) redirectTo(destination, 'Could not create your saved-jobs folder. Try again.')
+    folder = created.data
+  }
+
+  const { error: saveError } = await supabase.from('saved_job_folder_items').insert({ folder_id: folder.id, job_id })
+  if (saveError) {
+    if (saveError.code === '23505') redirectTo(destination, 'This job is already saved.')
+    redirectTo(destination, 'Could not save this job. Try again.')
+  }
+  revalidatePath('/app/teen/saved')
   redirectTo(destination, 'Saved job')
 }
 
