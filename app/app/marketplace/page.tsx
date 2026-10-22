@@ -3,6 +3,7 @@ import { requireUser } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
 import { applyToJob, saveJob } from '../teen/actions'
 import { SubmitButton } from '@/components/submit-button'
+import { Toast } from '@/components/toast'
 
 export const dynamic = 'force-dynamic'
 
@@ -70,6 +71,7 @@ export default async function Marketplace({ searchParams }: { searchParams?: Pro
 
   return (
     <>
+      <Toast message={sp?.message} />
       <div className="marketplace-heading">
         <div>
           <div className="page-header-eyebrow">MORT marketplace</div>
