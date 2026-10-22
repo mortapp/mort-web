@@ -1,4 +1,4 @@
-import { requireUser } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, XPBar } from '@/components/ui'
 export const dynamic = 'force-dynamic'
 
@@ -96,7 +96,7 @@ const challenges = [
 ]
 
 export default async function Challenges() {
-  const { profile } = await requireUser()
+  const { profile } = await requireRole(['teen'])
   const xp = profile?.xp_points || 0
 
   function getLevelInfo(xp: number) {
