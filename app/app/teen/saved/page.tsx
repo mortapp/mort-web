@@ -23,7 +23,6 @@ export default async function Saved() {
               category={it.jobs?.category}
               city={it.jobs?.city}
               state={it.jobs?.state}
-              locationText={it.jobs?.location_text}
               description={it.jobs?.description}
               payLabel={it.jobs?.pay_label || centsToDollars(it.jobs?.pay_amount_cents)}
               status={it.jobs?.status}
