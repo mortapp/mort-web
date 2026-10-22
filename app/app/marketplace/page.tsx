@@ -44,11 +44,11 @@ export default async function Marketplace({ searchParams }: { searchParams?: Pro
     .limit(60)
 
   if (category) {
-    const safeCategory = category.replace(/[%,()]/g, ' ').trim()
+    const safeCategory = category.replace(/[^a-zA-Z0-9\s-]/g, ' ').trim()
     if (safeCategory) jobsQuery = jobsQuery.ilike('category', `%${safeCategory}%`)
   }
   if (q) {
-    const safeQuery = q.replace(/[%,()]/g, ' ').trim()
+    const safeQuery = q.replace(/[^a-zA-Z0-9\s-]/g, ' ').trim()
     if (safeQuery) jobsQuery = jobsQuery.or(`title.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%`)
   }
 
