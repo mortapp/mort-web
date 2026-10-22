@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { requireUser } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
 import { PageHeaderWithActions, Status, CategoryPill } from '@/components/ui'
 import { applyToJob, saveJob } from '../../actions'
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export default async function JobDetail({ params, searchParams }: { params: Promise<{id:string}>, searchParams?: Promise<Record<string,string>> }) {
   const { id } = await params
   const sp = await searchParams
-  const { supabase } = await requireUser()
+  const { supabase } = await requireRole(['teen'])
   const { data: job, error } = await supabase.from('jobs').select('*').eq('id', id).maybeSingle()
 
   if (error || !job) return (
@@ -97,8 +97,10 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
               <input type="hidden" name="job_id" value={job.id} />
               <label>
                 Message to adult
-                <textarea name="note" placeholder="I can do this job. I have experience with..." style={{minHeight:120}} />
+                <textarea name="note" maxLength={500} placeholder="I can do this job. I have experience with..." style={{minHeight:120}} />
               </label>
+              <label className="marketplace-check"><input type="checkbox" name="availability_confirmed" required /> <span>I can make the listed time or will confirm the schedule before accepting.</span></label>
+              <label className="marketplace-check"><input type="checkbox" name="terms_confirmed" required /> <span>I reviewed the job details and MORT safety guidance.</span></label>
               <SubmitButton full size="lg" pendingLabel="Applying…">Apply for job</SubmitButton>
             </form>
           </div>
