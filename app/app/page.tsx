@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, Status, XPBar, BadgeRow, MetricCard } from '@/components/ui'
 import { CountUp } from '@/components/count-up'
@@ -14,6 +15,10 @@ function getLevelInfo(xp: number) {
 
 export default async function Dashboard() {
   const { supabase, user, profile } = await requireUser()
+  if (profile?.role === 'adult') redirect('/app/adult')
+  if (profile?.role === 'guardian') redirect('/app/guardian')
+  if (profile?.role === 'admin') redirect('/app/admin')
+
   const [
     { count: jobsCount },
     { count: appsCount },
