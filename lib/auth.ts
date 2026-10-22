@@ -92,8 +92,16 @@ export async function requireUser() {
 
 export async function requireRole(roles: Role[]) {
   const ctx = await requireUser()
-  if (!ctx.profile?.role || !roles.includes(ctx.profile.role)) {
-    redirect('/app/onboarding?message=Choose your MORT role first')
+  const role = ctx.profile?.role as Role | undefined
+  if (!role) redirect('/app/onboarding?message=Choose your MORT role first')
+  if (!roles.includes(role)) {
+    const workspaceByRole: Record<Role, string> = {
+      teen: '/app',
+      adult: '/app/adult',
+      guardian: '/app/guardian',
+      admin: '/app/admin',
+    }
+    redirect(workspaceByRole[role])
   }
   return ctx
 }
