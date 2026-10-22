@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { RoleBadge } from '@/components/ui'
 import { Logomark } from '@/components/logomark'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { ActiveJobControl } from '@/components/active-job-control'
 
 type NavItem = { href: string; icon: string; label: string; badge?: number; roles?: string[] }
 
@@ -38,6 +39,7 @@ interface Props {
   displayName?: string
   xp?: number
   verificationStatus?: string
+  activeJob?: { title: string; status: string }
 }
 
 function getLevelInfo(xp: number) {
@@ -48,7 +50,7 @@ function getLevelInfo(xp: number) {
   return { level: 5, name: 'MORT Elite', next: 1000 }
 }
 
-export function AppShell({ children, role = 'none', displayName, xp = 0, verificationStatus }: Props) {
+export function AppShell({ children, role = 'none', displayName, xp = 0, verificationStatus, activeJob }: Props) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const lvl = getLevelInfo(xp)
@@ -173,6 +175,8 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
           )
         })}
       </nav>
+
+      {role === 'teen' && activeJob && <ActiveJobControl title={activeJob.title} status={activeJob.status} />}
 
       {/* Mobile overlay */}
       {sidebarOpen && (
