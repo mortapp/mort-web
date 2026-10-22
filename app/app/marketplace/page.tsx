@@ -6,11 +6,10 @@ import { SubmitButton } from '@/components/submit-button'
 
 export const dynamic = 'force-dynamic'
 
-const CATEGORIES = ['All jobs', 'Quick jobs', 'Pet care', 'Outdoor', 'Tutoring', 'Cleaning', 'Errands']
+const CATEGORIES = ['All jobs', 'Pet care', 'Outdoor', 'Tutoring', 'Cleaning', 'Errands']
 
 function getCategoryFilter(label: string) {
   const filters: Record<string, string> = {
-    'Quick jobs': 'quick',
     'Pet care': 'dog walking',
     Outdoor: 'lawn care',
     Tutoring: 'tutoring',
@@ -55,7 +54,6 @@ export default async function Marketplace({ searchParams }: { searchParams?: Pro
 
   const { data: jobs, error } = await jobsQuery
   let selectedJob: any = null
-  let selectedJobError = false
 
   if (selectedId) {
     const result = await supabase
@@ -65,7 +63,6 @@ export default async function Marketplace({ searchParams }: { searchParams?: Pro
       .eq('status', 'open')
       .maybeSingle()
     selectedJob = result.data
-    selectedJobError = !!result.error
   }
 
   const closeHref = makeHref(q, category)
