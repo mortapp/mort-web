@@ -9,13 +9,18 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
   const { id } = await params
   const { supabase, user, profile } = await requireRole(['adult','admin'])
 
-  const [{ data: job }, { data: apps }] = await Promise.all([
-    supabase.from('jobs').select('*').eq('id', id).maybeSingle(),
-    supabase.from('applications').select('*, profiles(display_name, username, city, state)').eq('job_id', id).order('created_at', { ascending: false }),
-  ])
-
+  const { data: job } = await supabase.from('jobs').select('*').eq('id', id).maybeSingle()
   if (!job) return <div className="error">Job not found</div>
-  if (profile?.role !== 'admin' && job.poster_id !== user.id) return <div className="error">You can only view applicants for jobs you posted.</div>
+  if (profile?.role !== 'admin' && job.poster_id !== user.id) {
+    return <div className="error">You can only view applicants for jobs you posted.</div>
+  }
+
+  // Do not even query applicant profiles or evidence until the job owner check passes.
+  const { data: apps } = await supabase
+    .from('applications')
+    .select('*, profiles(display_name, city, state)')
+    .eq('job_id', id)
+    .order('created_at', { ascending: false })
 
   const appIds = (apps || []).map((a: any) => a.id)
   const { data: proofRows } = appIds.length
@@ -96,13 +101,22 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
                 </div>
               )}
 
-              <form action={setApplicationStatus} className="row-actions">
-                <input type="hidden" name="application_id" value={a.id} />
-                <SubmitButton name="status" value="accepted" size="sm" pendingLabel="…">Accept</SubmitButton>
-                <SubmitButton name="status" value="rejected" variant="ghost" size="sm" pendingLabel="…">Reject</SubmitButton>
-                <SubmitButton name="status" value="in_progress" variant="safe" size="sm" pendingLabel="…">Start work</SubmitButton>
-                <SubmitButton name="status" value="completed" variant="safe" size="sm" pendingLabel="…">Mark completed</SubmitButton>
-              </form>
+              {a.status === 'guardian_pending' && (
+                <div className="application-guardian-note">Waiting for required guardian approval. Review and messaging actions stay locked until approval is complete.</div>
+              )}
+              {(['submitted', 'adult_review'].includes(a.status) || a.status === 'accepted' || ['in_progress', 'proof_submitted', 'completion_pending_release'].includes(a.status)) && (
+                <form action={setApplicationStatus} className="row-actions application-card-actions">
+                  <input type="hidden" name="application_id" value={a.id} />
+                  {['submitted', 'adult_review'].includes(a.status) && (
+                    <>
+                      <SubmitButton name="status" value="accepted" size="sm" pendingLabel="…">Accept</SubmitButton>
+                      <SubmitButton name="status" value="rejected" variant="ghost" size="sm" pendingLabel="…">Decline</SubmitButton>
+                    </>
+                  )}
+                  {a.status === 'accepted' && <SubmitButton name="status" value="in_progress" variant="safe" size="sm" pendingLabel="…">Start work</SubmitButton>}
+                  {['in_progress', 'proof_submitted', 'completion_pending_release'].includes(a.status) && <SubmitButton name="status" value="completed" variant="safe" size="sm" pendingLabel="…">Mark completed</SubmitButton>}
+                </form>
+              )}
             </div>
           ))}
         </div>
