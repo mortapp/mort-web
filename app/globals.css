@@ -1250,3 +1250,39 @@ html[data-theme='light'] .auth-theme-control .theme-toggle { background: rgba(25
   .active-job-sheet { animation: none; }
   .active-job-orb { transition: none; }
 }
+
+
+/* Role-specific application dashboards */
+.application-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 4px 0 20px; }
+.application-status-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.application-filter-chip {
+  display: inline-flex; align-items: center; gap: 9px; padding: 8px 11px;
+  border: 1px solid var(--border); border-radius: var(--radius-pill); background: var(--el-1);
+  color: var(--muted2); font-size: 11px; font-weight: 700; white-space: nowrap;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.application-filter-chip:hover, .application-filter-chip.active { color: var(--text); background: var(--primary-tint-bg); border-color: rgba(112,146,214,0.42); }
+.application-filter-count { min-width: 19px; height: 19px; display: inline-grid; place-items: center; border-radius: 50%; background: var(--el-2); color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+.application-dashboard-grid { align-items: stretch; gap: 14px; }
+.application-dashboard-grid .application-card { display: flex; flex-direction: column; height: 100%; }
+.application-card-detail { margin-top: 10px; }
+.application-card-journey { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.application-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.application-guardian-note {
+  margin-top: 12px; padding: 10px 12px; border: 1px solid rgba(112,146,214,0.24);
+  border-radius: 10px; background: var(--primary-tint-bg); color: var(--muted2);
+  font-size: 11px; line-height: 1.55;
+}
+html[data-theme='light'] .application-filter-chip { background: var(--el-1); }
+html[data-theme='light'] .application-filter-chip.active { background: var(--primary-tint-bg); }
+@media (max-width: 900px) {
+  .application-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  .application-status-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; }
+  .application-filter-chip { flex-shrink: 0; }
+}
+@media (max-width: 480px) {
+  .application-summary-grid { gap: 8px; }
+  .application-dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+}
