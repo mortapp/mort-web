@@ -11,27 +11,36 @@ export async function applyToJob(formData: FormData) {
   const { supabase } = await requireRole(['teen'])
   const job_id = v(formData,'job_id')
   const note = v(formData,'note')
+  const availabilityConfirmed = formData.get('availability_confirmed') === 'on'
+  const termsConfirmed = formData.get('terms_confirmed') === 'on'
+  const returnToMarketplace = v(formData,'return_to') === 'marketplace'
   if (!job_id) redirectTo('/app/teen/jobs', 'Missing job.')
+  const detailPath = returnToMarketplace ? `/app/marketplace?job=${encodeURIComponent(job_id)}` : `/app/teen/jobs/${job_id}`
+  if (!availabilityConfirmed || !termsConfirmed) {
+    redirectTo(detailPath, 'Confirm your availability and review the safety guidance before applying.')
+  }
 
   const { data, error } = await supabase.rpc('submit_job_application', {
     p_job_id: job_id,
     p_note: note || null,
-    p_availability_confirmed: true,
+    p_availability_confirmed: availabilityConfirmed,
     p_portfolio_ids: [],
   })
-  if (error) redirectTo(`/app/teen/jobs/${job_id}`, error.message)
-  if (!data?.ok) redirectTo(`/app/teen/jobs/${job_id}`, rpcText(data, 'Application was not submitted.'))
+  if (error) redirectTo(detailPath, error.message)
+  if (!data?.ok) redirectTo(detailPath, rpcText(data, 'Application was not submitted.'))
   revalidatePath('/app/teen/applications')
   redirectTo('/app/teen/applications', data?.message || 'Application submitted')
 }
 
 export async function saveJob(formData: FormData) {
-  const { supabase, user } = await requireUser()
+  const { supabase, user } = await requireRole(['teen'])
   const job_id = v(formData,'job_id')
+  if (!job_id) redirectTo('/app/teen/saved', 'Missing job.')
   let { data: folder } = await supabase.from('user_saved_job_folders').select('*').eq('user_id', user.id).eq('name','Saved').maybeSingle()
   if (!folder) { const res = await supabase.from('user_saved_job_folders').insert({ user_id: user.id, name: 'Saved' }).select('*').single(); folder = res.data }
   if (folder) await supabase.from('saved_job_folder_items').insert({ folder_id: folder.id, job_id })
-  redirectTo(`/app/teen/jobs/${job_id}`, 'Saved job')
+  const destination = v(formData,'return_to') === 'marketplace' ? `/app/marketplace?job=${encodeURIComponent(job_id)}` : `/app/teen/jobs/${job_id}`
+  redirectTo(destination, 'Saved job')
 }
 
 export async function safetyPing(formData: FormData) {
