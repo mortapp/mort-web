@@ -1,7 +1,9 @@
+import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, EmptyState } from '@/components/ui'
 export const dynamic = 'force-dynamic'
 
-export default function TeamHustles() {
+export default async function TeamHustles() {
+  await requireRole(['teen'])
   return (
     <>
       <PageHeaderWithActions title="Team hustles" eyebrow="Groups — coming soon">
