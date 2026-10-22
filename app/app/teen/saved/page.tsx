@@ -1,10 +1,10 @@
-import { requireUser } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
 import { PageHeaderWithActions, EmptyState, JobCard } from '@/components/ui'
 export const dynamic = 'force-dynamic'
 
 export default async function Saved() {
-  const { supabase, user } = await requireUser()
+  const { supabase, user } = await requireRole(['teen'])
   const { data: folders } = await supabase.from('user_saved_job_folders').select('*, saved_job_folder_items(*, jobs(*))').eq('user_id', user.id)
   const items = (folders || []).flatMap((f: any) => f.saved_job_folder_items || [])
 
@@ -23,7 +23,6 @@ export default async function Saved() {
               category={it.jobs?.category}
               city={it.jobs?.city}
               state={it.jobs?.state}
-              locationText={it.jobs?.location_text}
               description={it.jobs?.description}
               payLabel={it.jobs?.pay_label || centsToDollars(it.jobs?.pay_amount_cents)}
               status={it.jobs?.status}

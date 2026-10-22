@@ -1,7 +1,7 @@
 'use server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { requireRole, requireUser } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 
 function v(fd: FormData, k: string){ const x=fd.get(k); return x==null?null:String(x).trim() }
 function rpcText(data: any, fallback = 'The backend rejected this request.') { return data?.message || data?.code || fallback }
@@ -11,27 +11,52 @@ export async function applyToJob(formData: FormData) {
   const { supabase } = await requireRole(['teen'])
   const job_id = v(formData,'job_id')
   const note = v(formData,'note')
+  const availabilityConfirmed = formData.get('availability_confirmed') === 'on'
+  const termsConfirmed = formData.get('terms_confirmed') === 'on'
+  const returnToMarketplace = v(formData,'return_to') === 'marketplace'
   if (!job_id) redirectTo('/app/teen/jobs', 'Missing job.')
+  const detailPath = returnToMarketplace ? `/app/marketplace?job=${encodeURIComponent(job_id)}` : `/app/teen/jobs/${job_id}`
+  if (!availabilityConfirmed || !termsConfirmed) {
+    redirectTo(detailPath, 'Confirm your availability and review the safety guidance before applying.')
+  }
 
   const { data, error } = await supabase.rpc('submit_job_application', {
     p_job_id: job_id,
     p_note: note || null,
-    p_availability_confirmed: true,
+    p_availability_confirmed: availabilityConfirmed,
     p_portfolio_ids: [],
   })
-  if (error) redirectTo(`/app/teen/jobs/${job_id}`, error.message)
-  if (!data?.ok) redirectTo(`/app/teen/jobs/${job_id}`, rpcText(data, 'Application was not submitted.'))
+  if (error) redirectTo(detailPath, error.message)
+  if (!data?.ok) redirectTo(detailPath, rpcText(data, 'Application was not submitted.'))
   revalidatePath('/app/teen/applications')
   redirectTo('/app/teen/applications', data?.message || 'Application submitted')
 }
 
 export async function saveJob(formData: FormData) {
-  const { supabase, user } = await requireUser()
+  const { supabase, user } = await requireRole(['teen'])
   const job_id = v(formData,'job_id')
-  let { data: folder } = await supabase.from('user_saved_job_folders').select('*').eq('user_id', user.id).eq('name','Saved').maybeSingle()
-  if (!folder) { const res = await supabase.from('user_saved_job_folders').insert({ user_id: user.id, name: 'Saved' }).select('*').single(); folder = res.data }
-  if (folder) await supabase.from('saved_job_folder_items').insert({ folder_id: folder.id, job_id })
-  redirectTo(`/app/teen/jobs/${job_id}`, 'Saved job')
+  if (!job_id) redirectTo('/app/teen/saved', 'Missing job.')
+  const destination = v(formData,'return_to') === 'marketplace' ? `/app/marketplace?job=${encodeURIComponent(job_id)}` : `/app/teen/jobs/${job_id}`
+
+  const { data: existingFolder, error: folderLookupError } = await supabase
+    .from('user_saved_job_folders').select('*').eq('user_id', user.id).eq('name','Saved').maybeSingle()
+  if (folderLookupError) redirectTo(destination, 'Could not load saved jobs. Try again.')
+
+  let folder = existingFolder
+  if (!folder) {
+    const created = await supabase.from('user_saved_job_folders')
+      .insert({ user_id: user.id, name: 'Saved' }).select('*').single()
+    if (created.error || !created.data) redirectTo(destination, 'Could not create your saved-jobs folder. Try again.')
+    folder = created.data
+  }
+
+  const { error: saveError } = await supabase.from('saved_job_folder_items').insert({ folder_id: folder.id, job_id })
+  if (saveError) {
+    if (saveError.code === '23505') redirectTo(destination, 'This job is already saved.')
+    redirectTo(destination, 'Could not save this job. Try again.')
+  }
+  revalidatePath('/app/teen/saved')
+  redirectTo(destination, 'Saved job')
 }
 
 export async function safetyPing(formData: FormData) {

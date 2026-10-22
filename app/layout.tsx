@@ -2,6 +2,7 @@
 // route (restrained inside /app); everything else inherits the design-system tokens.
 import './globals.css'
 import { MortAtmosphere } from '@/components/mort-atmosphere'
+import { ThemeProvider } from '@/components/theme-provider'
 
 export const metadata = {
   title: 'MORT — Earn nearby. Move smart.',
@@ -13,8 +14,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <MortAtmosphere />
-        {children}
+        <ThemeProvider>
+          <MortAtmosphere />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )
