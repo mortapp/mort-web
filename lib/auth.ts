@@ -101,7 +101,7 @@ export async function requireRole(roles: Role[]) {
       guardian: '/app/guardian',
       admin: '/app/admin',
     }
-    redirect(workspaceByRole[role])
+    redirect(workspaceByRole[role] || '/app/marketplace')
   }
   return ctx
 }
