@@ -3,6 +3,7 @@ import { saveProfile } from '@/app/app/actions'
 import { PageHeaderWithActions, Status, XPBar, BadgeRow } from '@/components/ui'
 import { Toast } from '@/components/toast'
 import { SubmitButton } from '@/components/submit-button'
+import { AppearanceCard } from '@/components/appearance-card'
 export const dynamic = 'force-dynamic'
 
 function getLevelInfo(xp: number) {
@@ -77,6 +78,7 @@ export default async function Profile({ searchParams }: { searchParams?: Promise
 
         {/* Stats & badges */}
         <div style={{display:'flex',flexDirection:'column',gap:16}}>
+          <AppearanceCard />
           <div className="card">
             <h3 style={{marginBottom:16}}>Hustle progress</h3>
             <XPBar current={xp} max={lvl.next} level={lvl.level} levelName={lvl.name} />

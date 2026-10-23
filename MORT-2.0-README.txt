@@ -1,0 +1,9 @@
+MORT 2.0 - slice 1 (theme, icons, pet companion)
+Unzip over the repo root so paths match. Based on main @ 13aa158.
+
+Changed:  package-lock.json (was out of sync, npm ci failed), app/layout.tsx,
+          app/app/profile/page.tsx, components/app-shell.tsx, components/site-header.tsx
+New:      app/mort-2-theme.css, components/icons.tsx, components/theme-toggle.tsx,
+          components/appearance-card.tsx, components/pet-companion.tsx
+
+Checked here: npm install, tsc --noEmit, next build (placeholder env). Nothing was viewed in a browser.

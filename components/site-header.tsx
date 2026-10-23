@@ -4,6 +4,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { Logomark } from '@/components/logomark'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 interface SiteHeaderProps {
   isSignedIn?: boolean
@@ -28,6 +29,7 @@ export function SiteHeader({ isSignedIn = false }: SiteHeaderProps) {
           <Link href="/#roles" onClick={close}>Roles</Link>
           <Link href="/safety" onClick={close}>Safety</Link>
           <a href="https://legal.mortapp.org" onClick={close}>Legal</a>
+          <ThemeToggle />
           {isSignedIn ? (
             <Link href="/app" className="btn sm" onClick={close}>Dashboard</Link>
           ) : (

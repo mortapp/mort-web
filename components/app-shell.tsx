@@ -4,30 +4,32 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { RoleBadge } from '@/components/ui'
 import { Logomark } from '@/components/logomark'
+import { Icon } from '@/components/icons'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 type NavItem = { href: string; icon: string; label: string; badge?: number; roles?: string[] }
 
 const navItems: NavItem[] = [
-  { href: '/app', icon: '⚡', label: 'Dashboard' },
-  { href: '/app/teen/jobs', icon: '🔍', label: 'Browse jobs', roles: ['teen','admin'] },
-  { href: '/app/teen/applications', icon: '📋', label: 'Applications', roles: ['teen','admin'] },
-  { href: '/app/teen/active', icon: '⚙️', label: 'Active jobs', roles: ['teen','admin'] },
-  { href: '/app/teen/saved', icon: '🔖', label: 'Saved jobs', roles: ['teen','admin'] },
-  { href: '/app/teen/earnings', icon: '💰', label: 'Earnings', roles: ['teen','admin'] },
-  { href: '/app/challenges', icon: '🏆', label: 'Challenges', roles: ['teen','admin'] },
-  { href: '/app/team-hustles', icon: '🤝', label: 'Team hustles', roles: ['teen','admin'] },
-  { href: '/app/adult', icon: '💼', label: 'Adult home', roles: ['adult','admin'] },
-  { href: '/app/adult/post-job', icon: '➕', label: 'Post a job', roles: ['adult','admin'] },
-  { href: '/app/adult/jobs', icon: '📁', label: 'My jobs', roles: ['adult','admin'] },
-  { href: '/app/adult/applications', icon: '👥', label: 'Applicants', roles: ['adult','admin'] },
-  { href: '/app/guardian', icon: '🛡️', label: 'Guardian', roles: ['guardian','admin'] },
-  { href: '/app/messages', icon: '💬', label: 'Messages' },
-  { href: '/app/safety', icon: '🚨', label: 'Safety center' },
-  { href: '/app/payments', icon: '💳', label: 'Payment prefs' },
-  { href: '/app/profile', icon: '👤', label: 'Profile' },
-  { href: '/app/support', icon: '🎧', label: 'Support' },
-  { href: '/app/reports/new', icon: '⚠️', label: 'Report issue' },
-  { href: '/app/admin', icon: '🔐', label: 'Admin', roles: ['admin'] },
+  { href: '/app', icon: 'dashboard', label: 'Dashboard' },
+  { href: '/app/teen/jobs', icon: 'search', label: 'Browse jobs', roles: ['teen','admin'] },
+  { href: '/app/teen/applications', icon: 'clipboard', label: 'Applications', roles: ['teen','admin'] },
+  { href: '/app/teen/active', icon: 'bolt', label: 'Active jobs', roles: ['teen','admin'] },
+  { href: '/app/teen/saved', icon: 'bookmark', label: 'Saved jobs', roles: ['teen','admin'] },
+  { href: '/app/teen/earnings', icon: 'wallet', label: 'Earnings', roles: ['teen','admin'] },
+  { href: '/app/challenges', icon: 'trophy', label: 'Challenges', roles: ['teen','admin'] },
+  { href: '/app/team-hustles', icon: 'users', label: 'Team hustles', roles: ['teen','admin'] },
+  { href: '/app/adult', icon: 'briefcase', label: 'Adult home', roles: ['adult','admin'] },
+  { href: '/app/adult/post-job', icon: 'plus', label: 'Post a job', roles: ['adult','admin'] },
+  { href: '/app/adult/jobs', icon: 'folder', label: 'My jobs', roles: ['adult','admin'] },
+  { href: '/app/adult/applications', icon: 'users', label: 'Applicants', roles: ['adult','admin'] },
+  { href: '/app/guardian', icon: 'shield', label: 'Guardian', roles: ['guardian','admin'] },
+  { href: '/app/messages', icon: 'message', label: 'Messages' },
+  { href: '/app/safety', icon: 'alert', label: 'Safety center' },
+  { href: '/app/payments', icon: 'card', label: 'Payment prefs' },
+  { href: '/app/profile', icon: 'user', label: 'Profile' },
+  { href: '/app/support', icon: 'headset', label: 'Support' },
+  { href: '/app/reports/new', icon: 'flag', label: 'Report issue' },
+  { href: '/app/admin', icon: 'lock', label: 'Admin', roles: ['admin'] },
 ]
 
 interface Props {
@@ -100,7 +102,7 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
                     className={`sidebar-link ${isActive ? 'active' : ''}`}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <span className="sidebar-link-icon">{item.icon}</span>
+                    <span className="sidebar-link-icon"><Icon name={item.icon} /></span>
                     <span>{item.label}</span>
                     {item.badge ? <span className="sidebar-link-badge">{item.badge}</span> : null}
                   </Link>
@@ -128,11 +130,11 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
             aria-label="Toggle navigation"
             data-tooltip="Menu"
           >
-            ☰
+            <Icon name="menu" />
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link href="/app/safety" className="btn danger sm">🚨 <span className="hide-mobile">Safety</span></Link>
-            <Link href="/app/messages" className="btn ghost sm">💬 <span className="hide-mobile">Messages</span></Link>
+            <Link href="/app/safety" className="btn danger sm"><Icon name="alert" /> <span className="hide-mobile">Safety</span></Link>
+            <Link href="/app/messages" className="btn ghost sm"><Icon name="message" /> <span className="hide-mobile">Messages</span></Link>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {verificationStatus && (
@@ -140,7 +142,8 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
                 {verificationStatus}
               </span>
             )}
-            <Link href="/app/profile" className="btn ghost sm">👤 {displayName || 'Profile'}</Link>
+            <ThemeToggle />
+            <Link href="/app/profile" className="btn ghost sm"><Icon name="user" /> {displayName || 'Profile'}</Link>
           </div>
         </header>
 
