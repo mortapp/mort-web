@@ -1,0 +1,112 @@
+/* MORT 2.0 theme layer. Loaded after globals.css; it only overrides design tokens,
+   so every existing component picks up the approved palette without edits.
+   Dark is the default. Light is applied with <html data-theme="light">. */
+:root, :root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0B0D11;
+  --bg-sunken: #07090C;
+  --el-1: #191D24;
+  --el-2: #20252D;
+  --el-3: #252A33;
+  --border: rgba(255,255,255,0.09);
+  --border-strong: rgba(255,255,255,0.18);
+  --text: #F4F6FA;
+  --muted: #A6AFBC;
+  --muted2: #C9D0DA;
+  --primary: #D9DEE6;
+  --primary-light: #F4F6FA;
+  --primary-dark: #B3BAC6;
+  --primary-tint-bg: rgba(112,146,214,0.14);
+  --primary-gradient: linear-gradient(180deg, #F4F6FA 0%, #D9DEE6 100%);
+  --accent-blue: #7092D6;
+  --accent-pink: #7092D6;
+  --accent-pink-tint: rgba(112,146,214,0.12);
+  --info-tint: rgba(112,146,214,0.12);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #F6F7F9;
+  --bg-sunken: #ECEEF2;
+  --el-1: #FFFFFF;
+  --el-2: #F1F3F6;
+  --el-3: #E3E6EB;
+  --border: rgba(17,21,27,0.10);
+  --border-strong: rgba(17,21,27,0.22);
+  --text: #11151B;
+  --muted: #5B6573;
+  --muted2: #3A424E;
+  --primary: #11151B;
+  --primary-light: #2A303A;
+  --primary-dark: #000000;
+  --primary-tint-bg: rgba(63,99,181,0.10);
+  --primary-gradient: linear-gradient(180deg, #2A303A 0%, #11151B 100%);
+  --accent-blue: #3F63B5;
+  --accent-pink: #3F63B5;
+  --accent-pink-tint: rgba(63,99,181,0.10);
+  --info-tint: rgba(63,99,181,0.10);
+  --success: #1B7F46;  --success-tint: rgba(27,127,70,0.10);
+  --warning: #8A5A00;  --warning-tint: rgba(138,90,0,0.10);
+  --danger: #C02A3B;   --danger-tint: rgba(192,42,59,0.10);
+  --purple: #6A45C4;   --purple-tint: rgba(106,69,196,0.10);
+  --shadow-sm: 0 1px 2px rgba(17,21,27,0.08);
+  --shadow-md: 0 8px 24px rgba(17,21,27,0.10);
+  --shadow-lg: 0 20px 56px rgba(17,21,27,0.14);
+}
+:root[data-theme="light"] .btn.primary { color: #FFFFFF; }
+:root[data-theme="light"] .btn:hover { border-color: rgba(17,21,27,0.35); }
+:root[data-theme="light"] #mort-sky,
+:root[data-theme="light"] .mort-vignette { display: none; }
+
+:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* Icons, theme toggle, appearance card */
+.mort-icon { width: 18px; height: 18px; flex: none; }
+.sidebar-link-icon .mort-icon { margin: 0 auto; }
+.theme-toggle { min-width: 40px; padding-left: 0; padding-right: 0; }
+.appearance-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
+.appearance-seg { display: flex; gap: 8px; flex-wrap: wrap; }
+.appearance-seg button[aria-pressed="true"] { background: var(--primary-gradient); color: #0B0D11; border-color: transparent; }
+:root[data-theme="light"] .appearance-seg button[aria-pressed="true"] { color: #FFFFFF; }
+
+/* Pet companion */
+#mort-pet { position: fixed; left: 0; top: 0; width: 48px; height: 38px; pointer-events: none; z-index: 50; will-change: transform; }
+#mort-pet.perch { pointer-events: auto; cursor: pointer; }
+#mort-pet[hidden], #mort-pet-bub[hidden] { display: none; }
+#mort-pet-flip { width: 48px; height: 38px; }
+#mort-pet svg { width: 48px; height: 38px; overflow: visible; transform-origin: 50% 100%; --pf: #D9DEE6; --pe: #A6AFBC; --ps: #5B6573; --ink: #0B0D11; --bl: #7092D6; --cardc: #191D24; }
+:root[data-theme="light"] #mort-pet svg { --pf: #E3E6EB; --pe: #C5CBD4; --ink: #11151B; --bl: #3F63B5; --cardc: #FFFFFF; }
+#mort-pet .tail { transform-origin: 12px 30px; animation: mp-wag 2.2s ease-in-out infinite; }
+#mort-pet .leg { transform-box: fill-box; transform-origin: 50% 0; }
+#mort-pet .ear { transform-box: fill-box; transform-origin: 50% 100%; animation: mp-twitch 6s infinite; }
+#mort-pet .dear { transform-origin: 50% 0; }
+#mort-pet .eye { transform-box: fill-box; transform-origin: center; animation: mp-blink 4.5s infinite; }
+#mort-pet .tongue { display: none; }
+#mort-pet.walk svg { animation: mp-bob .3s ease-in-out infinite alternate; }
+#mort-pet.walk .l1, #mort-pet.walk .l4 { animation: mp-step .3s ease-in-out infinite alternate; }
+#mort-pet.walk .l2, #mort-pet.walk .l3 { animation: mp-step .3s ease-in-out infinite alternate-reverse; }
+#mort-pet.walk .tail { animation-duration: .5s; }
+#mort-pet.sit .leg { transform: scaleY(.4); }
+#mort-pet.sit svg { transform: translateY(5px); }
+#mort-pet.sleep .eye { animation: none; transform: scaleY(.1); }
+#mort-pet.sleep svg { animation: mp-breathe 2.4s ease-in-out infinite; }
+#mort-pet.happy svg { animation: mp-hop .55s ease-out; }
+#mort-pet.happy .eye { animation: none; transform: scaleY(.2); }
+#mort-pet.happy .tail { animation-duration: .25s; }
+#mort-pet.happy .tongue { display: block; }
+#mort-pet.land svg { animation: mp-squash .4s ease-out; }
+#mort-pet-bub { position: fixed; left: 0; top: 0; z-index: 51; pointer-events: none; background: var(--el-1); color: var(--text); border: 1px solid var(--border-strong); border-radius: 8px; padding: 2px 8px; font-size: 12px; font-weight: 600; white-space: nowrap; opacity: 0; transition: opacity .15s; }
+#mort-pet-bub.say { opacity: 1; }
+@keyframes mp-bob { to { transform: translateY(-3px); } }
+@keyframes mp-step { from { transform: rotate(-28deg); } to { transform: rotate(28deg); } }
+@keyframes mp-wag { 50% { transform: rotate(-12deg); } }
+@keyframes mp-blink { 0%,94%,100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+@keyframes mp-twitch { 0%,90%,100% { transform: rotate(0); } 93% { transform: rotate(-12deg); } 96% { transform: rotate(6deg); } }
+@keyframes mp-hop { 35% { transform: translateY(-14px) scale(1.06); } }
+@keyframes mp-breathe { 50% { transform: translateY(5px) scale(1.04,1.07); } }
+@keyframes mp-squash { 0% { transform: scale(1.25,.7); } 60% { transform: scale(.95,1.08); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { #mort-pet *, #mort-pet svg { animation: none !important; } }
