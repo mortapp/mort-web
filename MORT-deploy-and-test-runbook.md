@@ -69,9 +69,9 @@ Then in Vercel: **Add New… → Project → Import** the repo. Vercel auto-dete
 Project → **Settings → Environment Variables**, add for Production (and Preview, if you'll test there too):
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://rakjydmgwwgtdislanbt.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://jxbnrkasktbhtiujkhay.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<your existing MORT publishable key>
-NEXT_PUBLIC_SITE_URL=https://mort-web.vercel.app
+NEXT_PUBLIC_SITE_URL=https://mortapp.org
 ```
 Do not add anything with `SERVICE_ROLE` in the name — the app never reads one, so there's nothing to gain and it would be a live secret sitting in a Next.js project for no reason.
 

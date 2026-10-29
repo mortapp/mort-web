@@ -1,0 +1,38 @@
+{
+  "sourceProjectRef": "jxbnrkasktbhtiujkhay",
+  "verifiedAt": "2026-10-29T12:20:48Z",
+  "documents": {
+    "terms": {
+      "documentKey": "master_terms_of_service",
+      "version": "MORT-LEGAL-2026-V3",
+      "status": "published",
+      "effectiveAt": "2026-10-29T01:18:15.85991Z",
+      "publishedAt": "2026-10-29T01:18:15.85991Z",
+      "contentSha256": "4de47f02c575cccaa90620336fdcaead0c8a23a9165e0b1955088b6994001273"
+    },
+    "privacy": {
+      "documentKey": "privacy_policy",
+      "version": "MORT-PRIVACY-2026-10",
+      "status": "published",
+      "effectiveAt": "2026-10-29T01:18:15.85991Z",
+      "publishedAt": "2026-10-29T01:18:15.85991Z",
+      "contentSha256": "600eaaf57b3b496fcae70ef43e59c92a82ef4361525a8aba7a524e7789f92491"
+    },
+    "safety": {
+      "documentKey": "safety_rules",
+      "version": "MORT-SAFETY-2026-10",
+      "status": "published",
+      "effectiveAt": "2026-10-29T01:18:15.85991Z",
+      "publishedAt": "2026-10-29T01:18:15.85991Z",
+      "contentSha256": "13318930ae3430fba8855581c3367a8f6e0fbe776dc9936ba442ff651e64954b"
+    },
+    "community": {
+      "documentKey": "community_guidelines",
+      "version": "MORT-COMMUNITY-2026-10",
+      "status": "published",
+      "effectiveAt": "2026-10-29T01:18:15.85991Z",
+      "publishedAt": "2026-10-29T01:18:15.85991Z",
+      "contentSha256": "1d82c9af557cac14ab98a3f00c7b8b087478ffe8fc7de8f93e51db926564b68c"
+    }
+  }
+}

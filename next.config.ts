@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import { getSupabaseOrigin } from './lib/supabase/csp-origin.mjs'
 
 // This app makes network connections to the MORT Supabase project and to
 // Google Fonts (app/globals.css imports Plus Jakarta Sans from
@@ -12,7 +13,10 @@ import type { NextConfig } from 'next'
 // would need Next's per-request nonce middleware, verified against a live
 // deploy before shipping, per the "don't deploy a CSP that breaks required
 // functionality" standard.
-const SUPABASE_ORIGIN = 'https://rakjydmgwwgtdislanbt.supabase.co'
+const SUPABASE_ORIGIN = getSupabaseOrigin(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.VERCEL_ENV,
+)
 const GOOGLE_FONTS_STYLESHEET_ORIGIN = 'https://fonts.googleapis.com'
 const GOOGLE_FONTS_FILE_ORIGIN = 'https://fonts.gstatic.com'
 const contentSecurityPolicy = [
