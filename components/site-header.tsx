@@ -28,7 +28,7 @@ export function SiteHeader({ isSignedIn = false }: SiteHeaderProps) {
           <Link href="/#how" onClick={close}>How it works</Link>
           <Link href="/#roles" onClick={close}>Roles</Link>
           <Link href="/safety" onClick={close}>Safety</Link>
-          <a href="https://legal.mortapp.org" onClick={close}>Legal</a>
+          <Link href="/legal/terms" onClick={close}>Legal</Link>
           <ThemeToggle />
           {isSignedIn ? (
             <Link href="/app" className="btn sm" onClick={close}>Dashboard</Link>

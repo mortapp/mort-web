@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { SiteHeader } from '@/components/site-header'
 
 export default function SafetyPage() {
@@ -38,7 +39,7 @@ export default function SafetyPage() {
           </div>
           <div className="card danger-card">
             <h3>Legal &amp; safety limitations (please read)</h3>
-            <p>MORT is an MVP built for teens 13+. It has not yet completed formal legal review, background-check integration, or a 24/7 human moderation team. Treat every job with the same caution you&apos;d use meeting anyone new — bring a friend, meet in public/visible locations, and tell a trusted adult where you&apos;re going.</p>
+            <p>The MORT legal documents have been reviewed and published. Our Safety Rules explain the safeguards and boundaries that apply to Tasks, including Guardian approval for each Task at a private residence and a second adult other than the Poster being present throughout work inside a residence. These rules reduce risk but do not guarantee safety. MORT does not provide 24/7 emergency response, and you should call 911 for immediate danger.</p><p><Link href="/legal/safety">Read the published Safety Rules</Link></p>
           </div>
         </div>
       </main>
