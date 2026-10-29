@@ -34,16 +34,16 @@ Create or use a Google OAuth Web application client.
 Authorized JavaScript origins:
 
 ```text
-https://mort-web.vercel.app
+https://mortapp.org
 ```
 
 Authorized redirect URI:
 
 ```text
-https://rakjydmgwwgtdislanbt.supabase.co/auth/v1/callback
+https://jxbnrkasktbhtiujkhay.supabase.co/auth/v1/callback
 ```
 
-When you add a custom domain later, add that origin too.
+The production website currently uses `https://mortapp.org` and `https://www.mortapp.org`; keep the callback and redirect allowlists aligned with those live domains.
 
 ### 2. Supabase
 

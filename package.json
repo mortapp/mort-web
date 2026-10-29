@@ -5,9 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "prebuild": "npm run test:production-config && npm run verify:legal",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:production-config": "node --test scripts/csp-origin.test.mjs scripts/legal-publication.test.mjs",
+    "verify:legal": "node scripts/verify-legal-publication.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.0",

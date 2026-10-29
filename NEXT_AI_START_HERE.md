@@ -12,8 +12,8 @@ Read these files first, in order:
 
 Current status:
 
-- The web app is intended for closed testing only, not public launch.
-- Use the existing MORT Supabase project: `rakjydmgwwgtdislanbt`.
+- The public website is in production; do not describe it as closed-testing-only.
+- Use the production MORT Supabase project: `jxbnrkasktbhtiujkhay`.
 - Do not create a new Supabase project.
 - Do not add a Supabase service-role key to Vercel or frontend code.
 - Do not loosen RLS.
