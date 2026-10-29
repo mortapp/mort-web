@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { ReactNode } from 'react'
+import { SiteHeader } from '@/components/site-header'
 
 type LegalDocument = {
   documentKey: string
@@ -10,10 +10,10 @@ type LegalDocument = {
 }
 
 const documentLinks = [
-  { href: '/legal/terms', label: 'Master Terms' },
-  { href: '/legal/privacy', label: 'Privacy Policy' },
-  { href: '/legal/safety', label: 'Safety Rules' },
-  { href: '/legal/community', label: 'Community Guidelines' },
+  { href: '/legal/terms', label: 'Master Terms', key: 'master_terms_of_service' },
+  { href: '/legal/privacy', label: 'Privacy Policy', key: 'privacy_policy' },
+  { href: '/legal/safety', label: 'Safety Rules', key: 'safety_rules' },
+  { href: '/legal/community', label: 'Community Guidelines', key: 'community_guidelines' },
 ]
 
 function escapeHtml(value: string) {
@@ -143,7 +143,7 @@ export function LegalDocumentPage({ document }: { document: LegalDocument }) {
         <p className="lead legal-page-lead">Version {document.version} · Effective date {document.effectiveDate}</p>
         <nav className="legal-document-nav" aria-label="Legal documents">
           {documentLinks.map((item) => (
-            <Link key={item.href} href={item.href} aria-current={item.href.endsWith(documentLinks.find((entry) => entry.href === item.href)?.href || '') ? undefined : undefined}>
+            <Link key={item.href} href={item.href} aria-current={item.key === document.documentKey ? 'page' : undefined}>
               {item.label}
             </Link>
           ))}
@@ -155,4 +155,3 @@ export function LegalDocumentPage({ document }: { document: LegalDocument }) {
   )
 }
 
-import { SiteHeader } from '@/components/site-header'
