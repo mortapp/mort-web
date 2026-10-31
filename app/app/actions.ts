@@ -21,7 +21,7 @@ function fail(path: string, code: string) {
     general_location_required: 'Enter a city and two-letter state.',
     availability_required: 'Add a short availability description.',
     onboarding_work_preferences_invalid: 'Review your work preferences and try again.',
-    onboarding_work_preferences_required: 'Choose at least one work category and one way to travel.'
+    onboarding_work_preferences_required: 'Choose at least one work category and one way to travel.',
     guardian_invite_required_or_skip: 'Choose Skip for now or complete the Guardian invite first.',
     onboarding_revision_conflict: 'Your setup changed in another session. Reload and try again.',
     published_legal_acceptance_required: 'Review and accept every required current MORT document.',
