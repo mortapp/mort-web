@@ -40,6 +40,7 @@ test('email callback reads the production onboarding completion column', () => {
 
 test('web onboarding preserves all four server-defined steps and legal clickwrap', () => {
   const form = read('../components/onboarding-form.tsx')
+  const actions = read('../app/app/actions.ts')
   assert.match(form, /account/)
   assert.match(form, /work_preferences/)
   assert.match(form, /safety_support/)
@@ -48,6 +49,14 @@ test('web onboarding preserves all four server-defined steps and legal clickwrap
   assert.match(form, /requires_electronic_signature/)
   assert.match(form, /Guardian Mode is optional/)
   assert.match(form, /name="teen_summary_viewed"/)
+  assert.match(form, /function isAdultDateOfBirth/)
+  assert.match(form, /Adult account type/)
+  assert.match(form, /name="city"[^>]*required/)
+  assert.match(form, /name="state"[^>]*required/)
+  assert.match(form, /name="approximate_area"[^>]*required/)
+  assert.doesNotMatch(form, /name="preferred_job_categories"[^>]*required=\{index === 0\}/)
+  assert.doesNotMatch(form, /name="transportation_methods"[^>]*required=\{index === 0\}/)
+  assert.match(actions, /onboarding_work_preferences_required:/)
 })
 
 test('pending and incomplete accounts cannot reach role dashboards', () => {

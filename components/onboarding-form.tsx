@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 import {
   completeOnboarding,
   saveOnboardingAccount,
@@ -38,6 +40,15 @@ const transport = [
   ['rideshare', 'Rideshare'],
 ]
 
+function isAdultDateOfBirth(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const [year, month, day] = value.split('-').map(Number)
+  const today = new Date()
+  let age = today.getFullYear() - year
+  if (today.getMonth() + 1 < month || (today.getMonth() + 1 === month && today.getDate() < day)) age -= 1
+  return age >= 18
+}
+
 const stepOrder = ['account', 'work_preferences', 'safety_support', 'review']
 const stepTitle: Record<string, string> = {
   account: '1. Your account',
@@ -54,6 +65,8 @@ export function OnboardingForm({
   legalDocuments,
   legalAvailable,
 }: Props) {
+  const [dateOfBirth, setDateOfBirth] = useState(profile?.date_of_birth || '')
+  const adultByDob = isAdultDateOfBirth(dateOfBirth)
   const currentStep = stepOrder.includes(step) ? step : 'account'
   const outstanding = requirements.filter((item) => item.required && !item.acceptance_id)
   const needsSignature = outstanding.some((item) => item.requires_electronic_signature)
@@ -73,7 +86,7 @@ export function OnboardingForm({
         <form action={saveOnboardingAccount} className="form">
           <div className="card">
             <h3>Account details</h3>
-            <p>Your date of birth determines whether MORT creates a teen or adult account. For adults, choose Adult or Guardian. Your date of birth cannot be changed through profile settings after it is saved.</p>
+            <p>Your date of birth determines your account type. Adult and Guardian options appear only when your date of birth indicates you are 18 or older. Your date of birth cannot be changed through profile settings after it is saved.</p>
             <div className="grid two">
               <label>Display name
                 <input name="display_name" defaultValue={profile?.display_name || ''} minLength={2} maxLength={80} required />
@@ -82,23 +95,29 @@ export function OnboardingForm({
                 <input name="username" defaultValue={profile?.username || ''} minLength={3} maxLength={24} pattern="[a-z0-9_]+" autoCapitalize="none" required />
               </label>
               <label>Date of birth
-                <input type="date" name="dob" defaultValue={profile?.date_of_birth || ''} required />
+                <input type="date" name="dob" value={dateOfBirth} onChange={(event) => setDateOfBirth(event.target.value)} required />
               </label>
-              <label>Adult account type
-                <select name="role" defaultValue={role === 'guardian' ? 'guardian' : 'adult'}>
-                  <option value="adult">Post or hire as an adult</option>
-                  <option value="guardian">Supervise as a guardian</option>
-                </select>
-              </label>
-              <label>City
-                <input name="city" defaultValue={profile?.city || ''} autoComplete="address-level2" />
-              </label>
-              <label>State
-                <input name="state" defaultValue={profile?.region || ''} maxLength={2} autoComplete="address-level1" />
-              </label>
-              <label>General area for teen matching (ZIP or city)
-                <input name="approximate_area" defaultValue={profile?.approximate_area || ''} maxLength={80} />
-              </label>
+              {adultByDob && (
+                <>
+                  <label>Adult account type
+                    <select name="role" defaultValue={role === 'guardian' ? 'guardian' : 'adult'} required>
+                      <option value="adult">Post or hire as an adult</option>
+                      <option value="guardian">Supervise as a guardian</option>
+                    </select>
+                  </label>
+                  <label>City
+                    <input name="city" defaultValue={profile?.city || ''} autoComplete="address-level2" required />
+                  </label>
+                  <label>State
+                    <input name="state" defaultValue={profile?.region || ''} maxLength={2} autoComplete="address-level1" required />
+                  </label>
+                </>
+              )}
+              {!adultByDob && (
+                <label>General area for teen matching (ZIP or city)
+                  <input name="approximate_area" defaultValue={profile?.approximate_area || ''} maxLength={80} required />
+                </label>
+              )}
             </div>
             <p className="muted">Teen accounts use a general area only. Do not enter a street address or exact location. Guardian Mode is optional and does not automatically share teen account data.</p>
           </div>
@@ -125,7 +144,7 @@ export function OnboardingForm({
               </label>
               <h3>How can you usually get to a job?</h3>
               <div className="grid two">
-                {transport.map(([value, label]) => (
+                {transport.map(([value, label], index) => (
                   <label key={value} className="choice">
                     <input type="checkbox" name="transportation_methods" value={value} defaultChecked={(profile?.transportation_methods || []).includes(value)} />
                     {label}
