@@ -16,7 +16,7 @@ const roleHome: Record<string, string> = {
 export default async function Onboarding({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const { profile } = await requireUser()
   const sp = await searchParams
-  const alreadyDone = profile?.onboarding_completed && profile?.role
+  const alreadyDone = profile?.onboarding_completed_at && profile?.role
 
   return (
     <>
