@@ -64,11 +64,11 @@ export default async function Onboarding({ searchParams }: { searchParams?: Prom
             <>
               <p><strong>Teen accounts (ages 13–17)</strong> require a verified school email address on an approved school domain.</p>
               <p>For identity review, provide a current school-issued photo ID when your school issues one. If your school does not issue a photo ID, MORT can accept official enrollment confirmation or direct verification from a school administrator.</p>
-              <p className="muted">A school ID or school email does not prove age by itself. MORT's independent age-verification provider is not yet available, so document submission is currently disabled. Do not email or upload identity documents to MORT support.</p>
+              <p className="muted">A school ID or school email does not prove age by itself. MORT&apos;s independent age-verification provider is not yet available, so document submission is currently disabled. Do not email or upload identity documents to MORT support.</p>
             </>
           ) : (
             <>
-              <p><strong>Adult accounts (18+)</strong> require a valid, unexpired government-issued photo ID, such as a driver's license, state ID card, or passport.</p>
+              <p><strong>Adult accounts (18+)</strong> require a valid, unexpired government-issued photo ID, such as a driver&apos;s license, state ID card, or passport.</p>
               <p className="muted">Identity verification is not yet available through an approved production provider. Document submission is currently disabled. Do not email or upload identity documents to MORT support.</p>
             </>
           )}
