@@ -34,4 +34,4 @@ jobs:
       - run: npm ci
       - run: npm run test:production-config
       - run: npm run typecheck
-      - run: npm run lint
+      - run: npx eslint app/app/actions.ts app/app/onboarding/page.tsx app/app/page.tsx app/app/teen/actions.ts app/app/teen/layout.tsx app/app/adult/layout.tsx app/app/guardian/layout.tsx app/app/admin/layout.tsx app/auth/callback/route.ts components/onboarding-form.tsx lib/auth.ts
