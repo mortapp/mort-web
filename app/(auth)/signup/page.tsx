@@ -1,4 +1,4 @@
-// Calibrated Liquid Glass: account creation prioritizes calm reading order and explicit feedback over decorative density.
+// MORT signup begins with a neutral date-of-birth age screen.
 import Link from 'next/link'
 import { signUp, signInWithGoogle } from '@/app/(auth)/actions'
 import { AuthShell } from '@/components/auth-shell'
@@ -9,6 +9,14 @@ function requestedDestination(value: string | undefined) {
   return value?.startsWith('/app/') && !value.startsWith('//') ? value : '/app/teen/jobs'
 }
 
+function minimumEligibleDob() {
+  const now = new Date()
+  const year = now.getUTCFullYear() - 13
+  const month = String(now.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(now.getUTCDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export default async function Signup({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
   const next = requestedDestination(sp?.next)
@@ -17,7 +25,7 @@ export default async function Signup({ searchParams }: { searchParams?: Promise<
     <AuthShell
       kicker="Join MORT"
       title="Start your local hustle."
-      description="Teens find safe local work. Adults post jobs. Guardians keep everyone safe. It’s free to join."
+      description="MORT is for people age 13 and older. Teens find safe local work. Adults post jobs. Guardians keep everyone safe."
       bullets={[
         { icon: '🔥', text: 'Teens: find dog walking, lawn care, errands, and more' },
         { icon: '💼', text: 'Adults: post jobs and hire verified teens nearby' },
@@ -32,6 +40,11 @@ export default async function Signup({ searchParams }: { searchParams?: Promise<
       <form action={signUp} className="form">
         <input type="hidden" name="source" value="signup" />
         <input type="hidden" name="next" value={next} />
+        <label>
+          Date of birth
+          <input name="date_of_birth" type="date" autoComplete="bday" required max={minimumEligibleDob()} />
+        </label>
+        <p className="muted">MORT requires every member to be at least 13. Your date of birth determines whether you enter as a teen or an adult.</p>
         <label>
           Display name
           <input name="display_name" autoComplete="name" required placeholder="Santiago, Mike, Keke..." />
