@@ -23,9 +23,7 @@ export async function saveOnboarding(formData: FormData) {
   // resubmitting it to fix a typo in your city can never silently undo a
   // safety control someone else set: role selection can change only before
   // onboarding is completed. After that, the existing role is kept, matching
-  // the same rule used in app/app/verify/actions.ts. Guardian pause /
-  // guardian-approval-required flags are only ever defaulted on first-time
-  // creation, never reset on a later save.
+  // the same rule used in app/app/verify/actions.ts.
   const isFirstTime = !profile?.onboarding_completed_at
   const role = isFirstTime ? sanitizeRole(val(formData,'role') || profile?.role) : profile?.role
   const display_name = val(formData,'display_name') || user.email?.split('@')[0] || 'MORT User'
@@ -33,6 +31,9 @@ export async function saveOnboarding(formData: FormData) {
   const city = val(formData,'city') || null
   const region = val(formData,'state') || null
   const username = val(formData,'username') || null
+  if (username && !/^[a-z0-9_]{3,24}$/.test(username)) {
+    redirect('/app/onboarding?message=' + encodeURIComponent('Username must be 3–24 characters using lowercase letters, numbers, or underscores.'))
+  }
   const skills = role === 'teen'
     ? String(formData.get('skills') || '').split(',').map(s => s.trim()).filter(Boolean).slice(0, 20)
     : []
@@ -63,8 +64,12 @@ export async function saveOnboarding(formData: FormData) {
 
 export async function saveProfile(formData: FormData) {
   const { supabase, user } = await requireUser()
+  const username = val(formData,'username') || null
+  if (username && !/^[a-z0-9_]{3,24}$/.test(username)) {
+    redirect('/app/profile?message=' + encodeURIComponent('Username must be 3–24 characters using lowercase letters, numbers, or underscores.'))
+  }
   const { error } = await supabase.from('profiles').update({
-    display_name: val(formData,'display_name'), username: val(formData,'username'), city: val(formData,'city'), region: val(formData,'state'), date_of_birth: val(formData,'dob') || null, updated_at: new Date().toISOString()
+    display_name: val(formData,'display_name'), username, city: val(formData,'city'), region: val(formData,'state'), date_of_birth: val(formData,'dob') || null, updated_at: new Date().toISOString()
   }).eq('id', user.id)
   if (error) redirect(`/app/profile?message=${encodeURIComponent(error.message)}`)
   revalidatePath('/app','layout')
