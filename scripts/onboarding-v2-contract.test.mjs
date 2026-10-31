@@ -27,6 +27,8 @@ test('onboarding server actions use the four v2 RPCs, not direct profile writes'
   assert.doesNotMatch(actions, /onboarding_completed\s*:/)
   assert.doesNotMatch(actions, /account_status\s*:\s*['"]active['"]/)
   assert.match(actions, /content_markdown/)
+  assert.match(actions, /submit_legal_acceptance/)
+  assert.match(actions, /p_teen_summary_viewed/)
 })
 
 test('email callback reads the production onboarding completion column', () => {
@@ -45,4 +47,5 @@ test('web onboarding preserves all four server-defined steps and legal clickwrap
   assert.match(form, /accepted_version_ids/)
   assert.match(form, /requires_electronic_signature/)
   assert.match(form, /Guardian Mode is optional/)
+  assert.match(form, /name="teen_summary_viewed"/)
 })
