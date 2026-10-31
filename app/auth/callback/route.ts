@@ -60,8 +60,14 @@ export async function GET(request: NextRequest) {
           return NextResponse.redirect(new URL('/auth/auth-code-error', requestUrl.origin))
         }
         if (!profile?.date_of_birth) {
-          await supabase.auth.signOut()
-          return NextResponse.redirect(new URL('/signup?message=Date%20of%20birth%20is%20required%20to%20join%20MORT.', requestUrl.origin))
+          if (isSignup) {
+            await supabase.auth.signOut()
+            return NextResponse.redirect(new URL('/signup?message=Date%20of%20birth%20is%20required%20to%20join%20MORT.', requestUrl.origin))
+          }
+          const onboardingUrl = new URL('/app/onboarding', requestUrl.origin)
+          onboardingUrl.searchParams.set('next', next)
+          onboardingUrl.searchParams.set('message', 'Enter your date of birth to confirm you meet MORT\'s minimum age of 13.')
+          return NextResponse.redirect(onboardingUrl)
         }
         if (!profile?.onboarding_completed_at || profile.account_status !== 'active') {
           const onboardingUrl = new URL('/app/onboarding', requestUrl.origin)
