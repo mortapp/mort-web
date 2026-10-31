@@ -167,7 +167,7 @@ export async function completeOnboarding(formData: FormData) {
 
   const signature = val(formData, 'electronic_signature') || ''
   const teenSummaryViewed = val(formData, 'teen_summary_viewed') === 'true'
-  if (profile?.role === 'teen' && !teenSummaryViewed) {
+  if (profile?.role === 'teen' && outstanding.length > 0 && !teenSummaryViewed) {
     fail('/app/onboarding', 'affirmative_checkbox_required')
   }
   if (outstanding.some((item: any) => item.requires_electronic_signature === true) && signature.trim().length < 3) {
