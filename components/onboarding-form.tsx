@@ -1,98 +1,223 @@
 'use client'
 
-// Calibrated Liquid Glass: role selection remains visually distinct while setup stays clear and keyboard-friendly.
-import { useState } from 'react'
-import { saveOnboarding } from '@/app/app/actions'
+import {
+  completeOnboarding,
+  saveOnboardingAccount,
+  saveOnboardingSafety,
+  saveOnboardingWork,
+} from '@/app/app/actions'
 import { SubmitButton } from '@/components/submit-button'
+
+type Requirement = {
+  document_key: string
+  title: string
+  required: boolean
+  version_id: string
+  version_label: string
+  content_hash: string
+  requires_electronic_signature: boolean
+  acceptance_id: string | null
+}
 
 interface Props {
   profile: any
-  next?: string
+  step: string
+  revision: string
+  requirements: Requirement[]
+  legalDocuments: Record<string, string>
+  legalAvailable: boolean
 }
 
-const ROLES = [
-  { value: 'teen', icon: '🔥', title: 'Teen worker', desc: 'Find nearby paid jobs and build XP.' },
-  { value: 'adult', icon: '💼', title: 'Adult / business', desc: 'Post jobs for local teens to apply to.' },
-  { value: 'guardian', icon: '🛡️', title: 'Guardian', desc: 'Watch over a connected teen\'s safety.' },
+const categories = ['Yard work', 'Pet care', 'Tutoring', 'Cleaning', 'Tech help', 'Errands']
+const transport = [
+  ['walking', 'Walking'],
+  ['bicycle', 'Bicycle'],
+  ['car', 'Car'],
+  ['public_transit', 'Public transit'],
+  ['rideshare', 'Rideshare'],
 ]
 
-export function OnboardingForm({ profile, next }: Props) {
-  const [role, setRole] = useState<string>(profile?.role || 'teen')
+const stepOrder = ['account', 'work_preferences', 'safety_support', 'review']
+const stepTitle: Record<string, string> = {
+  account: '1. Your account',
+  work_preferences: '2. Work preferences',
+  safety_support: '3. Safety and support',
+  review: '4. Review and finish',
+}
+
+export function OnboardingForm({
+  profile,
+  step,
+  revision,
+  requirements,
+  legalDocuments,
+  legalAvailable,
+}: Props) {
+  const currentStep = stepOrder.includes(step) ? step : 'account'
+  const outstanding = requirements.filter((item) => item.required && !item.acceptance_id)
+  const needsSignature = outstanding.some((item) => item.requires_electronic_signature)
+  const role = profile?.role
 
   return (
-    <form action={saveOnboarding} className="form">
-      <input type="hidden" name="role" value={role} />
-      <input type="hidden" name="next" value={next || ''} />
-
-      <div>
-        <h4 style={{ marginBottom: 10 }}>I am a…</h4>
-        <div className="grid three">
-          {ROLES.map((r) => (
-            <button
-              type="button"
-              key={r.value}
-              onClick={() => setRole(r.value)}
-              className={`card hoverable ${role === r.value ? 'highlight' : ''}`}
-              style={{ textAlign: 'left', cursor: 'pointer', position: 'relative' }}
-            >
-              {role === r.value && (
-                <span style={{ position: 'absolute', top: 14, right: 14, color: 'var(--primary)', fontSize: 16 }}>✓</span>
-              )}
-              <div className="card-icon-tile">{r.icon}</div>
-              <h3 style={{ fontSize: 15 }}>{r.title}</h3>
-              <p style={{ fontSize: 12.5, marginTop: 4 }}>{r.desc}</p>
-            </button>
-          ))}
-        </div>
-      </div>
-
+    <div className="form">
       <div className="card">
-        <h4 style={{ marginBottom: 12 }}>About you</h4>
-        <div className="grid two">
-          <label>Display name<input name="display_name" defaultValue={profile?.display_name || ''} required /></label>
-          <label>Username<input name="username" defaultValue={profile?.username || ''} /></label>
-          <label>Date of birth<input type="date" name="dob" defaultValue={profile?.dob || ''} /></label>
-          <label>City<input name="city" defaultValue={profile?.city || 'Indianapolis'} /></label>
-          <label>State<input name="state" defaultValue={profile?.state || 'IN'} /></label>
+        <p className="eyebrow">STEP {stepOrder.indexOf(currentStep) + 1} OF 4</p>
+        <h2>{stepTitle[currentStep]}</h2>
+        <div className="progress-track" aria-label="Onboarding progress">
+          <div className="progress-fill" style={{ width: `${((stepOrder.indexOf(currentStep) + 1) / 4) * 100}%` }} />
         </div>
       </div>
 
-      {role === 'teen' && (
-        <div className="card highlight">
-          <h4 style={{ marginBottom: 12 }}>🔥 Teen details</h4>
-          <div className="grid two">
-            <label>Bio<textarea name="bio" placeholder="What kind of work can you do?" /></label>
-            <label>Skills (comma-separated)<input name="skills" placeholder="dog walking, trash, tutoring" /></label>
-            <label>School year<input name="school_year" placeholder="9th grade" /></label>
-            <label style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 20 }}>
-              <input type="checkbox" name="guardian_required" style={{ width: 'auto' }} /> Require guardian approval for applications
+      {currentStep === 'account' && (
+        <form action={saveOnboardingAccount} className="form">
+          <div className="card">
+            <h3>Account details</h3>
+            <p>Your date of birth determines whether MORT creates a teen or adult account. It cannot be changed through profile settings after it is saved.</p>
+            <div className="grid two">
+              <label>Display name
+                <input name="display_name" defaultValue={profile?.display_name || ''} minLength={2} maxLength={80} required />
+              </label>
+              <label>Username
+                <input name="username" defaultValue={profile?.username || ''} minLength={3} maxLength={24} pattern="[a-z0-9_]+" autoCapitalize="none" required />
+              </label>
+              <label>Date of birth
+                <input type="date" name="dob" defaultValue={profile?.date_of_birth || ''} required />
+              </label>
+              <label>Adult account type
+                <select name="role" defaultValue={role === 'guardian' ? 'guardian' : 'adult'}>
+                  <option value="adult">Post or hire as an adult</option>
+                  <option value="guardian">Supervise as a guardian</option>
+                </select>
+              </label>
+              <label>City
+                <input name="city" defaultValue={profile?.city || ''} autoComplete="address-level2" />
+              </label>
+              <label>State
+                <input name="state" defaultValue={profile?.region || ''} maxLength={2} autoComplete="address-level1" />
+              </label>
+              <label>General area for teen matching (ZIP or city)
+                <input name="approximate_area" defaultValue={profile?.approximate_area || ''} maxLength={80} />
+              </label>
+            </div>
+            <p className="muted">Teen accounts use a general area only. Do not enter a street address or exact location. Guardian Mode is optional and does not automatically share teen account data.</p>
+          </div>
+          <SubmitButton size="lg" pendingLabel="Saving account…">Save account and continue</SubmitButton>
+        </form>
+      )}
+
+      {currentStep === 'work_preferences' && (
+        <form action={saveOnboardingWork} className="form">
+          <input type="hidden" name="revision" value={revision} />
+          {role === 'teen' ? (
+            <div className="card">
+              <h3>What kind of work are you interested in?</h3>
+              <div className="grid two">
+                {categories.map((category) => (
+                  <label key={category} className="choice">
+                    <input type="checkbox" name="preferred_job_categories" value={category.toLowerCase()} defaultChecked={(profile?.preferred_job_categories || []).includes(category.toLowerCase())} />
+                    {category}
+                  </label>
+                ))}
+              </div>
+              <label>When are you usually available?
+                <textarea name="availability" defaultValue={profile?.availability || ''} maxLength={240} required placeholder="For example, weekday evenings and Saturday mornings" />
+              </label>
+              <h3>How can you usually get to a job?</h3>
+              <div className="grid two">
+                {transport.map(([value, label]) => (
+                  <label key={value} className="choice">
+                    <input type="checkbox" name="transportation_methods" value={value} defaultChecked={(profile?.transportation_methods || []).includes(value)} />
+                    {label}
+                  </label>
+                ))}
+              </div>
+              <p className="muted">These are matching preferences, not a guarantee of transportation or job availability.</p>
+            </div>
+          ) : (
+            <div className="card">
+              <h3>No additional work preferences are required</h3>
+              <p>Adults provide job details when posting. Guardians do not need teen work preferences. Job publishing remains subject to separate verification and release controls.</p>
+            </div>
+          )}
+          <SubmitButton size="lg" pendingLabel="Saving preferences…">Save work preferences</SubmitButton>
+        </form>
+      )}
+
+      {currentStep === 'safety_support' && (
+        <form action={saveOnboardingSafety} className="form">
+          <input type="hidden" name="revision" value={revision} />
+          <div className="card">
+            <h3>Safety stays available</h3>
+            <p>Reporting, blocking, Safety Ping, and core safety tools are not premium requirements.</p>
+            {role === 'teen' && (
+              <div className="notice">
+                <strong>Guardian Mode is optional.</strong>
+                <p>You can choose to skip it now. This does not create a guardian connection or give anyone access to your account. A specific job may have separate safety requirements.</p>
+                <p>For this setup, Guardian Mode will remain skipped unless you choose to connect someone later through the dedicated Guardian flow.</p>
+              </div>
+            )}
+            <label>Notification preference
+              <select name="notification_intent" defaultValue="ask_later">
+                <option value="ask_later">Ask me later</option>
+                <option value="preferred">I want safety and job notifications</option>
+                <option value="not_preferred">Do not ask right now</option>
+              </select>
             </label>
+            <p className="muted">This records your preference only. Your device controls notification permission.</p>
           </div>
-        </div>
+          <SubmitButton size="lg" pendingLabel="Saving safety preferences…">Save safety and support</SubmitButton>
+        </form>
       )}
 
-      {role === 'adult' && (
-        <div className="card highlight">
-          <h4 style={{ marginBottom: 12 }}>💼 Business details</h4>
-          <div className="grid two">
-            <label>Business name<input name="business_name" /></label>
-            <label>Business type<input name="business_type" placeholder="Homeowner, lawn care, local shop" /></label>
+      {currentStep === 'review' && (
+        <form action={completeOnboarding} className="form">
+          <input type="hidden" name="revision" value={revision} />
+          <div className="card">
+            <h3>Review your setup</h3>
+            <p>Account: {role === 'teen' ? 'Teen' : role === 'guardian' ? 'Guardian' : 'Adult'}</p>
+            <p>Display name: {profile?.display_name || 'Not set'}</p>
+            <p>Username: {profile?.username ? `@${profile.username}` : 'Not set'}</p>
+            <p>General area: {role === 'teen' ? profile?.approximate_area || 'Not set' : [profile?.city, profile?.region].filter(Boolean).join(', ') || 'Not set'}</p>
           </div>
-          <p style={{ fontSize: 12.5, marginTop: 10 }}>You&apos;ll need to pass verification before you can post jobs.</p>
-        </div>
-      )}
-
-      {role === 'guardian' && (
-        <div className="card highlight">
-          <h4 style={{ marginBottom: 12 }}>🛡️ Guardian details</h4>
-          <div className="grid two">
-            <label>Emergency contact name<input name="emergency_contact_name" /></label>
-            <label>Emergency contact phone<input name="emergency_contact_phone" /></label>
+          <div className="card">
+            <h3>Current published MORT documents</h3>
+            {!legalAvailable ? (
+              <div className="notice" role="alert">
+                The legal acknowledgement service is not available for this pending account yet. Your account has not been activated. The production backend update is required before you can finish this step.
+              </div>
+            ) : outstanding.length === 0 ? (
+              <p>All required current document versions are already recorded for this account.</p>
+            ) : (
+              <>
+                <p>Read each required current version below and affirmatively acknowledge it. MORT records the exact published version and content hash.</p>
+                {outstanding.map((item) => (
+                  <section className="legal-document" key={item.version_id}>
+                    <h4>{item.title}</h4>
+                    <p className="muted">Version {item.version_label} · SHA-256 {item.content_hash}</p>
+                    <details>
+                      <summary>Read full document</summary>
+                      <pre className="legal-content">{legalDocuments[item.version_id] || 'The published document text could not be loaded. Refresh before accepting.'}</pre>
+                    </details>
+                    <label className="choice">
+                      <input type="checkbox" name="accepted_version_ids" value={item.version_id} required />
+                      I have read and agree to this required document version.
+                    </label>
+                  </section>
+                ))}
+                {needsSignature && (
+                  <label>Electronic signature
+                    <input name="electronic_signature" minLength={3} maxLength={200} required placeholder="Type your full name" />
+                  </label>
+                )}
+              </>
+            )}
+            <p className="muted">Browsing does not count as acceptance. Each required acknowledgement is an explicit action.</p>
           </div>
-        </div>
+          {legalAvailable && (
+            <SubmitButton size="lg" pendingLabel="Recording acknowledgements…">Finish setup</SubmitButton>
+          )}
+        </form>
       )}
-
-      <SubmitButton size="lg" pendingLabel="Saving…">Save and continue</SubmitButton>
-    </form>
+    </div>
   )
 }
