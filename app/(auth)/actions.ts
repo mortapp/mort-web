@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getSiteUrl, safeNext } from '@/lib/site-url'
 import { ensureProfile, sanitizeRole } from '@/lib/auth'
 
-function msg(path: string, message: string) { redirect(`${path}${path.includes('?') ? '&' : '?'}message=${encodeURIComponent(message)}`) }
+function msg(path: string, message: string): never { redirect(`${path}${path.includes('?') ? '&' : '?'}message=${encodeURIComponent(message)}`) }
 
 function ageFromDateOfBirth(value: unknown): number | null {
   if (typeof value !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return null
