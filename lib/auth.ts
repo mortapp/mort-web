@@ -50,7 +50,7 @@ export async function getSessionProfile() {
   return { supabase, user, profile }
 }
 
-export async function requireUser() {
+export async function requireAuthenticatedUser() {
   const ctx = await getSessionProfile()
   if (!ctx.user) redirect('/login?message=Sign in first')
   if (ctx.profile?.account_status === 'suspended') {
@@ -58,6 +58,14 @@ export async function requireUser() {
     redirect('/login?message=' + encodeURIComponent('This account has been suspended. Contact MORT support if you think this is a mistake.'))
   }
   return ctx as { supabase: any; user: any; profile: any }
+}
+
+export async function requireUser() {
+  const ctx = await requireAuthenticatedUser()
+  if (ctx.profile?.role !== 'admin' && !ctx.profile?.date_of_birth) {
+    redirect('/app/onboarding?message=' + encodeURIComponent('Enter your date of birth to confirm you meet MORT\'s minimum age of 13.'))
+  }
+  return ctx
 }
 
 export async function requireRole(roles: Role[]) {
