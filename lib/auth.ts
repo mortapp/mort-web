@@ -21,36 +21,34 @@ function hasSupabaseAuthCookie(items: { name: string }[]) {
   return items.some((c) => c.name.startsWith('sb-') || c.name.includes('auth-token'))
 }
 
-export async function ensureProfile(supabase: any, user: any, role?: unknown, displayNameOverride?: unknown) {
+export async function ensureProfile(supabase: any, user: any, _role?: unknown, displayNameOverride?: unknown) {
   const metadata = user?.user_metadata || {}
-  const desiredRole = sanitizeRole(role || metadata.role)
   const suppliedDisplayName = typeof displayNameOverride === 'string' ? displayNameOverride.trim().slice(0, 80) : ''
   const displayName = suppliedDisplayName || metadata.display_name || metadata.full_name || metadata.name || user?.email?.split('@')[0] || 'MORT User'
 
-  const { data: existing } = await supabase
+  // The production auth.users trigger creates a pending profile. Keep this
+  // fallback limited to columns that actually exist; never activate an
+  // account or assign a role from client-controlled Auth metadata.
+  const { data: existing, error: readError } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, display_name')
     .eq('id', user.id)
     .maybeSingle()
 
+  if (readError) throw readError
+
   if (!existing) {
-    await supabase.from('profiles').insert({
-      id: user.id,
-      role: desiredRole,
-      display_name: displayName,
-      onboarding_completed: false,
-      account_status: 'active',
-      verification_status: 'not_started',
-      payment_preference: 'none'
-    })
-  } else {
-    const patch: Record<string, unknown> = { updated_at: new Date().toISOString() }
-    // Only ever fills a NULL role — never overwrites an existing one. This
-    // is also what keeps an existing admin's role untouched: their role is
-    // already set, so this branch never fires for them.
-    if (!existing.role) patch.role = desiredRole
-    if (!existing.display_name) patch.display_name = displayName
-    await supabase.from('profiles').update(patch).eq('id', user.id)
+    const { error } = await supabase.from('profiles').upsert(
+      { id: user.id, display_name: displayName },
+      { onConflict: 'id', ignoreDuplicates: true }
+    )
+    if (error) throw error
+  } else if (!existing.display_name && displayName) {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ display_name: displayName })
+      .eq('id', user.id)
+    if (error) throw error
   }
 }
 
