@@ -4,10 +4,10 @@ import { safeNext } from '@/lib/site-url'
 import { ensureProfile } from '@/lib/auth'
 
 function ageFromDateOfBirth(value: string | null): number | null {
-  if (!value || !/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return null
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null
   const [year, month, day] = value.split('-').map(Number)
   const date = new Date(Date.UTC(year, month - 1, day))
-  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getDate() !== day) return null
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null
   const today = new Date()
   let age = today.getUTCFullYear() - year
   if (today.getUTCMonth() + 1 < month || (today.getUTCMonth() + 1 === month && today.getUTCDate() < day)) age -= 1
