@@ -17,14 +17,14 @@ export async function GET(request: NextRequest) {
         await ensureProfile(supabase, user)
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('onboarding_completed_at')
+          .select('onboarding_completed_at,account_status')
           .eq('id', user.id)
           .maybeSingle()
 
         if (profileError) {
           return NextResponse.redirect(new URL('/auth/auth-code-error', requestUrl.origin))
         }
-        if (!profile?.onboarding_completed_at && !next.startsWith('/app/onboarding')) {
+        if (!profile?.onboarding_completed_at || profile.account_status !== 'active') {
           const onboardingUrl = new URL('/app/onboarding', requestUrl.origin)
           onboardingUrl.searchParams.set('next', next)
           return NextResponse.redirect(onboardingUrl)
