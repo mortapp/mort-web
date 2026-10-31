@@ -26,9 +26,9 @@ export async function ensureProfile(supabase: any, user: any, _role?: unknown, d
   const suppliedDisplayName = typeof displayNameOverride === 'string' ? displayNameOverride.trim().slice(0, 80) : ''
   const displayName = suppliedDisplayName || metadata.display_name || metadata.full_name || metadata.name || user?.email?.split('@')[0] || 'MORT User'
 
-  // The production auth.users trigger creates a pending profile. Keep this
-  // fallback limited to columns that actually exist; never activate an
-  // account or assign a role from client-controlled Auth metadata.
+  // Production creates a pending profile from the auth.users trigger. This
+  // fallback uses only real profiles columns and never trusts signup metadata
+  // to assign a role or activate an account.
   const { data: existing, error: readError } = await supabase
     .from('profiles')
     .select('id, display_name')
