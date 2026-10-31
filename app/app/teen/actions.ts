@@ -1,7 +1,7 @@
 'use server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { requireRole, requireUser } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 
 function v(fd: FormData, k: string){ const x=fd.get(k); return x==null?null:String(x).trim() }
 function rpcText(data: any, fallback = 'The backend rejected this request.') { return data?.message || data?.code || fallback }
