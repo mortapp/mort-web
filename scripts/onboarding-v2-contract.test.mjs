@@ -71,3 +71,38 @@ test('pending and incomplete accounts cannot reach role dashboards', () => {
   assert.match(dashboard, /account_status !== 'active'/)
   assert.match(dashboard, /onboarding_completed_at/)
 })
+
+test('website signup enforces the 13+ DOB screen before creating accounts', () => {
+  const signup = read('../app/(auth)/signup/page.tsx')
+  const actions = read('../app/(auth)/actions.ts')
+  const callback = read('../app/auth/callback/route.ts')
+  assert.match(signup, /name="date_of_birth" type="date"[^>]*required/)
+  assert.match(signup, /age 13 and older/)
+  assert.match(actions, /age < 13/)
+  assert.match(actions, /date_of_birth: dob/)
+  assert.match(actions, /MORT is only available to people age 13 or older/)
+  assert.match(callback, /save_my_initial_dob_v1/)
+  assert.match(callback, /age < 13/)
+})
+
+test('all authenticated website pages require DOB while onboarding remains reachable', () => {
+  const auth = read('../lib/auth.ts')
+  const layout = read('../app/app/layout.tsx')
+  const onboarding = read('../app/app/onboarding/page.tsx')
+  assert.match(auth, /export async function requireAuthenticatedUser/)
+  assert.match(auth, /export async function requireUser/)
+  assert.match(auth, /!ctx\.profile\?\.date_of_birth/)
+  assert.match(auth, /\/app\/onboarding/)
+  assert.match(layout, /requireAuthenticatedUser/)
+  assert.match(onboarding, /requireAuthenticatedUser/)
+})
+
+test('website renders the hybrid identity policy without collecting raw ID documents', () => {
+  const onboarding = read('../app/app/onboarding/page.tsx')
+  assert.match(onboarding, /get_my_verification_requirements_v1/)
+  assert.match(onboarding, /school-issued photo ID/)
+  assert.match(onboarding, /official enrollment confirmation/)
+  assert.match(onboarding, /government-issued photo ID/)
+  assert.match(onboarding, /document submission is currently disabled/)
+  assert.match(onboarding, /Do not email or upload identity documents/)
+})
