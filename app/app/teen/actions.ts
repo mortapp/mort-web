@@ -1,7 +1,7 @@
 'use server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { requireRole, requireUser } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 
 function v(fd: FormData, k: string){ const x=fd.get(k); return x==null?null:String(x).trim() }
 function rpcText(data: any, fallback = 'The backend rejected this request.') { return data?.message || data?.code || fallback }
@@ -26,7 +26,7 @@ export async function applyToJob(formData: FormData) {
 }
 
 export async function saveJob(formData: FormData) {
-  const { supabase, user } = await requireUser()
+  const { supabase, user } = await requireRole(['teen'])
   const job_id = v(formData,'job_id')
   let { data: folder } = await supabase.from('user_saved_job_folders').select('*').eq('user_id', user.id).eq('name','Saved').maybeSingle()
   if (!folder) { const res = await supabase.from('user_saved_job_folders').insert({ user_id: user.id, name: 'Saved' }).select('*').single(); folder = res.data }
