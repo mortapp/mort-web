@@ -55,27 +55,18 @@ export async function saveOnboardingAccount(formData: FormData) {
   if (!/^[a-z0-9_]{3,24}$/.test(username)) fail('/app/onboarding', 'username_invalid')
 
   const dob = val(formData, 'dob') || ''
-  const parsedDob = /^\\d{4}-\\d{2}-\\d{2}$/.test(dob) ? new Date(`${dob}T00:00:00Z`) : null
-  if (!parsedDob || Number.isNaN(parsedDob.getTime())) fail('/app/onboarding', 'dob_invalid')
-  const today = new Date()
-  let age = today.getUTCFullYear() - parsedDob.getUTCFullYear()
-  const birthdayPending = today.getUTCMonth() < parsedDob.getUTCMonth() ||
-    (today.getUTCMonth() === parsedDob.getUTCMonth() && today.getUTCDate() < parsedDob.getUTCDate())
-  if (birthdayPending) age -= 1
-  if (age < 13) fail('/app/onboarding', 'minimum_age_required')
-
-  const isTeen = age < 18
   const payload = {
-    // The database independently derives and validates the role from DOB.
-    role: isTeen ? 'teen' : (val(formData, 'role') === 'guardian' ? 'guardian' : 'adult'),
+    // The database derives teen vs. adult from DOB and validates eligibility.
+    // The selected role is used only to distinguish adult from Guardian.
+    role: val(formData, 'role') === 'guardian' ? 'guardian' : 'adult',
     display_name: val(formData, 'display_name') || '',
     username,
     dob,
-    city: isTeen ? '' : (val(formData, 'city') || ''),
-    state: isTeen ? '' : (val(formData, 'state') || '').toUpperCase(),
-    location_setup_mode: isTeen ? 'location_deferred' : 'city_state',
-    approximate_area: isTeen ? (val(formData, 'approximate_area') || '') : null,
-    adult_account_type: isTeen ? null : 'individual',
+    city: val(formData, 'city') || '',
+    state: (val(formData, 'state') || '').toUpperCase(),
+    location_setup_mode: 'city_state',
+    approximate_area: val(formData, 'approximate_area') || '',
+    adult_account_type: 'individual',
     business_name: null,
   }
 
