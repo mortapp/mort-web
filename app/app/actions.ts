@@ -166,7 +166,7 @@ export async function completeOnboarding(formData: FormData) {
       platform: 'web',
       app_version: '1.0.0',
     },
-    ...requestParams(formData, val(formData, 'revision')),
+    ...requestParams(val(formData, 'revision')),
   }, '/app/onboarding')
 
   // Completion is not activation. Keep the user on the status screen until
