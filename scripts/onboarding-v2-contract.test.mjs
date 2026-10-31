@@ -49,3 +49,16 @@ test('web onboarding preserves all four server-defined steps and legal clickwrap
   assert.match(form, /Guardian Mode is optional/)
   assert.match(form, /name="teen_summary_viewed"/)
 })
+
+test('pending and incomplete accounts cannot reach role dashboards', () => {
+  const auth = read('../lib/auth.ts')
+  assert.match(auth, /onboarding_completed_at/)
+  for (const role of ['teen', 'adult', 'guardian', 'admin']) {
+    const layout = read(`../app/app/${role}/layout.tsx`)
+    assert.match(layout, /requireRole/)
+    assert.match(layout, new RegExp(`\\['${role}'\\]`))
+  }
+  const dashboard = read('../app/app/page.tsx')
+  assert.match(dashboard, /account_status !== 'active'/)
+  assert.match(dashboard, /onboarding_completed_at/)
+})
