@@ -113,9 +113,9 @@ export function OnboardingForm({
             <div className="card">
               <h3>What kind of work are you interested in?</h3>
               <div className="grid two">
-                {categories.map((category) => (
+                {categories.map((category, index) => (
                   <label key={category} className="choice">
-                    <input type="checkbox" name="preferred_job_categories" value={category.toLowerCase()} defaultChecked={(profile?.preferred_job_categories || []).includes(category.toLowerCase())} />
+                    <input type="checkbox" name="preferred_job_categories" value={category.toLowerCase()} defaultChecked={(profile?.preferred_job_categories || []).includes(category.toLowerCase())} required={index === 0} />
                     {category}
                   </label>
                 ))}
@@ -125,9 +125,9 @@ export function OnboardingForm({
               </label>
               <h3>How can you usually get to a job?</h3>
               <div className="grid two">
-                {transport.map(([value, label]) => (
+                {transport.map(([value, label], index) => (
                   <label key={value} className="choice">
-                    <input type="checkbox" name="transportation_methods" value={value} defaultChecked={(profile?.transportation_methods || []).includes(value)} />
+                    <input type="checkbox" name="transportation_methods" value={value} defaultChecked={(profile?.transportation_methods || []).includes(value)} required={index === 0} />
                     {label}
                   </label>
                 ))}
