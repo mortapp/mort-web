@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { requireUser } from '@/lib/auth'
+import { requireAuthenticatedUser } from '@/lib/auth'
 import { PageHeaderWithActions } from '@/components/ui'
 import { OnboardingForm } from '@/components/onboarding-form'
 import { Toast } from '@/components/toast'
@@ -7,7 +7,7 @@ import { Toast } from '@/components/toast'
 export const dynamic = 'force-dynamic'
 
 export default async function Onboarding({ searchParams }: { searchParams?: Promise<Record<string, string>> }) {
-  const { supabase, profile } = await requireUser()
+  const { supabase, profile } = await requireAuthenticatedUser()
   const sp = await searchParams
 
   if (profile?.role === 'admin') {
