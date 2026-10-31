@@ -222,6 +222,13 @@ export async function saveProfile(formData: FormData) {
   redirect('/app/profile?message=Profile saved')
 }
 
+// Compatibility endpoint for the archived pre-v2 onboarding prototype. It
+// performs no writes and sends all users to the current server-authoritative
+// four-step onboarding flow.
+export async function saveOnboarding(_formData: FormData): Promise<never> {
+  redirect('/app/onboarding?message=' + encodeURIComponent('The previous onboarding form has been replaced. Continue through the current four-step flow.'))
+}
+
 export async function savePaymentPreference() {
   await requireUser()
   redirect('/app/payments?message=' + encodeURIComponent('Payment preference saving is disabled. MORT does not process, move, hold, or guarantee local-job payments.'))
