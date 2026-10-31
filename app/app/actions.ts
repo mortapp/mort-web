@@ -115,7 +115,7 @@ export async function saveOnboardingSafety(formData: FormData) {
 
   await callProgressRpc(supabase, 'save_my_onboarding_safety_v2', {
     p_payload: payload,
-    ...requestParams(formData, val(formData, 'revision')),
+    ...requestParams(val(formData, 'revision')),
   }, '/app/onboarding')
   redirect('/app/onboarding?message=Safety preferences saved.')
 }
