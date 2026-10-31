@@ -3,6 +3,16 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
 type Role = 'teen' | 'adult' | 'guardian' | 'admin'
+type SelfAssignableRole = 'teen' | 'adult' | 'guardian'
+
+// Used only to sanitize signup form metadata for compatibility with the
+// existing signup UI. This value is never used to authorize or assign a
+// production profile role; the onboarding RPC derives role from date of birth.
+export function sanitizeRole(input: unknown): SelfAssignableRole {
+  return input === 'adult' || input === 'guardian' || input === 'teen'
+    ? input
+    : 'teen'
+}
 
 function hasSupabaseAuthCookie(items: { name: string }[]) {
   return items.some((c) => c.name.startsWith('sb-') || c.name.includes('auth-token'))
@@ -13,7 +23,7 @@ function hasSupabaseAuthCookie(items: { name: string }[]) {
  * fills a missing row and never assigns a role, changes account status, or
  * overwrites user data. Signup metadata is deliberately not used for authz.
  */
-export async function ensureProfile(supabase: any, _user: any) {
+export async function ensureProfile(supabase: any, _user: any, _role?: unknown, _displayName?: unknown) {
   const { error } = await supabase.rpc('ensure_my_profile')
   if (error) throw error
 }
