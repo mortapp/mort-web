@@ -54,16 +54,28 @@ export async function saveOnboardingAccount(formData: FormData) {
   const username = (val(formData, 'username') || '').toLowerCase()
   if (!/^[a-z0-9_]{3,24}$/.test(username)) fail('/app/onboarding', 'username_invalid')
 
+  const dob = val(formData, 'dob') || ''
+  const parsedDob = /^\\d{4}-\\d{2}-\\d{2}$/.test(dob) ? new Date(`${dob}T00:00:00Z`) : null
+  if (!parsedDob || Number.isNaN(parsedDob.getTime())) fail('/app/onboarding', 'dob_invalid')
+  const today = new Date()
+  let age = today.getUTCFullYear() - parsedDob.getUTCFullYear()
+  const birthdayPending = today.getUTCMonth() < parsedDob.getUTCMonth() ||
+    (today.getUTCMonth() === parsedDob.getUTCMonth() && today.getUTCDate() < parsedDob.getUTCDate())
+  if (birthdayPending) age -= 1
+  if (age < 13) fail('/app/onboarding', 'minimum_age_required')
+
+  const isTeen = age < 18
   const payload = {
-    role: val(formData, 'role') === 'guardian' ? 'guardian' : 'adult',
+    // The database independently derives and validates the role from DOB.
+    role: isTeen ? 'teen' : (val(formData, 'role') === 'guardian' ? 'guardian' : 'adult'),
     display_name: val(formData, 'display_name') || '',
     username,
-    dob: val(formData, 'dob') || '',
-    city: val(formData, 'city') || '',
-    state: (val(formData, 'state') || '').toUpperCase(),
-    location_setup_mode: 'city_state',
-    approximate_area: val(formData, 'approximate_area') || '',
-    adult_account_type: 'individual',
+    dob,
+    city: isTeen ? '' : (val(formData, 'city') || ''),
+    state: isTeen ? '' : (val(formData, 'state') || '').toUpperCase(),
+    location_setup_mode: isTeen ? 'location_deferred' : 'city_state',
+    approximate_area: isTeen ? (val(formData, 'approximate_area') || '') : null,
+    adult_account_type: isTeen ? null : 'individual',
     business_name: null,
   }
 
@@ -154,14 +166,35 @@ export async function completeOnboarding(formData: FormData) {
   }
 
   const signature = val(formData, 'electronic_signature') || ''
+  const teenSummaryViewed = val(formData, 'teen_summary_viewed') === 'true'
+  if (profile?.role === 'teen' && !teenSummaryViewed) {
+    fail('/app/onboarding', 'affirmative_checkbox_required')
+  }
   if (outstanding.some((item: any) => item.requires_electronic_signature === true) && signature.trim().length < 3) {
     fail('/app/onboarding', 'electronic_signature_text_required')
   }
 
+  // Persist each affirmative acknowledgement through the dedicated legal RPC.
+  // The completion RPC only marks onboarding complete after these records exist.
+  for (const item of outstanding) {
+    const { data: acceptance, error: acceptanceError } = await supabase.rpc('submit_legal_acceptance', {
+      p_document_version_id: item.version_id,
+      p_affirmative_checkbox: true,
+      p_teen_summary_viewed: profile?.role === 'teen' ? teenSummaryViewed : false,
+      p_electronic_signature_text: item.requires_electronic_signature === true ? signature : null,
+      p_platform: 'web',
+      p_app_version: '1.0.0',
+      p_language_code: item.language_code || 'en-US',
+    })
+    if (acceptanceError || acceptance?.ok !== true) {
+      fail('/app/onboarding', String(acceptance?.code || acceptanceError?.message || 'published_legal_acceptance_required'))
+    }
+  }
+
   await callProgressRpc(supabase, 'complete_my_onboarding_v2', {
     p_payload: {
-      legal_version_ids: expectedIds,
-      teen_summary_viewed: profile?.role === 'teen',
+      legal_version_ids: required.map((item: any) => String(item.version_id)),
+      teen_summary_viewed: teenSummaryViewed,
       signature,
       platform: 'web',
       app_version: '1.0.0',
