@@ -1,0 +1,36 @@
+name: Production onboarding validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/app/actions.ts"
+      - "app/app/onboarding/**"
+      - "app/auth/callback/**"
+      - "components/onboarding-form.tsx"
+      - "lib/auth.ts"
+      - "scripts/onboarding-v2-contract.test.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/onboarding-validation.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: onboarding-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:production-config
+      - run: npm run typecheck
+      - run: npm run lint
