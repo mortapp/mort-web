@@ -17,6 +17,7 @@ type Requirement = {
   content_hash: string
   requires_electronic_signature: boolean
   acceptance_id: string | null
+  language_code?: string
 }
 
 interface Props {
@@ -72,7 +73,7 @@ export function OnboardingForm({
         <form action={saveOnboardingAccount} className="form">
           <div className="card">
             <h3>Account details</h3>
-            <p>Your date of birth determines whether MORT creates a teen or adult account. It cannot be changed through profile settings after it is saved.</p>
+            <p>Your date of birth determines whether MORT creates a teen or adult account. For adults, choose Adult or Guardian. Your date of birth cannot be changed through profile settings after it is saved.</p>
             <div className="grid two">
               <label>Display name
                 <input name="display_name" defaultValue={profile?.display_name || ''} minLength={2} maxLength={80} required />
@@ -190,6 +191,16 @@ export function OnboardingForm({
             ) : (
               <>
                 <p>Read each required current version below and affirmatively acknowledge it. MORT records the exact published version and content hash.</p>
+                {role === 'teen' && (
+                  <section className="legal-document">
+                    <h4>Teen plain-language summary</h4>
+                    <p>Use MORT honestly and only consider work that is safe and age-appropriate. Protect private details and keep communication in MORT. MORT does not process or guarantee payment. Reports are reviewed and are not automatic findings. Verification signals have limits. Guardian Mode is optional unless a separate job-specific safety requirement applies.</p>
+                    <label className="choice">
+                      <input type="checkbox" name="teen_summary_viewed" value="true" required />
+                      I reviewed the teen plain-language summary.
+                    </label>
+                  </section>
+                )}
                 {outstanding.map((item) => (
                   <section className="legal-document" key={item.version_id}>
                     <h4>{item.title}</h4>
