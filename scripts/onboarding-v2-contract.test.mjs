@@ -40,6 +40,7 @@ test('email callback reads the production onboarding completion column', () => {
 
 test('web onboarding preserves all four server-defined steps and legal clickwrap', () => {
   const form = read('../components/onboarding-form.tsx')
+  const actions = read('../app/app/actions.ts')
   assert.match(form, /account/)
   assert.match(form, /work_preferences/)
   assert.match(form, /safety_support/)
