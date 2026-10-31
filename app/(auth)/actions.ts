@@ -7,24 +7,57 @@ import { ensureProfile, sanitizeRole } from '@/lib/auth'
 
 function msg(path: string, message: string) { redirect(`${path}${path.includes('?') ? '&' : '?'}message=${encodeURIComponent(message)}`) }
 
+function ageFromDateOfBirth(value: unknown): number | null {
+  if (typeof value !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return null
+  const [year, month, day] = value.split('-').map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null
+  const today = new Date()
+  let age = today.getUTCFullYear() - year
+  if (today.getUTCMonth() + 1 < month || (today.getUTCMonth() + 1 === month && today.getUTCDate() < day)) age -= 1
+  return age
+}
+
+function checkedSignupDob(formData: FormData, signupPath: string): { dob: string; age: number } {
+  const dob = String(formData.get('date_of_birth') || '')
+  const age = ageFromDateOfBirth(dob)
+  if (age === null) msg(signupPath, 'Enter a valid date of birth.')
+  if (age < 13) msg(signupPath, 'MORT is only available to people age 13 or older.')
+  return { dob, age }
+}
+
+function signupRole(formData: FormData, age: number) {
+  if (age < 18) return 'teen'
+  const selected = sanitizeRole(formData.get('role'))
+  return selected === 'teen' ? 'adult' : selected
+}
+
 export async function signUp(formData: FormData) {
+  const signupPath = '/signup'
+  const { dob, age } = checkedSignupDob(formData, signupPath)
   const supabase = await createClient()
   const email = String(formData.get('email') || '').trim().toLowerCase()
   const password = String(formData.get('password') || '')
-  const role = sanitizeRole(formData.get('role'))
+  const role = signupRole(formData, age)
   const displayName = String(formData.get('display_name') || '').trim()
   const next = safeNext(String(formData.get('next') || ''), '/app/teen/jobs')
-  const signupPath = `/signup?next=${encodeURIComponent(next)}`
-  if (!email || password.length < 6) msg(signupPath, 'Use an email and password with at least 6 characters.')
+  const safeSignupPath = `/signup?next=${encodeURIComponent(next)}`
+  if (!email || password.length < 6) msg(safeSignupPath, 'Use an email and password with at least 6 characters.')
 
   const onboardingPath = `/app/onboarding?next=${encodeURIComponent(next)}`
   const redirectTo = `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(onboardingPath)}`
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: redirectTo, data: { role, display_name: displayName } }
+    options: {
+      emailRedirectTo: redirectTo,
+      data: { role, display_name: displayName, date_of_birth: dob }
+    }
   })
-  if (error) msg(signupPath, error.message)
+  if (error) {
+    if (error.message.includes('MORT_MINIMUM_AGE_REQUIRED')) msg(safeSignupPath, 'MORT is only available to people age 13 or older.')
+    msg(safeSignupPath, error.message)
+  }
   if (data.user && data.session) {
     await ensureProfile(supabase, data.user, role)
     revalidatePath('/', 'layout')
@@ -48,13 +81,21 @@ export async function signInWithGoogle(formData: FormData) {
   const supabase = await createClient()
   const source = String(formData.get('source') || 'login') === 'signup' ? 'signup' : 'login'
   const next = safeNext(String(formData.get('next') || ''), '/app')
-  const roleInput = formData.get('role')
-  const role = sanitizeRole(roleInput)
   const displayName = String(formData.get('display_name') || '').trim().slice(0, 80)
+  let role = sanitizeRole(formData.get('role'))
+  let dob = ''
+
+  if (source === 'signup') {
+    const checked = checkedSignupDob(formData, `/signup?next=${encodeURIComponent(next)}`)
+    dob = checked.dob
+    role = signupRole(formData, checked.age)
+  }
 
   const callbackUrl = new URL(`${getSiteUrl()}/auth/callback`)
   callbackUrl.searchParams.set('next', next)
   if (source === 'signup') {
+    callbackUrl.searchParams.set('source', 'signup')
+    callbackUrl.searchParams.set('signup_dob', dob)
     callbackUrl.searchParams.set('role', role)
     if (displayName) callbackUrl.searchParams.set('display_name', displayName)
   }
