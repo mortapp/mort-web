@@ -17,7 +17,7 @@ const ROLES = [
 ]
 
 export function OnboardingForm({ profile, next }: Props) {
-  const [role, setRole] = useState<string>(profile?.role || 'teen')
+  const [role, setRole] = useState<string>(profile?.role && profile.role !== 'pending' ? profile.role : 'teen')
 
   return (
     <form action={saveOnboarding} className="form">
@@ -51,9 +51,9 @@ export function OnboardingForm({ profile, next }: Props) {
         <div className="grid two">
           <label>Display name<input name="display_name" defaultValue={profile?.display_name || ''} required /></label>
           <label>Username<input name="username" defaultValue={profile?.username || ''} /></label>
-          <label>Date of birth<input type="date" name="dob" defaultValue={profile?.dob || ''} /></label>
+          <label>Date of birth<input type="date" name="dob" defaultValue={profile?.date_of_birth || ''} /></label>
           <label>City<input name="city" defaultValue={profile?.city || 'Indianapolis'} /></label>
-          <label>State<input name="state" defaultValue={profile?.state || 'IN'} /></label>
+          <label>State<input name="state" defaultValue={profile?.region || 'IN'} /></label>
         </div>
       </div>
 
@@ -63,10 +63,7 @@ export function OnboardingForm({ profile, next }: Props) {
           <div className="grid two">
             <label>Bio<textarea name="bio" placeholder="What kind of work can you do?" /></label>
             <label>Skills (comma-separated)<input name="skills" placeholder="dog walking, trash, tutoring" /></label>
-            <label>School year<input name="school_year" placeholder="9th grade" /></label>
-            <label style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 20 }}>
-              <input type="checkbox" name="guardian_required" style={{ width: 'auto' }} /> Require guardian approval for applications
-            </label>
+            <p style={{ fontSize: 12.5, marginTop: 10 }}>Guardian connections and application approvals are handled through their dedicated safety flows. Completing this form does not grant anyone access to your account.</p>
           </div>
         </div>
       )}
@@ -74,21 +71,14 @@ export function OnboardingForm({ profile, next }: Props) {
       {role === 'adult' && (
         <div className="card highlight">
           <h4 style={{ marginBottom: 12 }}>💼 Business details</h4>
-          <div className="grid two">
-            <label>Business name<input name="business_name" /></label>
-            <label>Business type<input name="business_type" placeholder="Homeowner, lawn care, local shop" /></label>
-          </div>
-          <p style={{ fontSize: 12.5, marginTop: 10 }}>You&apos;ll need to pass verification before you can post jobs.</p>
+          <p style={{ fontSize: 12.5, marginTop: 10 }}>Business verification is required before job posting is available. Business details are collected through the verified business setup flow.</p>
         </div>
       )}
 
       {role === 'guardian' && (
         <div className="card highlight">
           <h4 style={{ marginBottom: 12 }}>🛡️ Guardian details</h4>
-          <div className="grid two">
-            <label>Emergency contact name<input name="emergency_contact_name" /></label>
-            <label>Emergency contact phone<input name="emergency_contact_phone" /></label>
-          </div>
+          <p style={{ fontSize: 12.5, marginTop: 10 }}>Connect with a teen through MORT&apos;s Guardian linking flow. No teen account information is shared simply by selecting the Guardian role.</p>
         </div>
       )}
 
