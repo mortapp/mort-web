@@ -2,7 +2,7 @@
 import { randomUUID } from 'node:crypto'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { requireUser } from '@/lib/auth'
+import { requireAuthenticatedUser, requireUser } from '@/lib/auth'
 
 function val(fd: FormData, key: string) {
   const value = fd.get(key)
@@ -48,7 +48,7 @@ function requestParams(expectedRevision: string | null) {
 }
 
 export async function saveOnboardingAccount(formData: FormData) {
-  const { supabase, profile } = await requireUser()
+  const { supabase, profile } = await requireAuthenticatedUser()
   if (profile?.role === 'admin') redirect('/app/admin')
   if (profile?.onboarding_completed_at) redirect('/app/onboarding?message=Your setup is already complete.')
 
