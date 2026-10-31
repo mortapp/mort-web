@@ -62,11 +62,11 @@ export default async function Profile({ searchParams }: { searchParams?: Promise
             </label>
             <label>
               State
-              <input name="state" defaultValue={profile?.state || ''} placeholder="IN" />
+              <input name="state" defaultValue={profile?.region || ''} placeholder="IN" />
             </label>
             <label>
               Date of birth
-              <input type="date" name="dob" defaultValue={profile?.dob || ''} />
+              <input type="date" name="dob" defaultValue={profile?.date_of_birth || ''} />
             </label>
             <label>
               Role
