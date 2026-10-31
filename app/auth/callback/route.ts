@@ -19,10 +19,10 @@ export async function GET(request: NextRequest) {
         await ensureProfile(supabase, user, role, displayName)
         const { data: profile } = await supabase
           .from('profiles')
-          .select('onboarding_completed')
+          .select('onboarding_completed_at')
           .eq('id', user.id)
           .maybeSingle()
-        if (!profile?.onboarding_completed && !next.startsWith('/app/onboarding')) {
+        if (!profile?.onboarding_completed_at && !next.startsWith('/app/onboarding')) {
           const onboardingUrl = new URL('/app/onboarding', requestUrl.origin)
           onboardingUrl.searchParams.set('next', next)
           return NextResponse.redirect(onboardingUrl)
