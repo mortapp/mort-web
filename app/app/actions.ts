@@ -38,7 +38,7 @@ async function callProgressRpc(supabase: any, name: string, params: Record<strin
   return data
 }
 
-function requestParams(formData: FormData, expectedRevision: string | null) {
+function requestParams(expectedRevision: string | null) {
   return {
     p_client_request_id: randomUUID(),
     p_payload_version: 1,
@@ -96,7 +96,7 @@ export async function saveOnboardingWork(formData: FormData) {
 
   await callProgressRpc(supabase, 'save_my_onboarding_work_v2', {
     p_payload: payload,
-    ...requestParams(formData, val(formData, 'revision')),
+    ...requestParams(val(formData, 'revision')),
   }, '/app/onboarding')
   redirect('/app/onboarding?message=Work preferences saved.')
 }
@@ -131,11 +131,26 @@ export async function completeOnboarding(formData: FormData) {
   }
 
   const requirements = Array.isArray(legal.requirements) ? legal.requirements : []
-  const outstanding = requirements.filter((item: any) => item.required === true && !item.acceptance_id)
+  const required = requirements.filter((item: any) => item.required === true)
+  if (required.length === 0) fail('/app/onboarding', 'published_legal_acceptance_required')
+
+  const outstanding = required.filter((item: any) => !item.acceptance_id)
   const expectedIds = outstanding.map((item: any) => String(item.version_id)).sort()
   const submittedIds = formData.getAll('accepted_version_ids').map(String).sort()
   if (expectedIds.length !== submittedIds.length || expectedIds.some((id: string, i: number) => id !== submittedIds[i])) {
     fail('/app/onboarding', 'affirmative_checkbox_required')
+  }
+
+  if (expectedIds.length > 0) {
+    const { data: versions, error: versionsError } = await supabase
+      .from('legal_document_versions')
+      .select('id,content_markdown')
+      .in('id', expectedIds)
+      .eq('publication_status', 'published')
+    if (versionsError || !Array.isArray(versions) || versions.length !== expectedIds.length ||
+        versions.some((version: any) => !String(version.content_markdown || '').trim())) {
+      fail('/app/onboarding', 'published_legal_acceptance_required')
+    }
   }
 
   const signature = val(formData, 'electronic_signature') || ''
