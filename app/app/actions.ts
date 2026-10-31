@@ -4,7 +4,6 @@ import { revalidatePath } from 'next/cache'
 import { requireUser, sanitizeRole } from '@/lib/auth'
 import { safeNext } from '@/lib/site-url'
 
-function toBool(v: FormDataEntryValue | null) { return v === 'on' || v === 'true' || v === 'yes' }
 function val(fd: FormData, key: string) { const v = fd.get(key); return v == null ? null : String(v).trim() }
 
 function destinationForRole(role: string, requested: string | null) {
@@ -27,37 +26,34 @@ export async function saveOnboarding(formData: FormData) {
   // the same rule used in app/app/verify/actions.ts. Guardian pause /
   // guardian-approval-required flags are only ever defaulted on first-time
   // creation, never reset on a later save.
-  const isFirstTime = !profile?.onboarding_completed
+  const isFirstTime = !profile?.onboarding_completed_at
   const role = isFirstTime ? sanitizeRole(val(formData,'role') || profile?.role) : profile?.role
   const display_name = val(formData,'display_name') || user.email?.split('@')[0] || 'MORT User'
-  const dob = val(formData,'dob') || null
+  const dateOfBirth = val(formData,'dob') || null
   const city = val(formData,'city') || null
-  const state = val(formData,'state') || null
+  const region = val(formData,'state') || null
   const username = val(formData,'username') || null
+  const skills = role === 'teen'
+    ? String(formData.get('skills') || '').split(',').map(s => s.trim()).filter(Boolean).slice(0, 20)
+    : []
 
+  // Match the active production profiles schema. Keep the account pending
+  // and verification not_started; onboarding must not bypass release gates.
   const profilePatch: Record<string, unknown> = {
-    id: user.id, role, display_name, dob, city, state, username,
-    onboarding_completed: true, updated_at: new Date().toISOString(),
+    id: user.id,
+    role,
+    display_name,
+    date_of_birth: dateOfBirth,
+    city,
+    region,
+    username,
+    bio: role === 'teen' ? (val(formData, 'bio') || null) : null,
+    preferred_job_categories: skills,
+    onboarding_completed_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   }
-  if (isFirstTime) {
-    profilePatch.account_status = 'active'
-    profilePatch.verification_status = 'not_started'
-    profilePatch.payment_preference = 'none'
-  }
-  const { error } = await supabase.from('profiles').upsert(profilePatch)
+  const { error } = await supabase.from('profiles').upsert(profilePatch, { onConflict: 'id' })
   if (error) redirect(`/app/onboarding?message=${encodeURIComponent(error.message)}`)
-
-  if (role === 'teen') {
-    const skills = String(formData.get('skills') || '').split(',').map(s=>s.trim()).filter(Boolean)
-    const teenPatch: Record<string, unknown> = { user_id: user.id, bio: val(formData,'bio'), skills, school_year: val(formData,'school_year') }
-    if (isFirstTime) {
-      teenPatch.guardian_approval_required = toBool(formData.get('guardian_required'))
-      teenPatch.paused_by_guardian = false
-    }
-    await supabase.from('teen_profiles').upsert(teenPatch)
-  }
-  if (role === 'adult') await supabase.from('adult_profiles').upsert({ user_id: user.id, business_name: val(formData,'business_name'), business_type: val(formData,'business_type') })
-  if (role === 'guardian') await supabase.from('guardian_profiles').upsert({ user_id: user.id, emergency_contact_name: val(formData,'emergency_contact_name'), emergency_contact_phone: val(formData,'emergency_contact_phone') })
 
   revalidatePath('/app','layout')
   const destination = destinationForRole(role, val(formData, 'next'))
@@ -68,7 +64,7 @@ export async function saveOnboarding(formData: FormData) {
 export async function saveProfile(formData: FormData) {
   const { supabase, user } = await requireUser()
   const { error } = await supabase.from('profiles').update({
-    display_name: val(formData,'display_name'), username: val(formData,'username'), city: val(formData,'city'), state: val(formData,'state'), dob: val(formData,'dob') || null, updated_at: new Date().toISOString()
+    display_name: val(formData,'display_name'), username: val(formData,'username'), city: val(formData,'city'), region: val(formData,'state'), date_of_birth: val(formData,'dob') || null, updated_at: new Date().toISOString()
   }).eq('id', user.id)
   if (error) redirect(`/app/profile?message=${encodeURIComponent(error.message)}`)
   revalidatePath('/app','layout')
