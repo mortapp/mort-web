@@ -50,7 +50,7 @@ export async function getSessionProfile() {
   return { supabase, user, profile }
 }
 
-export async function requireUser() {
+export async function requireAuthenticatedUser() {
   const ctx = await getSessionProfile()
   if (!ctx.user) redirect('/login?message=Sign in first')
   if (ctx.profile?.account_status === 'suspended') {
@@ -60,10 +60,23 @@ export async function requireUser() {
   return ctx as { supabase: any; user: any; profile: any }
 }
 
+export async function requireUser() {
+  const ctx = await requireAuthenticatedUser()
+  if (ctx.profile?.role !== 'admin' && !ctx.profile?.date_of_birth) {
+    redirect('/app/onboarding?message=' + encodeURIComponent('Enter your date of birth to confirm you meet MORT\'s minimum age of 13.'))
+  }
+  return ctx
+}
+
 export async function requireRole(roles: Role[]) {
   const ctx = await requireUser()
   if (!ctx.profile?.role || !roles.includes(ctx.profile.role)) {
     redirect('/app/onboarding?message=Complete account setup first')
+  }
+  // DOB is a mandatory eligibility gate. Accounts without a saved DOB cannot
+  // enter role-protected surfaces, even if legacy status fields look active.
+  if (ctx.profile.role !== 'admin' && !ctx.profile.date_of_birth) {
+    redirect('/app/onboarding?message=' + encodeURIComponent('Enter your date of birth to confirm you meet MORT\'s minimum age of 13.'))
   }
   // A completed onboarding record does not activate a pending account.
   // Keep every role-protected dashboard behind the independent account gate.

@@ -1,9 +1,9 @@
 import { AppShell } from '@/components/app-shell'
-import { requireUser } from '@/lib/auth'
+import { requireAuthenticatedUser } from '@/lib/auth'
 export const dynamic = 'force-dynamic'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const { profile, user } = await requireUser()
+  const { profile, user } = await requireAuthenticatedUser()
   return (
     <AppShell
       role={profile?.role || 'none'}
