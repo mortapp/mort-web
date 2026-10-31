@@ -6,6 +6,11 @@ on:
     paths:
       - "app/app/actions.ts"
       - "app/app/onboarding/**"
+      - "app/app/page.tsx"
+      - "app/app/teen/**"
+      - "app/app/adult/**"
+      - "app/app/guardian/**"
+      - "app/app/admin/**"
       - "app/auth/callback/**"
       - "components/onboarding-form.tsx"
       - "lib/auth.ts"
