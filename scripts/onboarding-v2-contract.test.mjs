@@ -9,6 +9,7 @@ test('auth bootstraps the profile through the production RPC only', () => {
   assert.match(auth, /rpc\(['"]ensure_my_profile['"]\)/)
   assert.doesNotMatch(auth, /from\(['"]profiles['"]\)\s*\.(insert|upsert)/)
   assert.doesNotMatch(auth, /account_status\s*:\s*['"]active['"]/)
+  assert.match(auth, /account_status !== 'active'/)
 })
 
 test('onboarding server actions use the four v2 RPCs, not direct profile writes', () => {
@@ -25,11 +26,13 @@ test('onboarding server actions use the four v2 RPCs, not direct profile writes'
   assert.doesNotMatch(actions, /from\(['"]profiles['"]\)\s*\.(insert|upsert|update)/)
   assert.doesNotMatch(actions, /onboarding_completed\s*:/)
   assert.doesNotMatch(actions, /account_status\s*:\s*['"]active['"]/)
+  assert.match(actions, /content_markdown/)
 })
 
 test('email callback reads the production onboarding completion column', () => {
   const callback = read('../app/auth/callback/route.ts')
   assert.match(callback, /onboarding_completed_at/)
+  assert.match(callback, /account_status !== 'active'/)
   assert.doesNotMatch(callback, /select\(['"]onboarding_completed['"]\)/)
 })
 
