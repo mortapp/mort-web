@@ -35,3 +35,9 @@ jobs:
       - run: npm run test:production-config
       - run: npm run typecheck
       - run: npx eslint app/app/actions.ts app/app/onboarding/page.tsx app/app/page.tsx app/app/teen/actions.ts app/app/teen/layout.tsx app/app/adult/layout.tsx app/app/guardian/layout.tsx app/app/admin/layout.tsx app/auth/callback/route.ts components/onboarding-form.tsx lib/auth.ts
+      - name: Build Next.js production bundle
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://jxbnrkasktbhtiujkhay.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_build_placeholder
+          NEXT_PUBLIC_SITE_URL: https://mortapp.org
