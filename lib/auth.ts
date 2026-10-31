@@ -67,7 +67,7 @@ export async function requireRole(roles: Role[]) {
   }
   // A completed onboarding record does not activate a pending account.
   // Keep every role-protected dashboard behind the independent account gate.
-  if (ctx.profile.role !== 'admin' && ctx.profile.account_status !== 'active') {
+  if (ctx.profile.role !== 'admin' && (ctx.profile.account_status !== 'active' || !ctx.profile.onboarding_completed_at)) {
     redirect('/app/onboarding?message=' + encodeURIComponent('Your account is pending review. Marketplace access is not enabled yet.'))
   }
   return ctx
