@@ -12,6 +12,7 @@ on:
       - "scripts/onboarding-v2-contract.test.mjs"
       - "package.json"
       - "package-lock.json"
+      - "tsconfig.json"
       - ".github/workflows/onboarding-validation.yml"
 
 permissions:
