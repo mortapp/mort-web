@@ -106,3 +106,11 @@ test('website renders the hybrid identity policy without collecting raw ID docum
   assert.match(onboarding, /document submission is currently disabled/)
   assert.match(onboarding, /Do not email or upload identity documents/)
 })
+
+test('only the DOB-saving onboarding action bypasses the initial DOB gate', () => {
+  const actions = read('../app/app/actions.ts')
+  assert.match(actions, /saveOnboardingAccount\(formData: FormData\)[\s\S]*?requireAuthenticatedUser\(\)/)
+  assert.match(actions, /saveOnboardingWork\(formData: FormData\)[\s\S]*?requireUser\(\)/)
+  assert.match(actions, /saveOnboardingSafety\(formData: FormData\)[\s\S]*?requireUser\(\)/)
+  assert.match(actions, /completeOnboarding\(formData: FormData\)[\s\S]*?requireUser\(\)/)
+})
