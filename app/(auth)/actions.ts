@@ -55,6 +55,7 @@ export async function signUp(formData: FormData) {
     }
   })
   if (error) {
+    if (error.message.includes('MORT_DOB_REQUIRED')) msg(safeSignupPath, 'Enter your date of birth to create a MORT account.')
     if (error.message.includes('MORT_MINIMUM_AGE_REQUIRED')) msg(safeSignupPath, 'MORT is only available to people age 13 or older.')
     msg(safeSignupPath, error.message)
   }
