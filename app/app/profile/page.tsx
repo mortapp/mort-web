@@ -5,11 +5,11 @@ import { AppearanceCard } from '@/components/appearance-card'
 export const dynamic = 'force-dynamic'
 
 function getLevelInfo(xp: number) {
-  if (xp < 100) return { level: 1, name: 'New Hustler', next: 100 }
-  if (xp < 300) return { level: 2, name: 'Trusted Helper', next: 300 }
-  if (xp < 600) return { level: 3, name: 'Local Pro', next: 600 }
-  if (xp < 1000) return { level: 4, name: 'Verified Hustler', next: 1000 }
-  return { level: 5, name: 'MORT Elite', next: 1000 }
+  if (xp < 100) return { level: 1, name: 'Getting started', next: 100 }
+  if (xp < 300) return { level: 2, name: 'Building momentum', next: 300 }
+  if (xp < 600) return { level: 3, name: 'Growing locally', next: 600 }
+  if (xp < 1000) return { level: 4, name: 'Established', next: 1000 }
+  return { level: 5, name: 'Experienced', next: 1000 }
 }
 
 export default async function Profile({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
