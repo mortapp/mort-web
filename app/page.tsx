@@ -1,213 +1,165 @@
-// MORT homepage — an immersive night: the voyage fills the hero, the job lifecycle
-// is drawn as a "crossing," and the sections stay restrained and editorial.
 import Link from 'next/link'
-import { SiteHeader } from '@/components/site-header'
-import { MortHero } from '@/components/mort-hero'
-import { MortVoyage } from '@/components/mort-voyage'
-import { Logomark } from '@/components/logomark'
-import { CategoryTile } from '@/components/ui'
 import { createClient } from '@/lib/supabase/server'
+import { Logomark } from '@/components/logomark'
+import styles from './page.module.css'
 
-const FEATURED_CATEGORIES = [
-  { category: 'tutoring', label: 'Tutoring' },
-  { category: 'lawn care', label: 'Lawn care' },
-  { category: 'dog walking', label: 'Dog walking' },
-  { category: 'cleaning', label: 'Cleaning' },
-  { category: 'errands', label: 'Errands' },
-  { category: 'babysitting', label: 'Babysitting' },
-  { category: 'car washing', label: 'Car washing' },
-  { category: 'trash help', label: 'Trash help' },
+type IconName = 'lawn' | 'pet' | 'tutoring' | 'car' | 'cleaning' | 'errands'
+
+const categories: { name: string; key: string; icon: IconName; description: string }[] = [
+  { name: 'Lawn care', key: 'lawn care', icon: 'lawn', description: 'Outdoor jobs and yard help' },
+  { name: 'Pet care', key: 'dog walking', icon: 'pet', description: 'Walking and caring for pets' },
+  { name: 'Tutoring', key: 'tutoring', icon: 'tutoring', description: 'Helping others learn' },
+  { name: 'Car washing', key: 'car washing', icon: 'car', description: 'Cleaning and detailing cars' },
+  { name: 'Cleaning', key: 'cleaning', icon: 'cleaning', description: 'Everyday household help' },
+  { name: 'Errands', key: 'errands', icon: 'errands', description: 'Simple neighborhood tasks' },
 ]
 
-const crossing: [string, string][] = [
-  ['Discover', 'A teen sees a job nearby — without exposing unnecessary private location.'],
-  ['Apply', 'A quick application. MORT never pretends the teen was already accepted.'],
-  ['Accept & schedule', 'The poster chooses someone, and both agree on a time.'],
-  ['Start with a PIN', 'The job only goes active through MORT’s start flow — not a random button.'],
-  ['Work & finish', 'Safety tools stay available; completion is confirmed where applicable.'],
-  ['Completed', 'It joins both histories, reputation grows, and reviews can follow.'],
-]
+function Arrow({ diagonal = false }: { diagonal?: boolean }) {
+  return diagonal ? (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 19 19 5M8 5h11v11" /></svg>
+  ) : (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12h16m-7-7 7 7-7 7" /></svg>
+  )
+}
 
-const pillars = [
-  { icon: '🧭', title: 'Move', text: 'Discover and complete real work nearby — yard work, pet care, moving help, event prep and other approved local jobs.' },
-  { icon: '🛡️', title: 'Trust', text: 'Identities, reputation, history and verification give both sides a reason to rely on each other — no blank-slate strangers.' },
-  { icon: '✦', title: 'Safety', text: 'Approximate location, private messaging, reporting, check-ins, an optional guardian, and PIN-based job start — never behind a paywall.' },
-]
+function CategoryIcon({ name }: { name: IconName }) {
+  const common = { width: 26, height: 26, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true as const }
+  switch (name) {
+    case 'lawn': return <svg {...common}><path d="M4 20V6m0 11 4-3 4 3 4-5 4 3M2 20h20M8 8l2-4 2 4M16 8l2-4 2 4" /></svg>
+    case 'pet': return <svg {...common}><circle cx="5" cy="8" r="1.5" /><circle cx="10" cy="5" r="1.5" /><circle cx="16" cy="5" r="1.5" /><circle cx="20" cy="9" r="1.5" /><path d="M10 12c-2 1-5 3-5 6 0 2 2 3 4 2 2-1 4-1 6 0 2 1 4 0 4-2 0-3-4-6-6-6-1 0-2 0-3 0Z" /></svg>
+    case 'tutoring': return <svg {...common}><path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Zm0 0v14M6 9h3m6 0h3M6 13h3m6 0h3" /></svg>
+    case 'car': return <svg {...common}><path d="m5 11 2-5h10l2 5M4 11h16a1 1 0 0 1 1 1v6H3v-6a1 1 0 0 1 1-1ZM6 18v2m12-2v2M6 14h2m8 0h2" /></svg>
+    case 'cleaning': return <svg {...common}><path d="m8 6 8 8m-9-2 5-5m2 8 4 5H4l4-8m-2 5h12M15 3v4m-2-2h4" /></svg>
+    default: return <svg {...common}><path d="M4 7h16v13H4zM8 7V5a4 4 0 0 1 8 0v2M4 12h16m-10 0v2h4v-2" /></svg>
+  }
+}
 
-const roles = [
-  { icon: '🔥', title: 'For teens', color: 'var(--primary)', items: ['Discover → apply → schedule → work → complete', 'Build a reputation that travels with you', 'Privacy-first location, in-app messaging'], cta: 'Start your hustle', href: '/signup' },
-  { icon: '🧭', title: 'For adults', color: 'var(--accent-blue)', items: ['Post → review applicants → accept → confirm', 'Verified identities and real ratings', 'Responsible for lawful, age-appropriate work'], cta: 'Post a job', href: '/signup' },
-  { icon: '🛡️', title: 'For guardians', color: 'var(--muted2)', items: ['Connect with an invite code', 'See applications and safety pings', 'Approve or pause any job'], cta: 'Protect your teen', href: '/signup' },
-]
-
-const safety = [
-  { cls: 'card danger-card', tile: 'card-icon-tile', icon: '🚨', title: 'SOS', text: 'One tap sends an emergency ping to guardians and admins with your last known job location.' },
-  { cls: 'card highlight', tile: 'card-icon-tile blue', icon: '✅', title: 'Safety check-ins', text: 'Teens check in when they arrive, start and finish. Guardians see every ping.' },
-  { cls: 'card', tile: 'card-icon-tile', icon: '🛡️', title: 'Verified adults', text: 'Every adult is reviewed by admins before they can post jobs or contact teens.' },
-]
+function MarketingHeader({ signedIn }: { signedIn: boolean }) {
+  return (
+    <header className={styles.header}>
+      <div className={styles.headerInner}>
+        <Link className={styles.brand} href="/" aria-label="MORT homepage"><Logomark size={28} /><span>MORT</span></Link>
+        <nav className={styles.desktopNav} aria-label="Main navigation">
+          <a href="#categories">Find work</a>
+          <a href="#how-it-works">How it works</a>
+          <a href="#for-posters">Post a job</a>
+          <Link href="/safety">Safety</Link>
+        </nav>
+        <div className={styles.headerActions}>
+          {signedIn ? <Link className={styles.headerButton} href="/app">Dashboard <Arrow /></Link> : <><Link className={styles.loginLink} href="/login">Log in</Link><Link className={styles.headerButton} href="/signup">Get started <Arrow /></Link></>}
+        </div>
+        <details className={styles.mobileMenu}>
+          <summary aria-label="Open navigation"><span></span><span></span><span></span></summary>
+          <nav aria-label="Mobile navigation">
+            <a href="#categories">Find work</a>
+            <a href="#how-it-works">How it works</a>
+            <a href="#for-posters">Post a job</a>
+            <Link href="/safety">Safety</Link>
+            {!signedIn && <Link href="/login">Log in</Link>}
+            <Link className={styles.mobilePrimary} href={signedIn ? '/app' : '/signup'}>{signedIn ? 'Dashboard' : 'Get started'} <Arrow /></Link>
+          </nav>
+        </details>
+      </div>
+    </header>
+  )
+}
 
 export default async function Home() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const { data: openJobs } = await supabase.from('jobs').select('category').eq('status', 'open')
   const counts: Record<string, number> = {}
-  for (const j of openJobs || []) {
-    const key = (j.category || '').toLowerCase().trim()
-    if (key) counts[key] = (counts[key] || 0) + 1
+  for (const job of openJobs ?? []) {
+    const key = (job.category ?? '').toLowerCase().trim()
+    if (key) counts[key] = (counts[key] ?? 0) + 1
   }
+  const jobsHref = user ? '/app/teen/jobs' : '/signup?next=%2Fapp%2Fteen%2Fjobs'
+  const signupHref = user ? '/app' : '/signup'
 
   return (
-    <>
-      <SiteHeader isSignedIn={!!user} />
-      <main>
-        {/* Immersive hero — the voyage fills the screen */}
-        <section className="mort-hero-section">
-          <MortHero />
-          <div className="mort-cta-row">
-            <Link className="btn primary lg" href="/signup">Get MORT — it’s free</Link>
-            <Link className="btn ghost lg" href="/#crossing">See how it works</Link>
-          </div>
-          <div className="mort-assur"><b>Free</b> for teens · <b>Guardian</b> controls · <b>Verified</b> adults only</div>
-          <div className="mort-scrollhint">explore</div>
-        </section>
-
-        {/* The crossing — the job lifecycle as a short voyage */}
-        <section id="crossing" className="section container mort-narrow mort-center">
-          <div className="kicker">The crossing</div>
-          <h2>Every job is a short voyage.</h2>
-          <p className="lead mort-lead-center">From the moment a teen applies to the moment the work is done, MORT tracks exactly where things stand — and who acts next.</p>
-          <div className="card mort-crossing-wrap" style={{ marginTop: 32, textAlign: 'left' }}>
-            <MortVoyage />
-          </div>
-          <div className="mort-steps" style={{ textAlign: 'left' }}>
-            {crossing.map((s, i) => (
-              <div className="mort-step" key={s[0]}>
-                <div className="n">{i + 1}</div>
-                <div><h4>{s[0]}</h4><p>{s[1]}</p></div>
+    <div className={styles.landing}>
+      <MarketingHeader signedIn={!!user} />
+      <main id="main-content">
+        <section className={styles.hero}>
+          <div className={styles.heroInner}>
+            <div className={styles.heroContent}>
+              <div className={styles.eyebrow}><span className={styles.dot} /> LOCAL OPPORTUNITIES FOR TEENS 13–17</div>
+              <h1>Find work.<br /><span>Earn nearby.</span></h1>
+              <p>Find local work you can do, build real experience, and connect with people in your community. MORT makes it easier to get started.</p>
+              <div className={styles.heroActions}><Link href={jobsHref} className={styles.primaryButton}>Find opportunities <Arrow /></Link><a href="#for-posters" className={styles.secondaryButton}>I need help with a job</a></div>
+              <p className={styles.heroNote}>Designed for teens, adults, and local businesses. Availability varies by area.</p>
+            </div>
+            <div className={styles.heroVisual}>
+              <div className={styles.preview}>
+                <div className={styles.previewHeader}><span className={styles.previewTitle}>Explore local work</span><span className={styles.previewDot}><span /></span></div>
+                <p className={styles.previewSubtitle}>Opportunities start in your neighborhood.</p>
+                <div className={styles.previewGrid}>
+                  {categories.slice(0, 4).map(category => {
+                    const next = `/app/teen/jobs?category=${category.key}`
+                    const href = user ? `/app/teen/jobs?category=${encodeURIComponent(category.key)}` : `/signup?next=${encodeURIComponent(next)}`
+                    return <Link key={category.key} className={styles.previewCategory} href={href}><span className={styles.previewCategoryIcon}><CategoryIcon name={category.icon} /></span><span>{category.name}</span><Arrow diagonal /></Link>
+                  })}
+                </div>
+                <div className={styles.previewFooter}><span className={styles.previewFootIcon}>✓</span><span>Find opportunities that fit your skills and schedule.</span></div>
               </div>
-            ))}
+              <div className={styles.previewAccent} aria-hidden="true" />
+            </div>
           </div>
         </section>
 
-        {/* Move · Trust · Safety */}
-        <section className="section container mort-center">
-          <div className="kicker">Move · Trust · Safety</div>
-          <h2>Not a gig app. Its own category.</h2>
-          <p className="lead mort-lead-center">MORT is local opportunity infrastructure — identity, job states, evidence and accountability wrapped around real nearby work.</p>
-          <div className="grid three" style={{ marginTop: 32, textAlign: 'left' }}>
-            {pillars.map(p => (
-              <div className="card" key={p.title}>
-                <div className="card-icon-tile">{p.icon}</div>
-                <h3>{p.title}</h3>
-                <p style={{ marginTop: 6 }}>{p.text}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        <section className={styles.introStrip} aria-label="MORT overview"><div className={styles.container}>
+          <div><strong>For teens 13–17</strong><span>Discover age-appropriate local work</span></div>
+          <div><strong>For neighbors</strong><span>Find help with everyday tasks</span></div>
+          <div><strong>Built around safety</strong><span>Reporting and safety tools included</span></div>
+        </div></section>
 
-        {/* Real local work — live categories */}
-        <section id="categories" className="section container mort-center">
-          <div className="kicker">Real local work</div>
-          <h2>Tutoring. Lawn care. Dog walking. Real jobs, not gig-app filler.</h2>
-          <p className="lead mort-lead-center">Every job on MORT is something a teen can actually do nearby, for someone in their community.</p>
-          <div className="grid four" style={{ marginTop: 32 }}>
-            {FEATURED_CATEGORIES.map(c => (
-              <CategoryTile key={c.category} category={c.category} label={c.label} count={counts[c.category] || 0}
-                href={`/signup?next=${encodeURIComponent(`/app/teen/jobs?category=${c.category}`)}`} />
-            ))}
+        <section id="categories" className={styles.section}><div className={styles.container}>
+          <div className={styles.sectionHead}><div><span className={styles.kicker}>DISCOVER WORK</span><h2>Work that fits your life.</h2><p>Explore everyday opportunities and find something you can do close to home.</p></div><Link className={styles.textLink} href={jobsHref}>Browse opportunities <Arrow /></Link></div>
+          <div className={styles.categoryGrid}>
+            {categories.map(category => {
+              const count = counts[category.key] ?? 0
+              const next = `/app/teen/jobs?category=${category.key}`
+              const href = user ? `/app/teen/jobs?category=${encodeURIComponent(category.key)}` : `/signup?next=${encodeURIComponent(next)}`
+              return <Link key={category.key} href={href} className={styles.categoryCard}><div className={styles.categoryIcon}><CategoryIcon name={category.icon} /></div><div className={styles.categoryCardBody}><h3>{category.name}</h3><p>{category.description}</p></div><div className={styles.categoryBottom}><span>{count > 0 ? `${count} open ${count === 1 ? 'job' : 'jobs'}` : 'Explore category'}</span><Arrow diagonal /></div></Link>
+            })}
           </div>
-        </section>
+        </div></section>
 
-        {/* Roles */}
-        <section id="roles" className="section container mort-center">
-          <div className="kicker">Who it’s for</div>
-          <h2>Related experiences, tuned to each side.</h2>
-          <div className="grid three" style={{ marginTop: 32, textAlign: 'left' }}>
-            {roles.map(r => (
-              <div className="card highlight" key={r.title}>
-                <div style={{ fontSize: 30, marginBottom: 12 }}>{r.icon}</div>
-                <h3 style={{ color: r.color }}>{r.title}</h3>
-                <ul style={{ listStyle: 'none', padding: 0, margin: '12px 0 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {r.items.map(item => (
-                    <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13.5, color: 'var(--muted2)' }}>
-                      <span style={{ color: r.color, fontSize: 12, marginTop: 3 }}>✓</span> {item}
-                    </li>
-                  ))}
-                </ul>
-                <Link href={r.href} className="btn primary" style={{ width: '100%', justifyContent: 'center' }}>{r.cta}</Link>
-              </div>
-            ))}
+        <section id="how-it-works" className={styles.howSection}><div className={styles.container}>
+          <div className={styles.sectionHead}><div><span className={styles.kicker}>SIMPLE FROM THE START</span><h2>How MORT works.</h2><p>From finding an opportunity to finishing a job, know what comes next.</p></div></div>
+          <div className={styles.steps}>
+            <div className={styles.step}><span className={styles.stepNo}>01</span><h3>Explore opportunities</h3><p>Browse local tasks, see what's involved, and choose work that fits you.</p></div>
+            <div className={styles.step}><span className={styles.stepNo}>02</span><h3>Apply and coordinate</h3><p>Apply to a job, connect through MORT, and agree on the details before starting.</p></div>
+            <div className={styles.step}><span className={styles.stepNo}>03</span><h3>Complete the work</h3><p>Follow the job's progress, finish the task, and build your experience.</p></div>
           </div>
-        </section>
+        </div></section>
 
-        {/* Safety — never premium */}
-        <section className="section container mort-center">
-          <div className="kicker">Safety, never premium</div>
-          <h2>Built in from the very first screen.</h2>
-          <p className="lead mort-lead-center">MORT can’t guarantee anyone’s safety and doesn’t claim to read every message — but report, block and the Safety Center are free for everyone, always.</p>
-          <div className="grid three" style={{ marginTop: 32, textAlign: 'left' }}>
-            {safety.map(s => (
-              <div className={s.cls} key={s.title}>
-                <div className={s.tile}>{s.icon}</div>
-                <h3>{s.title}</h3>
-                <p style={{ marginTop: 6 }}>{s.text}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        <section id="for-posters" className={styles.forEveryone}><div className={styles.container}><div className={styles.dualGrid}>
+          <article className={styles.audienceCard}><span className={styles.kicker}>FOR TEENS</span><h2>Your skills can<br />take you places.</h2><p>Discover work nearby, apply to jobs that interest you, and build real-world experience one opportunity at a time.</p><Link href={jobsHref} className={styles.primaryButton}>Explore work <Arrow /></Link><div className={styles.audienceArtTeen} aria-hidden="true"><span className={styles.audienceArtLabel}>YOUR NEXT OPPORTUNITY</span><span className={styles.audienceArtShape}>M</span></div></article>
+          <article className={styles.audienceCard}><span className={styles.kicker}>FOR ADULTS & BUSINESSES</span><h2>Get a little help.<br />Make a big difference.</h2><p>Have an age-appropriate task that needs doing? Post an opportunity and connect with local teens interested in helping.</p><Link href={signupHref} className={styles.primaryButton}>Get started <Arrow /></Link><div className={styles.audienceArtAdult} aria-hidden="true"><span className={styles.audienceArtLabel}>LOCAL HELP, SIMPLIFIED</span><span className={styles.audienceArtBlocks}><i /><i /><i /></span></div></article>
+        </div></div></section>
 
-        {/* Final CTA */}
-        <section className="section container mort-center" style={{ paddingBottom: 90 }}>
-          <div className="card" style={{ maxWidth: 760, margin: '0 auto', padding: '56px 30px' }}>
-            <div className="kicker" style={{ justifyContent: 'center' }}>Start the crossing</div>
-            <h2>Earn nearby. Move smart.</h2>
-            <p className="lead mort-lead-center" style={{ margin: '12px auto 28px' }}>Create an account in under a minute. Safety tools are on from the very first screen.</p>
-            <Link className="btn primary lg" href="/signup">Get MORT</Link>
+        <section className={styles.safetySection}><div className={styles.container}>
+          <div className={styles.safetyCopy}><span className={styles.kicker}>SAFETY IS PART OF THE PRODUCT</span><h2>Built with younger workers in mind.</h2><p>Every opportunity deserves clear expectations. MORT includes tools for reporting concerns, managing conversations, and keeping track of work. No platform can guarantee safety, so responsible job screening and adult involvement remain important.</p><Link className={styles.textLink} href="/safety">Learn about safety at MORT <Arrow /></Link></div>
+          <div className={styles.safetyFeatures}>
+            <div><span className={styles.featureSymbol}>01</span><div><strong>Job tracking</strong><p>Know the status of each application and job.</p></div></div>
+            <div><span className={styles.featureSymbol}>02</span><div><strong>Reporting tools</strong><p>Raise concerns and block unwanted contact.</p></div></div>
+            <div><span className={styles.featureSymbol}>03</span><div><strong>Guardian involvement</strong><p>Family involvement and oversight options where supported.</p></div></div>
           </div>
-        </section>
+        </div></section>
+
+        <section className={styles.finalSection}><div className={styles.container}><div><span className={styles.finalKicker}>GET IN MOTION</span><h2>Ready to get started?</h2><p>Make your next move with MORT.</p></div><Link href={signupHref} className={styles.finalButton}>Get started <Arrow /></Link></div></section>
       </main>
-
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-grid">
-            <div>
-              <Link href="/" className="logo" style={{ marginBottom: 16 }}>
-                <Logomark size={26} />
-                <span>MORT</span>
-              </Link>
-              <p style={{ fontSize: 13, maxWidth: 260, marginTop: 12 }}>Local opportunity infrastructure for teenagers. Earn nearby. Move smart. Stay safe.</p>
-            </div>
-            <div>
-              <h4 style={{ marginBottom: 12 }}>Product</h4>
-              <div className="footer-links">
-                <Link href="/#crossing">How it works</Link>
-                <Link href="/#roles">For teens</Link>
-                <Link href="/#roles">For adults</Link>
-                <Link href="/safety">Safety</Link>
-              </div>
-            </div>
-            <div>
-              <h4 style={{ marginBottom: 12 }}>Legal</h4>
-              <div className="footer-links">
-                <Link href="/legal/terms">Terms of service</Link>
-                <Link href="/legal/privacy">Privacy policy</Link>
-              </div>
-            </div>
-            <div>
-              <h4 style={{ marginBottom: 12 }}>Account</h4>
-              <div className="footer-links">
-                <Link href="/signup">Create account</Link>
-                <Link href="/login">Sign in</Link>
-                <Link href="/signup?next=%2Fapp%2Fteen%2Fjobs">Browse jobs</Link>
-              </div>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <span>© 2026 MORT. Teen-safe local opportunity infrastructure.</span>
-            <span>Not a payment processor. Compensation is arranged off-platform.</span>
+      <footer className={styles.footer}><div className={styles.container}>
+        <div className={styles.footerTop}><div className={styles.footerBrand}><Link className={styles.brand} href="/"><Logomark size={26} /><span>MORT</span></Link><p>Earn nearby. Move smart.</p></div>
+          <div className={styles.footerLinks}>
+            <div><strong>Explore</strong><a href="#categories">Find work</a><a href="#how-it-works">How it works</a><a href="#for-posters">Post a job</a></div>
+            <div><strong>Resources</strong><Link href="/safety">Safety</Link><Link href="/login">Log in</Link><Link href="/signup">Create account</Link></div>
+            <div><strong>Legal</strong><Link href="/legal/terms">Terms</Link><Link href="/legal/privacy">Privacy</Link><a href="https://legal.mortapp.org">Legal center</a></div>
           </div>
         </div>
-      </footer>
-    </>
+        <div className={styles.footerBottom}><span>© 2026 MORT. All rights reserved.</span><span>Opportunities are subject to local availability and applicable youth-work rules.</span></div>
+      </div></footer>
+    </div>
   )
 }

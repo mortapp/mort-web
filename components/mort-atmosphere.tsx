@@ -15,6 +15,7 @@ export function MortAtmosphere() {
   }, [pathname])
 
   useEffect(() => {
+    if (pathname === '/') return
     const cvs = ref.current
     if (!cvs) return
     const g = cvs.getContext('2d')
@@ -82,7 +83,8 @@ export function MortAtmosphere() {
     resize()
     if (!REDUCE) raf = requestAnimationFrame(loop)
     return () => { cancelAnimationFrame(raf); clearTimeout(rt); window.removeEventListener('resize', onResize); window.removeEventListener('pointermove', onMove); document.removeEventListener('visibilitychange', onVis) }
-  }, [])
+  }, [pathname])
 
+  if (pathname === '/') return null
   return (<><canvas id="mort-sky" ref={ref} aria-hidden="true" /><div className="mort-vignette" aria-hidden="true" /></>)
 }
