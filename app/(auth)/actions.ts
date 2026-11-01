@@ -1,5 +1,6 @@
 'use server'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getSiteUrl, safeNext } from '@/lib/site-url'
@@ -82,23 +83,19 @@ export async function signInWithGoogle(formData: FormData) {
   const supabase = await createClient()
   const source = String(formData.get('source') || 'login') === 'signup' ? 'signup' : 'login'
   const next = safeNext(String(formData.get('next') || ''), '/app')
-  const displayName = String(formData.get('display_name') || '').trim().slice(0, 80)
-  let role = sanitizeRole(formData.get('role'))
   let dob = ''
 
   if (source === 'signup') {
     const checked = checkedSignupDob(formData, `/signup?next=${encodeURIComponent(next)}`)
     dob = checked.dob
-    role = signupRole(formData, checked.age)
+
   }
 
   const callbackUrl = new URL(`${getSiteUrl()}/auth/callback`)
   callbackUrl.searchParams.set('next', next)
   if (source === 'signup') {
     callbackUrl.searchParams.set('source', 'signup')
-    callbackUrl.searchParams.set('signup_dob', dob)
-    callbackUrl.searchParams.set('role', role)
-    if (displayName) callbackUrl.searchParams.set('display_name', displayName)
+
   }
 
   const fallbackPath = source === 'signup'
@@ -112,6 +109,16 @@ export async function signInWithGoogle(formData: FormData) {
 
   if (error) msg(fallbackPath, error.message)
   if (!data?.url) msg(fallbackPath, 'Google sign-in is not configured yet. Check Supabase Auth provider settings.')
+  if (source === 'signup') {
+    const cookieStore = await cookies()
+    cookieStore.set('mort_signup_dob', dob, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/auth/callback',
+      maxAge: 600,
+    })
+  }
   redirect(data.url)
 }
 
