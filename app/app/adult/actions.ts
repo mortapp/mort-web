@@ -62,7 +62,6 @@ function getJobPayload(formData: FormData, profile: any) {
       city,
       state,
       adult_job_amount_cents: amount,
-      pay_label: null,
       teen_min_age: teenMinAge,
       teen_max_age: teenMaxAge,
       requires_guardian_approval: false,
