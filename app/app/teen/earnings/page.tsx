@@ -15,7 +15,7 @@ export default async function Earnings() {
 
   return (
     <>
-      <PageHeaderWithActions title="Assignment history" eyebrow="Compensation overview" description="This is an estimate based on completed assignment records, not proof of payment. MORT does not process or guarantee compensation." />
+      <PageHeaderWithActions title="Job history" eyebrow="Compensation estimate" description="This is an estimate based on completed assignment records, not proof of payment. MORT does not process or guarantee compensation." />
       {error && <div className="error">Assignment history could not be loaded.</div>}
       <div className="stats" style={{ marginBottom: 24 }}>
         <MetricCard icon="💰" label="Estimated completed value" value={<CountUp value={Math.round(totalCents / 100)} prefix="$" />} sub="not verified as paid" />
