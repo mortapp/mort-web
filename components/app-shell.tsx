@@ -7,30 +7,7 @@ import { Logomark } from '@/components/logomark'
 import { Icon } from '@/components/icons'
 import { ThemeToggle } from '@/components/theme-toggle'
 
-type NavItem = { href: string; icon: string; label: string; badge?: number; roles?: string[] }
-
-const navItems: NavItem[] = [
-  { href: '/app', icon: 'dashboard', label: 'Dashboard' },
-  { href: '/app/teen/jobs', icon: 'search', label: 'Browse jobs', roles: ['teen','admin'] },
-  { href: '/app/teen/applications', icon: 'clipboard', label: 'Applications', roles: ['teen','admin'] },
-  { href: '/app/teen/active', icon: 'bolt', label: 'Active jobs', roles: ['teen','admin'] },
-  { href: '/app/teen/saved', icon: 'bookmark', label: 'Saved jobs', roles: ['teen','admin'] },
-  { href: '/app/teen/earnings', icon: 'wallet', label: 'Earnings', roles: ['teen','admin'] },
-  { href: '/app/challenges', icon: 'trophy', label: 'Challenges', roles: ['teen','admin'] },
-  { href: '/app/team-hustles', icon: 'users', label: 'Team hustles', roles: ['teen','admin'] },
-  { href: '/app/adult', icon: 'briefcase', label: 'Adult home', roles: ['adult','admin'] },
-  { href: '/app/adult/post-job', icon: 'plus', label: 'Post a job', roles: ['adult','admin'] },
-  { href: '/app/adult/jobs', icon: 'folder', label: 'My jobs', roles: ['adult','admin'] },
-  { href: '/app/adult/applications', icon: 'users', label: 'Applicants', roles: ['adult','admin'] },
-  { href: '/app/guardian', icon: 'shield', label: 'Guardian', roles: ['guardian','admin'] },
-  { href: '/app/messages', icon: 'message', label: 'Messages' },
-  { href: '/app/safety', icon: 'alert', label: 'Safety center' },
-  { href: '/app/payments', icon: 'card', label: 'Payment prefs' },
-  { href: '/app/profile', icon: 'user', label: 'Profile' },
-  { href: '/app/support', icon: 'headset', label: 'Support' },
-  { href: '/app/reports/new', icon: 'flag', label: 'Report issue' },
-  { href: '/app/admin', icon: 'lock', label: 'Admin', roles: ['admin'] },
-]
+type NavItem = { href: string; icon: string; label: string; exact?: boolean }
 
 interface Props {
   children: React.ReactNode
@@ -40,124 +17,141 @@ interface Props {
   verificationStatus?: string
 }
 
-function getLevelInfo(xp: number) {
-  if (xp < 100) return { level: 1, name: 'New Hustler', next: 100 }
-  if (xp < 300) return { level: 2, name: 'Trusted Helper', next: 300 }
-  if (xp < 600) return { level: 3, name: 'Local Pro', next: 600 }
-  if (xp < 1000) return { level: 4, name: 'Verified Hustler', next: 1000 }
-  return { level: 5, name: 'MORT Elite', next: 1000 }
+const consumerNav: Record<string, { primary: NavItem[]; secondary: NavItem[] }> = {
+  teen: {
+    primary: [
+      { href: '/app/teen/jobs', icon: 'dashboard', label: 'Home', exact: true },
+      { href: '/app/teen/explore', icon: 'search', label: 'Explore' },
+      { href: '/app/messages', icon: 'message', label: 'Inbox' },
+      { href: '/app/profile', icon: 'user', label: 'Profile' },
+    ],
+    secondary: [
+      { href: '/app/teen/applications', icon: 'clipboard', label: 'Applications' },
+      { href: '/app/teen/active', icon: 'bolt', label: 'Active jobs' },
+      { href: '/app/teen/saved', icon: 'bookmark', label: 'Saved jobs' },
+      { href: '/app/teen/earnings', icon: 'wallet', label: 'Earnings' },
+      { href: '/app/challenges', icon: 'trophy', label: 'Progress' },
+    ],
+  },
+  adult: {
+    primary: [
+      { href: '/app/adult', icon: 'dashboard', label: 'Home', exact: true },
+      { href: '/app/adult/jobs', icon: 'briefcase', label: 'My jobs' },
+      { href: '/app/messages', icon: 'message', label: 'Inbox' },
+      { href: '/app/profile', icon: 'user', label: 'Profile' },
+    ],
+    secondary: [
+      { href: '/app/adult/applications', icon: 'users', label: 'Applicants' },
+      { href: '/app/verify', icon: 'shield', label: 'Verification' },
+      { href: '/app/payments', icon: 'card', label: 'Payment settings' },
+    ],
+  },
+  guardian: {
+    primary: [
+      { href: '/app/guardian', icon: 'dashboard', label: 'Home', exact: true },
+      { href: '/app/verify', icon: 'shield', label: 'Connections' },
+      { href: '/app/messages', icon: 'message', label: 'Inbox' },
+      { href: '/app/profile', icon: 'user', label: 'Profile' },
+    ],
+    secondary: [
+      { href: '/app/safety', icon: 'alert', label: 'Safety center' },
+      { href: '/app/support', icon: 'headset', label: 'Support' },
+    ],
+  },
+  admin: {
+    primary: [
+      { href: '/app/admin', icon: 'lock', label: 'Review workspace', exact: true },
+    ],
+    secondary: [
+      { href: '/app/verify', icon: 'shield', label: 'Verification queue' },
+    ],
+  },
 }
 
-export function AppShell({ children, role = 'none', displayName, xp = 0, verificationStatus }: Props) {
+function isActive(pathname: string, item: NavItem) {
+  return item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(item.href + '/')
+}
+
+export function AppShell({ children, role = 'none', displayName }: Props) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const lvl = getLevelInfo(xp)
-  const xpPct = Math.min(100, (xp / lvl.next) * 100)
+  const nav = consumerNav[role] || { primary: [], secondary: [] }
+  const isAdult = role === 'adult'
+  const isAdmin = role === 'admin'
+  const closeMenu = () => setSidebarOpen(false)
 
-  const visibleItems = navItems.filter(item => !item.roles || item.roles.includes(role))
-
-  const sections: { label: string; items: NavItem[] }[] = [
-    { label: 'Main', items: visibleItems.filter(i => ['Dashboard','Browse jobs','Applications','Active jobs','Saved jobs','Earnings','Challenges','Team hustles'].includes(i.label)) },
-    { label: 'Adult', items: visibleItems.filter(i => ['Adult home','Post a job','My jobs','Applicants'].includes(i.label)) },
-    { label: 'Guardian', items: visibleItems.filter(i => ['Guardian'].includes(i.label)) },
-    { label: 'Account', items: visibleItems.filter(i => ['Messages','Safety center','Payment prefs','Profile','Support','Report issue'].includes(i.label)) },
-    { label: 'Admin', items: visibleItems.filter(i => ['Admin'].includes(i.label)) },
-  ].filter(s => s.items.length > 0)
+  const renderLink = (item: NavItem, mobile = false) => {
+    const active = isActive(pathname, item)
+    return (
+      <Link key={item.href} href={item.href} className={mobile ? (active ? 'active' : '') : `sidebar-link ${active ? 'active' : ''}`} onClick={closeMenu} aria-current={active ? 'page' : undefined}>
+        {mobile ? <span className="mobile-nav-icon">{item.icon === 'plus' ? <span className="app-mobile-nav-add"><Icon name="plus" size={20} /></span> : <Icon name={item.icon} />}</span> : <span className="sidebar-link-icon"><Icon name={item.icon} /></span>}
+        <span>{item.label}</span>
+      </Link>
+    )
+  }
 
   return (
-    <div className="app-shell">
-      {/* Sidebar */}
+    <div className={`app-shell ${isAdmin ? 'app-shell-admin' : ''}`}>
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
-          <Link href="/" className="logo" onClick={() => setSidebarOpen(false)}>
-            <Logomark size={28} />
-            <span>MORT</span>
+          <Link href={isAdmin ? '/app/admin' : '/app'} className="logo" onClick={closeMenu}>
+            <Logomark size={28} /><span>MORT</span>
           </Link>
+          {isAdmin && <div className="workspace-label">INTERNAL WORKSPACE</div>}
         </div>
 
-        {displayName && (
-          <div className="sidebar-user">
-            <div className="sidebar-user-name">{displayName}</div>
-            <div style={{ marginTop: 6 }}><RoleBadge role={role} /></div>
-            <div className="sidebar-user-xp">
-              <span>{xp} XP</span>
-              <div className="sidebar-xp-bar">
-                <div className="sidebar-xp-fill" style={{ width: `${xpPct}%` }} />
-              </div>
-              <span>{lvl.next} XP</span>
-            </div>
-          </div>
-        )}
+        <div className="sidebar-user">
+          <div className="sidebar-user-name">{displayName || 'Your account'}</div>
+          <div style={{ marginTop: 6 }}><RoleBadge role={role} /></div>
+        </div>
 
-        <nav className="sidebar-nav">
-          {sections.map(section => (
-            <div key={section.label}>
-              <div className="sidebar-section">{section.label}</div>
-              {section.items.map(item => {
-                const isActive = pathname === item.href || (item.href !== '/app' && pathname.startsWith(item.href))
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`sidebar-link ${isActive ? 'active' : ''}`}
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    <span className="sidebar-link-icon"><Icon name={item.icon} /></span>
-                    <span>{item.label}</span>
-                    {item.badge ? <span className="sidebar-link-badge">{item.badge}</span> : null}
-                  </Link>
-                )
-              })}
-            </div>
-          ))}
+        <nav className="sidebar-nav" aria-label={isAdmin ? 'Staff navigation' : 'Main navigation'}>
+          <div className="sidebar-section">{isAdmin ? 'Review' : 'Main'}</div>
+          {nav.primary.map(item => renderLink(item))}
+          {nav.secondary.length > 0 && <>
+            <div className="sidebar-section">{isAdmin ? 'Queues' : 'Your MORT'}</div>
+            {nav.secondary.map(item => renderLink(item))}
+          </>}
+          {!isAdmin && <>
+            <div className="sidebar-section">Help & safety</div>
+            {renderLink({ href: '/app/safety', icon: 'shield', label: 'Safety center' })}
+            {renderLink({ href: '/app/support', icon: 'headset', label: 'Support' })}
+            {renderLink({ href: '/app/reports/new', icon: 'flag', label: 'Report an issue' })}
+          </>}
         </nav>
 
         <div className="sidebar-footer">
           <form action="/auth/signout" method="POST">
-            <button className="btn ghost" style={{ width: '100%', justifyContent: 'center', fontSize: 13 }}>
-              Sign out
-            </button>
+            <button className="btn ghost" style={{ width: '100%', justifyContent: 'center', fontSize: 13 }}>Sign out</button>
           </form>
         </div>
       </aside>
 
-      {/* Main */}
       <div className="app-main">
         <header className="app-topbar">
-          <button
-            className="btn ghost sm sidebar-toggle tooltip"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            aria-label="Toggle navigation"
-            data-tooltip="Menu"
-          >
+          <button className="btn ghost sm sidebar-toggle" onClick={() => setSidebarOpen(value => !value)} aria-label="Toggle navigation" aria-expanded={sidebarOpen}>
             <Icon name="menu" />
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link href="/app/safety" className="btn danger sm"><Icon name="alert" /> <span className="hide-mobile">Safety</span></Link>
-            <Link href="/app/messages" className="btn ghost sm"><Icon name="message" /> <span className="hide-mobile">Messages</span></Link>
+          <div className="app-topbar-context">
+            <span>{isAdmin ? 'MORT staff' : role === 'teen' ? 'Local work, on your terms' : role === 'guardian' ? 'Connected by consent' : 'Your local work, organized'}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {verificationStatus && (
-              <span className={`status ${verificationStatus === 'approved' ? 'green' : verificationStatus === 'pending' ? 'yellow' : 'muted'}`}>
-                {verificationStatus}
-              </span>
-            )}
+          <div className="app-topbar-actions">
+            {!isAdmin && <Link href="/app/safety" className="btn ghost sm"><Icon name="shield" /><span className="hide-mobile">Safety</span></Link>}
+            {!isAdmin && <Link href="/app/messages" className="btn ghost sm"><Icon name="message" /><span className="hide-mobile">Inbox</span></Link>}
             <ThemeToggle />
-            <Link href="/app/profile" className="btn ghost sm"><Icon name="user" /> {displayName || 'Profile'}</Link>
+            {!isAdmin && <Link href="/app/profile" className="btn ghost sm"><Icon name="user" /><span className="hide-mobile">Profile</span></Link>}
           </div>
         </header>
-
-        <main className="app-content">
-          {children}
-        </main>
+        <main className="app-content">{children}</main>
       </div>
 
-      {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 49 }}
-          onClick={() => setSidebarOpen(false)}
-        />
+      {sidebarOpen && <button className="app-sidebar-backdrop" aria-label="Close navigation" onClick={closeMenu} />}
+      {!isAdmin && (
+        <nav className={`app-mobile-nav ${isAdult ? 'app-mobile-nav-adult' : ''}`} aria-label="Primary navigation">
+          {nav.primary.slice(0, 2).map(item => renderLink(item, true))}
+          {isAdult && renderLink({ href: '/app/adult/post-job', icon: 'plus', label: 'Post' }, true)}
+          {nav.primary.slice(2).map(item => renderLink(item, true))}
+        </nav>
       )}
     </div>
   )
