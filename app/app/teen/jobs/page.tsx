@@ -48,21 +48,9 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
       </PageHeaderWithActions>
 
 
-      {/* Search */}
-      <div className="card" style={{marginBottom:24}}>
-        <form style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'flex-end'}}>
-          <label style={{flex:1,minWidth:200}}>
-            Search jobs
-            <input name="q" placeholder="Dog walking, tutoring, lawn..." defaultValue={q||''} />
-          </label>
-          <button className="btn primary" style={{marginBottom:0,alignSelf:'flex-end'}}>Search</button>
-          {(category || q) && <Link href="/app/teen/jobs" className="btn ghost" style={{alignSelf:'flex-end'}}>Clear</Link>}
-        </form>
-      </div>
-
       {/* Browse by category — the featured way in, not a buried dropdown */}
       <div style={{marginBottom:28}}>
-        <h4 style={{marginBottom:14}}>Browse by category</h4>
+        <h4 style={{marginBottom:14}}>Explore by category</h4>
         <div className="grid four">
           {FEATURED_CATEGORIES.map(c => (
             <CategoryTile
