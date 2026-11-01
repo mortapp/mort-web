@@ -84,14 +84,14 @@ function actionForApplicationStatus(status: string | null) {
 }
 
 export async function setApplicationStatus(formData: FormData) {
-  const { supabase } = await requireRole(['adult'])
+  const { supabase, profile } = await requireRole(['adult'])
   const application_id = v(formData,'application_id')
   const action = actionForApplicationStatus(v(formData,'status'))
   if (!application_id) redirect('/app/adult/applications?message=' + encodeURIComponent('Missing application.'))
   if (!action) redirect('/app/adult/applications?message=' + encodeURIComponent('That application action is not allowed here.'))
   if (action === 'accepted') {
     const { data: runtime, error: runtimeError } = await supabase.rpc('get_runtime_feature_status')
-    if (runtimeError || runtime?.payments_disabled !== false || runtime?.new_job_publishing_disabled !== false || runtime?.maintenance_mode !== false) {
+    if (profile?.verification_status !== 'approved' || runtimeError || runtime?.payments_disabled !== false || runtime?.new_job_publishing_disabled !== false || runtime?.maintenance_mode !== false) {
       redirect('/app/adult/applications?message=' + encodeURIComponent('Accepting applicants is unavailable until production payment funding and marketplace release controls are enabled. No assignment was created.'))
     }
   }
