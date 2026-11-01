@@ -8,19 +8,23 @@ export const dynamic = 'force-dynamic'
 
 export default async function MyJobs({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
-  const { supabase, user } = await requireRole(['adult'])
-  const { data: jobs, error } = await supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, safety_review_status, created_at').eq('poster_id', user.id).order('created_at', { ascending: false })
+  const { supabase, user, profile } = await requireRole(['adult'])
+  const [{ data: jobs, error }, { data: runtime, error: runtimeError }] = await Promise.all([
+    supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, safety_review_status, created_at').eq('poster_id', user.id).order('created_at', { ascending: false }),
+    supabase.rpc('get_runtime_feature_status'),
+  ])
+  const canPublish = profile?.verification_status === 'approved' && !runtimeError && runtime?.new_job_publishing_disabled === false && runtime?.public_marketplace_closed === false && runtime?.maintenance_mode === false
 
   return (
     <>
       <PageHeaderWithActions title="My posted jobs" eyebrow="Adult" description="Manage the jobs you've posted.">
-        <Link href="/app/adult/post-job" className="btn primary">+ Post a job</Link>
+        {canPublish ? <Link href="/app/adult/post-job" className="btn primary">+ Post a job</Link> : <span className="status muted">Publishing disabled</span>}
       </PageHeaderWithActions>
       <Toast message={sp?.message} />
 
       {error && <div className="error">Your jobs could not be loaded.</div>}
       {!jobs?.length ? (
-        <EmptyState icon="📁" title="No jobs yet" text="Post your first job." href="/app/adult/post-job" action="Post job" />
+        <EmptyState icon="📁" title="No jobs yet" text="New job publishing is currently disabled while production safety and verification requirements are completed. You can still review your verification status." href="/app/verify" action="View verification" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {jobs.map((j: any) => (
