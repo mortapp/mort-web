@@ -91,7 +91,7 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
               state={j.state}
               locationText={j.location_text}
               description={j.description}
-              payLabel={j.pay_label || centsToDollars(j.pay_amount_cents)}
+              payLabel={centsToDollars(j.pay_amount_cents)}
               status={j.status}
               requiresGuardianApproval={j.requires_guardian_approval}
               href={`/app/teen/jobs/${j.id}`}
