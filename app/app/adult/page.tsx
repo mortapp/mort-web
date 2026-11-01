@@ -3,6 +3,7 @@ import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, Status, MetricCard, EmptyState } from '@/components/ui'
 import { CountUp } from '@/components/count-up'
 import { centsToDollars } from '@/lib/money'
+import { productionCapabilities } from '@/lib/production-capabilities'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,7 +19,7 @@ export default async function AdultHome() {
     ? await supabase.from('job_applications').select('id', { count: 'exact', head: true }).in('job_id', jobIds).in('status', ['submitted', 'shortlisted'])
     : { count: 0, error: null }
   const isVerified = profile?.verification_status === 'approved'
-  const canPublish = !runtimeError && runtime?.new_job_publishing_disabled === false && isVerified
+  const canPublish = !runtimeError && runtime?.new_job_publishing_disabled === false && runtime?.payments_disabled === false && productionCapabilities.perTaskGuardianApproval && isVerified
 
   return (
     <>
@@ -27,7 +28,7 @@ export default async function AdultHome() {
       </PageHeaderWithActions>
 
       {!isVerified && <div className="notice" style={{ marginBottom: 20 }}><strong>Adult verification required</strong><p>Complete the available verification steps before job publishing can be enabled.</p><Link href="/app/verify" className="text-link">Review verification status</Link></div>}
-      {isVerified && !canPublish && <div className="notice" style={{ marginBottom: 20 }}><strong>Job publishing is temporarily unavailable</strong><p>MORT is keeping new listings disabled while production safety and operational requirements are completed. You can still manage existing jobs and review applicants.</p></div>}
+      {isVerified && !canPublish && <div className="notice" style={{ marginBottom: 20 }}><strong>Job publishing is temporarily unavailable</strong><p>MORT is keeping new listings disabled until identity verification, payment funding, and per-Task Guardian approval are supported. You can still manage existing jobs and review applicants.</p></div>}
 
       <div className="stats adult-home-stats">
         <MetricCard icon="briefcase" label="Your jobs" value={<CountUp value={jobIds.length} />} />
