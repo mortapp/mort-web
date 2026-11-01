@@ -6,7 +6,7 @@ import { Toast } from '@/components/toast'
 export const dynamic = 'force-dynamic'
 
 export default async function Support({ searchParams }: { searchParams?: Promise<Record<string, string>> }) {
-  await requireUser()
+  const { profile } = await requireUser()
   const params = await searchParams
   return (
     <>
@@ -26,7 +26,7 @@ export default async function Support({ searchParams }: { searchParams?: Promise
         <section className="card">
           <h3>Immediate danger</h3>
           <p style={{ marginTop: 6 }}>MORT is not an emergency-response service. If you or someone else may be in immediate danger, contact 911 or your local emergency service first.</p>
-          <Link href="/app/safety" className="text-link" style={{ marginTop: 14, display: 'inline-block' }}>Teen Safety Center</Link>
+          {profile?.role === 'teen' && <Link href="/app/safety" className="text-link" style={{ marginTop: 14, display: 'inline-block' }}>Teen Safety Center</Link>}
         </section>
       </div>
       <p className="muted" style={{ marginTop: 16 }}>Do not send passwords, full card numbers, bank details, Social Security numbers, or identity documents to MORT through chat or an unapproved upload flow.</p>
