@@ -2,6 +2,7 @@ import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, ApplicationCard, EmptyState } from '@/components/ui'
 import { setApplicationStatus } from '../actions'
 import { Toast } from '@/components/toast'
+import { productionCapabilities } from '@/lib/production-capabilities'
 export const dynamic = 'force-dynamic'
 
 export default async function AdultApplications({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
@@ -11,7 +12,7 @@ export default async function AdultApplications({ searchParams }: { searchParams
     supabase.rpc('get_my_job_applications', { p_application_id: null }),
     supabase.rpc('get_runtime_feature_status'),
   ])
-  const canAccept = profile?.verification_status === 'approved' && !runtimeError && runtime?.payments_disabled === false && runtime?.new_job_publishing_disabled === false && runtime?.maintenance_mode === false
+  const canAccept = profile?.verification_status === 'approved' && !runtimeError && runtime?.payments_disabled === false && runtime?.new_job_publishing_disabled === false && runtime?.maintenance_mode === false && productionCapabilities.perTaskGuardianApproval
   const apps = result?.ok === true && Array.isArray(result.items) ? result.items : []
 
   return (
