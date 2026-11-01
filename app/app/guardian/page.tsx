@@ -17,6 +17,10 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
     supabase.rpc('get_my_job_applications', { p_application_id: null }),
   ])
   const applications = Array.isArray(appResult?.items) ? appResult.items.filter((item: any) => teenIds.includes(item.teen_id)) : []
+  const teenNames = new Map<string, string>()
+  for (const item of applications) {
+    if (item.teen_id && item.teen?.display_name) teenNames.set(item.teen_id, item.teen.display_name)
+  }
   const needsHelp = (pingRows || []).filter((ping: any) => ping.status === 'needs_help')
 
   return (
@@ -28,15 +32,15 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
       {linksError && <div className="error">Guardian connections could not be loaded.</div>}
       {needsHelp.length > 0 && <div className="sos-card" style={{ marginBottom: 24 }}>
         <h3 style={{ marginBottom: 10 }}>Help requests from connected teens</h3>
-        {needsHelp.slice(0, 5).map((ping: any) => <p key={ping.id} style={{ fontSize: 13, marginBottom: 8 }}>{new Date(ping.created_at).toLocaleString()} · {ping.note || 'A teen requested help.'}</p>)}
+        {needsHelp.slice(0, 5).map((ping: any) => <p key={ping.id} style={{ fontSize: 13, marginBottom: 8 }}>{new Date(ping.created_at).toLocaleString()} · {teenNames.get(ping.teen_id) || 'A connected teen'} requested help{ping.note ? `: ${ping.note}` : '.'}</p>)}
         <p style={{ marginTop: 10, fontSize: 12 }}>MORT notifications are not emergency response. If someone may be in immediate danger, contact emergency services.</p>
       </div>}
       <section style={{ marginBottom: 24 }}>
         <h3 style={{ marginBottom: 14 }}>Connected teens ({teens?.length || 0})</h3>
         {!teens?.length ? <EmptyState icon="shield" title="No active Guardian connections" text="Guardian Mode is optional. A teen must invite you, and both people must consent before a connection becomes active." href="/app/verify" action="Open Guardian connections" /> : (
           <div className="grid three">{teens.map((teen: any) => <div className="person-card card" key={teen.id}>
-            <div className="avatar-tile">{'G'}</div>
-            <div className="person-card-body"><h3>Connected teen</h3><p>Active, mutually consented Guardian connection</p></div>
+            <div className="avatar-tile">{(teenNames.get(teen.teen_user_id) || 'T').charAt(0).toUpperCase()}</div>
+            <div className="person-card-body"><h3>{teenNames.get(teen.teen_user_id) || 'Connected teen'}</h3><p>Active, mutually consented Guardian connection</p></div>
           </div>)}</div>
         )}
       </section>
