@@ -59,7 +59,7 @@ export default async function Home() {
         </section>
 
         <section className="public-section public-section-soft">
-          <div className="container public-audience-grid">
+          <div id="who-its-for" className="container public-audience-grid">
             <div className="public-section-heading"><span className="public-eyebrow">ONE MORT, DIFFERENT PERMISSIONS</span><h2>Designed around the people doing the work.</h2><p>Teen, adult, business, and Guardian experiences share one product language. What each person can see and do depends on their role and the permissions they have.</p></div>
             <div className="public-audience-cards">
               <article><span className="audience-number">01 / TEENS</span><h3>Find your next opportunity.</h3><p>Explore local work, apply to listings, follow your applications, and keep job conversations connected to the work.</p><Link href="/signup" className="text-link">Create a teen account</Link></article>
