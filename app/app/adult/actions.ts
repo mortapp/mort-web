@@ -78,7 +78,7 @@ function actionForApplicationStatus(status: string | null) {
 }
 
 export async function setApplicationStatus(formData: FormData) {
-  const { supabase } = await requireRole(['adult','admin'])
+  const { supabase } = await requireRole(['adult'])
   const application_id = v(formData,'application_id')
   const action = actionForApplicationStatus(v(formData,'status'))
   if (!application_id) redirect('/app/adult/applications?message=' + encodeURIComponent('Missing application.'))
@@ -104,7 +104,7 @@ function jobActionForStatus(status: string | null) {
 }
 
 export async function setJobStatus(formData: FormData) {
-  const { supabase } = await requireRole(['adult','admin'])
+  const { supabase } = await requireRole(['adult'])
   const job_id = v(formData,'job_id')
   const action = jobActionForStatus(v(formData,'status'))
   if (!job_id) redirect('/app/adult/jobs?message=' + encodeURIComponent('Missing job.'))
