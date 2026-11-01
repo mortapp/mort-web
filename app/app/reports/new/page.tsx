@@ -10,18 +10,20 @@ export default async function NewReport({ searchParams }: { searchParams?: Promi
       <PageHeaderWithActions
         title="Report an issue"
         eyebrow="Safety"
-        description="Reports go straight to MORT admins for review. If you're in immediate danger, call emergency services first."
+        description="Reports are submitted to MORT's safety-report system for review. If you're in immediate danger, call emergency services first."
       />
       <form action={createReport} className="card form" style={{ maxWidth: 560 }}>
         <label>
           Reason
-          <select name="reason" defaultValue={sp.reason || 'Unsafe job'}>
-            <option>Unsafe job</option>
-            <option>Harassment or bullying</option>
-            <option>Scam/fake job</option>
-            <option>Off-platform pressure</option>
-            <option>Private information request</option>
-            <option>Other</option>
+          <select name="reason" defaultValue={sp.reason || 'other'}>
+            <option value="unsafe_meeting">Unsafe meeting</option>
+            <option value="harassment">Harassment or bullying</option>
+            <option value="scam">Scam or fake job</option>
+            <option value="inappropriate_content">Inappropriate content</option>
+            <option value="privacy">Privacy concern</option>
+            <option value="underage_concern">Underage concern</option>
+            <option value="payment">Payment concern</option>
+            <option value="other">Other</option>
           </select>
         </label>
         <label>
