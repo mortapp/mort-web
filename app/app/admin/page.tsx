@@ -21,7 +21,7 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
       <PageHeaderWithActions title="Admin operations" eyebrow="Restricted staff workspace" description="Review production records through the approved staff workflow. Sensitive actions remain unavailable where the production backend has no authorized review RPC." />
       <Toast message={sp?.message} />
       <div className="stats" style={{ marginBottom: 24 }}>
-        <MetricCard icon="users" label="Profiles" value={<CountUp value={usersCount || 0} />} />
+        <MetricCard icon="users" label="Visible profiles" value={<CountUp value={usersCount || 0} />} />
         <MetricCard icon="id-card" label="Verification cases" value={<CountUp value={pendingCases} />} />
         <MetricCard icon="alert-triangle" label="Open safety reports" value={<CountUp value={openReports} />} />
         <MetricCard icon="briefcase" label="Jobs awaiting safety review" value={<CountUp value={jobs?.length || 0} />} />
