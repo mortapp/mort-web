@@ -88,7 +88,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
           {/* Safety notice */}
           <div className="card info-card">
             <h4 style={{marginBottom:8}}>🛡️ Safety reminder</h4>
-            <p style={{fontSize:13}}>Always check in when you arrive and when you finish. Never share personal contact info outside MORT. If anything feels wrong, use the SOS button.</p>
+            <p style={{fontSize:13}}>Keep job communication inside MORT and do not share private contact details. The Safety Center can send an in-app help request to an active linked Guardian; it does not contact emergency services or share live location. If you are in immediate danger, call emergency services first.</p>
           </div>
         </div>
 
@@ -101,7 +101,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
               <input type="hidden" name="job_id" value={job.id} />
               <label>
                 Message to adult
-                <textarea name="note" placeholder="I can do this job. I have experience with..." style={{minHeight:120}} />
+                <textarea name="note" placeholder="I can do this job. I have experience with..." maxLength={1000} style={{minHeight:120}} />
               </label>
               {job.starts_at && (
                 <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
