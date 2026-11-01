@@ -162,6 +162,7 @@ test('Payments UI does not offer off-platform payment preferences', async () => 
   const page = await read('app/app/payments/page.tsx')
   const history = await read('app/app/teen/earnings/page.tsx')
   assert.match(page, /Payment processing is disabled/)
-  assert.doesNotMatch(page, /Cash App|Square URL/)
+  assert.doesNotMatch(page, /Square URL/)
+  assert.match(page, /Do not arrange cash, Cash App/)
   assert.doesNotMatch(history, /pay_label/)
 })
