@@ -39,7 +39,7 @@ export default async function AdultApplications({ searchParams }: { searchParams
                   {canAccept && <button name="status" value="accepted" className="btn primary sm">Accept & secure funding</button>}
                   <button name="status" value="shortlisted" className="btn sm">Shortlist</button>
                   <button name="status" value="rejected" className="btn sm">Not selected</button>
-                  {!canAccept && <p className="muted" style={{fontSize:12,marginTop:8}}>Acceptance is disabled until adult identity verification, teen age verification, and production payment funding are available.</p>}
+                  {!canAccept && <p className="muted" style={{fontSize:12,marginTop:8}}>Acceptance is disabled until adult identity verification, teen age verification, production payment funding, and per-Task Guardian approval are available.</p>}
                 </form>
               ) : <p style={{ fontSize: 12, color: 'var(--muted2)' }}>This application is in the assignment workflow. Manage active work from the job assignment screen.</p>}
             </ApplicationCard>
