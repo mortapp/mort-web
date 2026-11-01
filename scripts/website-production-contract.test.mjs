@@ -75,7 +75,7 @@ test('Website uses the shared MORT monochrome system with light mode primary', a
   assert.match(shell, /consumerNav/)
   assert.match(shell, /role === 'teen'/)
   assert.match(shell, /role === 'adult'/)
-  assert.match(shell, /role === 'guardian'/)
+  assert.match(shell, /guardian:/)
   assert.match(shell, /role === 'admin'/)
 })
 
@@ -102,7 +102,8 @@ test('Adult publishing and assignment acceptance fail closed on missing producti
   assert.match(home, /productionCapabilities\.perTaskGuardianApproval/)
   assert.match(post, /productionCapabilities\.perTaskGuardianApproval/)
   assert.doesNotMatch(post, /name="requires_guardian_approval"/)
-  assert.doesNotMatch(post, /cash after job|Cash App|Square link/)
+  assert.doesNotMatch(post, /pay_label/)
+  assert.match(post, /do not request cash/)
   assert.match(applications, /productionCapabilities\.perTaskGuardianApproval/)
 })
 
@@ -143,4 +144,23 @@ test('Public safety copy does not claim unavailable verification or Guardian app
   assert.match(page, /does not yet have a verified per-Task Guardian approval workflow/)
   assert.match(page, /does not contact emergency services/)
   assert.match(page, /payment processing and payouts/)
+})
+
+test('Messaging is role-scoped and discloses missing block controls', async () => {
+  const inbox = await read('app/app/messages/page.tsx')
+  const thread = await read('app/app/messages/[id]/page.tsx')
+  const actions = await read('app/app/messages/actions.ts')
+  assert.match(inbox, /requireRole/)
+  assert.match(thread, /requireRole/)
+  assert.match(actions, /send_safe_message_v2/)
+  assert.match(thread, /Blocking is not available in the current production backend/)
+  assert.doesNotMatch(actions, /user_blocks/)
+})
+
+test('Payments UI does not offer off-platform payment preferences', async () => {
+  const page = await read('app/app/payments/page.tsx')
+  const history = await read('app/app/teen/earnings/page.tsx')
+  assert.match(page, /Payment processing is disabled/)
+  assert.doesNotMatch(page, /Cash App|Square URL/)
+  assert.doesNotMatch(history, /pay_label/)
 })
