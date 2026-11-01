@@ -24,7 +24,7 @@ export default async function Saved() {
               state={it.jobs?.region}
               locationText={it.jobs?.location_text}
               description={it.jobs?.description}
-              payLabel={it.jobs?.pay_label || centsToDollars(it.jobs?.pay_amount_cents)}
+              payLabel={centsToDollars(it.jobs?.pay_amount_cents)}
               status={it.jobs?.status}
               requiresGuardianApproval={it.jobs?.requires_guardian_approval}
               href={`/app/teen/jobs/${it.job_id}`}
