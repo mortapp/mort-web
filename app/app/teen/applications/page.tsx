@@ -2,11 +2,13 @@ import { requireRole } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
 import { PageHeaderWithActions, ApplicationCard, EmptyState, CategoryPill, StatusJourney } from '@/components/ui'
 import { Toast } from '@/components/toast'
+import { withdrawApplication } from '../actions'
+import { SubmitButton } from '@/components/submit-button'
 export const dynamic = 'force-dynamic'
 
 export default async function Applications({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
-  const { supabase, user } = await requireRole(['teen'])
+  const { supabase } = await requireRole(['teen'])
   const { data: applicationResult, error } = await supabase.rpc('get_my_job_applications', { p_application_id: null })
   const apps = applicationResult?.ok === true && Array.isArray(applicationResult.items) ? applicationResult.items : []
 
@@ -33,6 +35,12 @@ export default async function Applications({ searchParams }: { searchParams?: Pr
                 <div style={{ marginBottom: 12 }}><CategoryPill category={a.jobs?.category} /></div>
                 <div style={{ marginBottom: 4 }}><StatusJourney status={a.status} /></div>
                 <p style={{ fontSize: 12, color: 'var(--muted2)', marginTop: 8 }}>Messaging becomes available after an accepted assignment creates a conversation.</p>
+                {(a.status === 'submitted' || a.status === 'shortlisted') && (
+                  <form action={withdrawApplication} style={{ marginTop: 12 }}>
+                    <input type="hidden" name="application_id" value={a.id} />
+                    <SubmitButton variant="ghost" size="sm" pendingLabel="Withdrawing…">Withdraw application</SubmitButton>
+                  </form>
+                )}
               </ApplicationCard>
             )
           })}
