@@ -1,20 +1,28 @@
-name: Production onboarding validation
+name: MORT website production-integration validation
 
 on:
+  push:
+    branches: [assistant/website-production-integration]
+    paths:
+      - "app/app/**"
+      - "app/auth/**"
+      - "components/**"
+      - "lib/**"
+      - "content/legal-*.json"
+      - "scripts/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - ".github/workflows/onboarding-validation.yml"
   pull_request:
     branches: [main]
     paths:
-      - "app/app/actions.ts"
-      - "app/app/onboarding/**"
-      - "app/app/page.tsx"
-      - "app/app/teen/**"
-      - "app/app/adult/**"
-      - "app/app/guardian/**"
-      - "app/app/admin/**"
-      - "app/auth/callback/**"
-      - "components/onboarding-form.tsx"
-      - "lib/auth.ts"
-      - "scripts/onboarding-v2-contract.test.mjs"
+      - "app/app/**"
+      - "app/auth/**"
+      - "components/**"
+      - "lib/**"
+      - "content/legal-*.json"
+      - "scripts/**"
       - "package.json"
       - "package-lock.json"
       - "tsconfig.json"
@@ -24,22 +32,23 @@ permissions:
   contents: read
 
 concurrency:
-  group: onboarding-validation-${{ github.event.pull_request.number }}
+  group: mort-web-validation-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run test:production-config
       - run: npm run typecheck
-      - run: npx eslint app/app/actions.ts app/app/onboarding/page.tsx app/app/page.tsx app/app/teen/actions.ts app/app/teen/layout.tsx app/app/adult/layout.tsx app/app/guardian/layout.tsx app/app/admin/layout.tsx app/auth/callback/route.ts components/onboarding-form.tsx lib/auth.ts
+      - run: npm run lint
       - name: Build Next.js production bundle
         run: npm run build
         env:
