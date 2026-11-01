@@ -1,98 +1,78 @@
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, Status } from '@/components/ui'
-import { acceptGuardianInvite, createGuardianInvite, saveTeenVerification, submitBusinessVerification } from './actions'
+import { acceptGuardianInvite, createGuardianInvite } from './actions'
 import { Toast } from '@/components/toast'
 import { SubmitButton } from '@/components/submit-button'
 export const dynamic = 'force-dynamic'
 
 export default async function Verify({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
-  const { supabase, user, profile } = await requireUser()
+  const { supabase, profile } = await requireUser()
   const sp = await searchParams
-  const [{ data: invites }, { data: biz }] = await Promise.all([
-    supabase.from('guardian_connections').select('*').or(`teen_id.eq.${user.id},guardian_id.eq.${user.id}`).order('created_at', { ascending: false }),
-    supabase.from('business_verifications').select('*').eq('adult_id', user.id).order('created_at', { ascending: false }),
+  const [{ data: identity }, { data: cases }, { data: links }] = await Promise.all([
+    supabase.rpc('get_my_identity_verification_v2'),
+    supabase.from('verification_cases').select('id, verification_type, status, provider, submitted_at, reviewed_at, reviewer_note').order('created_at', { ascending: false }).limit(10),
+    supabase.from('guardian_links').select('id, teen_user_id, guardian_user_id, status, teen_consent_at, guardian_consent_at, created_at, updated_at').order('created_at', { ascending: false }).limit(20),
   ])
+  const isTeen = profile?.role === 'teen'
+  const isGuardian = profile?.role === 'guardian'
 
   return (
     <>
-      <PageHeaderWithActions title="Verify MORT account" eyebrow="Trust gate">
-        <p>Current role: <span style={{textTransform:'capitalize',fontWeight:600}}>{profile?.role || 'none'}</span> · status <Status value={profile?.verification_status} /></p>
+      <PageHeaderWithActions title="Verification & Guardian Mode" eyebrow="Trust and account controls">
+        <p>Current role: <span style={{ textTransform: 'capitalize', fontWeight: 600 }}>{profile?.role || 'not assigned'}</span> · account verification <Status value={identity?.status || profile?.verification_status} /></p>
       </PageHeaderWithActions>
       <Toast message={sp?.message} />
-
-      <div className="grid two">
-        <form action={saveTeenVerification} className="card form">
-          <div className="card-icon-tile">🔥</div>
-          <h3>Teen verification</h3>
-          <p style={{fontSize:13,marginBottom:4}}>Use this for 13–17 teen worker setup. No SSN. Keep sensitive docs out of this starter.</p>
-          <label>Bio<textarea name="bio" placeholder="What kind of work can you do?" /></label>
-          <label>Skills<input name="skills" placeholder="dog walking, trash, tutoring" /></label>
-          <label>School year<input name="school_year" placeholder="9th grade" /></label>
-          <label style={{flexDirection:'row',alignItems:'center',gap:8}}>
-            <input type="checkbox" name="guardian_approval_required" style={{width:'auto'}} /> Guardian approval required
-          </label>
-          <SubmitButton pendingLabel="Submitting…">Submit teen profile</SubmitButton>
-        </form>
-
-        <form action={submitBusinessVerification} className="card form">
-          <div className="card-icon-tile blue">💼</div>
-          <h3>Adult / business verification</h3>
-          <p style={{fontSize:13,marginBottom:4}}>Adults should be approved before posting jobs.</p>
-          <label>Business / display name<input name="business_name" required /></label>
-          <label>Business type<input name="business_type" placeholder="homeowner, local shop, lawn care" required /></label>
-          <label>Notes<textarea name="notes" placeholder="Explain who you are and what jobs you plan to post." /></label>
-          <SubmitButton pendingLabel="Submitting…">Submit adult verification</SubmitButton>
-        </form>
-
-        <div className="card">
-          <div className="card-icon-tile">🛡️</div>
-          <h3>Guardian invite code</h3>
-          <p style={{fontSize:13,marginBottom:12}}>Teen creates a one-time code. Copy it from the success message right after creation — the live backend stores only a hashed version after that.</p>
-          <form action={createGuardianInvite} className="form">
-            <label>Guardian email (optional)<input name="invite_email" type="email" placeholder="guardian@example.com" /></label>
-            <SubmitButton pendingLabel="Creating…">Create invite code</SubmitButton>
-          </form>
-          {!!invites?.length && (
-            <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:16}}>
-              {invites.map((i: any) => (
-                <div key={i.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,padding:'10px 14px',border:'1px solid var(--border)',borderRadius:12,background:'var(--bg-sunken)'}}>
-                  <span style={{fontSize:13,color:'var(--muted2)'}}>Invite created {i.invite_expires_at ? `· expires ${new Date(i.invite_expires_at).toLocaleDateString()}` : ''}</span>
-                  <Status value={i.status} />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <form action={acceptGuardianInvite} className="card form">
-          <div className="card-icon-tile blue">🔗</div>
-          <h3>Guardian accepts invite</h3>
-          <label>Invite code<input name="invite_code" required placeholder="ABC123" style={{textTransform:'uppercase'}} /></label>
-          <SubmitButton pendingLabel="Connecting…">Connect as guardian</SubmitButton>
-        </form>
+      <div className="card" style={{ marginBottom: 20 }}>
+        <h3>Identity verification status</h3>
+        <p style={{ marginTop: 8 }}>{identity?.public_message || 'Identity verification is not currently available.'}</p>
+        <p style={{ marginTop: 8, fontSize: 12, color: 'var(--muted2)' }}>Production provider: {identity?.production_provider_available ? 'available' : 'not configured'} · submissions: {identity?.submissions_enabled ? 'enabled' : 'disabled'}</p>
+        <p style={{ marginTop: 8, fontSize: 12, color: 'var(--muted2)' }}>Do not upload identity documents to MORT until an approved production verification provider is connected.</p>
       </div>
-
-      {!!biz?.length && (
-        <section className="section">
-          <h2>Business verification history</h2>
-          <div className="card">
-            <div className="table-wrap">
-              <table className="table">
-                <thead><tr><th>Business</th><th>Type</th><th>Status</th></tr></thead>
-                <tbody>
-                  {biz.map((b: any) => (
-                    <tr key={b.id}>
-                      <td style={{fontWeight:600,color:'var(--text)'}}>{b.business_name}</td>
-                      <td>{b.business_type}</td>
-                      <td><Status value={b.status} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
+      {isTeen && (
+        <div className="card form" style={{ maxWidth: 600, marginBottom: 20 }}>
+          <h3>Optional Guardian connection</h3>
+          <p>Guardian Mode is optional. Create a one-time invite code and share it directly with the adult you choose. A link is not active until the guardian accepts.</p>
+          <form action={createGuardianInvite}>
+            <label>Guardian email (optional)<input name="invite_email" type="email" placeholder="guardian@example.com" /></label>
+            <SubmitButton pendingLabel="Creating invite…">Create guardian invite</SubmitButton>
+          </form>
+        </div>
       )}
+      {isGuardian && (
+        <div className="card form" style={{ maxWidth: 600, marginBottom: 20 }}>
+          <h3>Accept a Guardian invite</h3>
+          <p>Enter the one-time code shared by the teen. Your account must be an active, email-confirmed adult Guardian account.</p>
+          <form action={acceptGuardianInvite}>
+            <label>Invite code<input name="invite_code" required placeholder="Paste the one-time code" autoComplete="off" /></label>
+            <SubmitButton pendingLabel="Connecting…">Accept invite</SubmitButton>
+          </form>
+        </div>
+      )}
+      <div className="card" style={{ marginBottom: 20 }}>
+        <h3 style={{ marginBottom: 12 }}>Guardian connections</h3>
+        {!links?.length ? <p style={{ color: 'var(--muted2)' }}>No Guardian connections are recorded for this account.</p> : (
+          <div className="table-wrap"><table className="table">
+            <thead><tr><th>Status</th><th>Teen consent</th><th>Guardian consent</th><th>Updated</th></tr></thead>
+            <tbody>{links.map((link: any) => <tr key={link.id}>
+              <td><Status value={link.status} /></td>
+              <td>{link.teen_consent_at ? 'Recorded' : 'Pending'}</td>
+              <td>{link.guardian_consent_at ? 'Recorded' : 'Pending'}</td>
+              <td>{new Date(link.updated_at || link.created_at).toLocaleDateString()}</td>
+            </tr>)}</tbody>
+          </table></div>
+        )}
+      </div>
+      <div className="card">
+        <h3 style={{ marginBottom: 12 }}>Verification history</h3>
+        {!cases?.length ? <p style={{ color: 'var(--muted2)' }}>No verification cases have been submitted.</p> : (
+          <div className="table-wrap"><table className="table">
+            <thead><tr><th>Type</th><th>Status</th><th>Provider</th><th>Submitted</th></tr></thead>
+            <tbody>{cases.map((item: any) => <tr key={item.id}>
+              <td>{item.verification_type}</td><td><Status value={item.status} /></td><td>{item.provider || 'Not assigned'}</td><td>{item.submitted_at ? new Date(item.submitted_at).toLocaleDateString() : '—'}</td>
+            </tr>)}</tbody>
+          </table></div>
+        )}
+      </div>
     </>
   )
 }
