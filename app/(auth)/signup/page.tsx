@@ -25,11 +25,11 @@ export default async function Signup({ searchParams }: { searchParams?: Promise<
     <AuthShell
       kicker="Join MORT"
       title="Start your local hustle."
-      description="MORT is for people age 13 and older. Teens find safe local work. Adults post jobs. Guardians keep everyone safe."
+      description="MORT is being built for people age 13 and older. Teen, adult, and optional Guardian experiences share one local-work platform. Marketplace access depends on verification and safety controls."
       bullets={[
-        { icon: '🔥', text: 'Teens: find dog walking, lawn care, errands, and more' },
-        { icon: '💼', text: 'Adults: post jobs and hire verified teens nearby' },
-        { icon: '🛡️', text: 'Guardians: stay connected with safety controls' },
+        { icon: '🔥', text: 'Teens: explore categories such as pet care, yard work, and tutoring' },
+        { icon: '💼', text: 'Adults: prepare listings and review applications when publishing is available' },
+        { icon: '🛡️', text: 'Guardians: connect by invitation and mutual consent' },
       ]}
     >
       <div className="auth-form-heading">
