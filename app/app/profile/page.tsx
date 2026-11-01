@@ -49,15 +49,15 @@ export default async function Profile({ searchParams }: { searchParams?: Promise
         {/* Stats & badges */}
         <div style={{display:'flex',flexDirection:'column',gap:16}}>
           <AppearanceCard />
-          <div className="card">
+          {profile?.role === 'teen' && <div className="card">
             <h3 style={{marginBottom:16}}>Hustle progress</h3>
             <XPBar current={xp} max={lvl.next} level={lvl.level} levelName={lvl.name} />
-          </div>
+          </div>}
 
-          <div className="card">
+          {profile?.role === 'teen' && <div className="card">
             <h3 style={{marginBottom:12}}>Progress</h3>
             <p style={{fontSize:13}}>Your recorded XP is shown above. Challenge tracking and badge rewards are not active in production yet.</p>
-          </div>
+          </div>}
 
           <div className="card">
             <h3 style={{marginBottom:12}}>Account info</h3>
@@ -74,10 +74,10 @@ export default async function Profile({ searchParams }: { searchParams?: Promise
                 <span style={{color:'var(--muted)'}}>Verification</span>
                 <Status value={profile?.verification_status} />
               </div>
-              <div style={{display:'flex',justifyContent:'space-between',fontSize:13}}>
+              {profile?.role === 'teen' && <div style={{display:'flex',justifyContent:'space-between',fontSize:13}}>
                 <span style={{color:'var(--muted)'}}>XP Points</span>
-                <span style={{color:'var(--yellow)',fontWeight:700}}>{xp}</span>
-              </div>
+                <span style={{color:'var(--text)',fontWeight:700}}>{xp}</span>
+              </div>}
             </div>
           </div>
         </div>
