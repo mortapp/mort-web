@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { requireUser } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
 import { PageHeaderWithActions, Status, CategoryPill } from '@/components/ui'
 import { applyToJob, saveJob } from '../../actions'
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export default async function JobDetail({ params, searchParams }: { params: Promise<{id:string}>, searchParams?: Promise<Record<string,string>> }) {
   const { id } = await params
   const sp = await searchParams
-  const { supabase } = await requireUser()
+  const { supabase } = await requireRole(['teen'])
   const { data: runtime, error: runtimeError } = await supabase.rpc('get_runtime_feature_status')
   if (runtimeError || runtime?.public_marketplace_closed !== false) return (
     <div className="empty-state"><h3>Marketplace unavailable</h3><p>MORT job discovery is temporarily closed while production safety gates are completed.</p><Link href="/app/teen/jobs" className="btn primary">Back to jobs</Link></div>
