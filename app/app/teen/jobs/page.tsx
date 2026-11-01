@@ -4,7 +4,15 @@ import { centsToDollars } from '@/lib/money'
 import { PageHeaderWithActions, EmptyState, JobCard, CategoryTile } from '@/components/ui'
 export const dynamic = 'force-dynamic'
 
-const FEATURED_CATEGORIES = ['dog walking', 'lawn care', 'tutoring', 'cleaning', 'errands', 'babysitting', 'car washing', 'trash help']
+const FEATURED_CATEGORIES = [
+  { value: 'pet_care', label: 'Pet care' },
+  { value: 'yard_work', label: 'Yard work' },
+  { value: 'tutoring', label: 'Tutoring' },
+  { value: 'household_help', label: 'Household help' },
+  { value: 'moving_help', label: 'Moving help' },
+  { value: 'tech_help', label: 'Tech help' },
+  { value: 'other', label: 'Other' },
+]
 
 export default async function Jobs({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const { supabase, user } = await requireUser()
@@ -12,8 +20,6 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
   const category = sp?.category
   const q = sp?.q
 
-  const { data: teenProfile } = await supabase.from('teen_profiles').select('paused_by_guardian').eq('user_id', user.id).maybeSingle()
-  const isPaused = !!teenProfile?.paused_by_guardian
 
   // Live counts per category so the tiles aren't guessing.
   const { data: openJobsForCounts } = await supabase.from('jobs').select('category').eq('status', 'open')
@@ -24,7 +30,7 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
   }
 
   let query = supabase.from('jobs').select('*').eq('status','open').order('created_at',{ascending:false}).limit(60)
-  if (category) query = query.ilike('category', `%${category}%`)
+  if (category) query = query.eq('category', category)
   if (q) query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`)
   const { data: jobs, error } = await query
 
@@ -39,12 +45,6 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
         <Link href="/app/teen/applications" className="btn">📋 My apps</Link>
       </PageHeaderWithActions>
 
-      {isPaused && (
-        <div className="warning-box" style={{ marginBottom: 20 }}>
-          <strong>⏸ Your account is paused by your guardian.</strong>
-          <p style={{ marginTop: 6, fontSize: 13 }}>You can still browse, but you can&apos;t apply to jobs or start new chats until they resume it.</p>
-        </div>
-      )}
 
       {/* Search */}
       <div className="card" style={{marginBottom:24}}>
@@ -64,11 +64,11 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
         <div className="grid four">
           {FEATURED_CATEGORIES.map(c => (
             <CategoryTile
-              key={c}
-              category={c}
-              count={counts[c] || 0}
-              active={category?.toLowerCase() === c}
-              href={`/app/teen/jobs?category=${encodeURIComponent(c)}`}
+              key={c.value}
+              category={c.label}
+              count={counts[c.value] || 0}
+              active={category === c.value}
+              href={`/app/teen/jobs?category=${encodeURIComponent(c.value)}`}
             />
           ))}
         </div>
@@ -98,7 +98,7 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
               title={j.title}
               category={j.category}
               city={j.city}
-              state={j.state}
+              state={j.region}
               locationText={j.location_text}
               description={j.description}
               payLabel={j.pay_label || centsToDollars(j.pay_amount_cents)}
