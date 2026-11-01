@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export default async function AdultHome() {
   const { supabase, user, profile } = await requireRole(['adult'])
   const [{ data: jobs, error: jobsError }, { data: allJobIds }, { data: runtime, error: runtimeError }] = await Promise.all([
-    supabase.from('jobs').select('id, title, category, status, city, region, pay_amount_cents, pay_label, created_at').eq('poster_id', user.id).order('created_at', { ascending: false }).limit(6),
+    supabase.from('jobs').select('id, title, category, status, city, region, pay_amount_cents, created_at').eq('poster_id', user.id).order('created_at', { ascending: false }).limit(6),
     supabase.from('jobs').select('id').eq('poster_id', user.id),
     supabase.rpc('get_runtime_feature_status'),
   ])
@@ -43,7 +43,7 @@ export default async function AdultHome() {
             <div className="adult-recent-jobs">
               {jobs.map((job: any) => <Link href={`/app/adult/jobs/${job.id}`} className="adult-recent-job" key={job.id}>
                 <div className="adult-recent-job-main"><h3>{job.title}</h3><p>{[job.city, job.region].filter(Boolean).join(', ') || 'Location not listed'} · {job.category}</p></div>
-                <div className="adult-recent-job-meta"><strong>{job.pay_label || centsToDollars(job.pay_amount_cents)}</strong><Status value={job.status} /></div>
+                <div className="adult-recent-job-meta"><strong>{centsToDollars(job.pay_amount_cents)}</strong><Status value={job.status} /></div>
               </Link>)}
             </div>
           )}
