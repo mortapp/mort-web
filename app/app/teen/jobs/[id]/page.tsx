@@ -15,7 +15,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
   if (runtimeError || runtime?.public_marketplace_closed !== false || runtime?.maintenance_mode !== false) return (
     <div className="empty-state"><h3>Marketplace unavailable</h3><p>MORT job discovery is temporarily closed while production safety gates are completed.</p><Link href="/app/teen/jobs" className="btn primary">Back to jobs</Link></div>
   )
-  const { data: job, error } = await supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, requires_guardian_approval, teen_min_age, teen_max_age, starts_at').eq('id', id).maybeSingle()
+  const { data: job, error } = await supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, requires_guardian_approval, teen_min_age, teen_max_age, starts_at').eq('id', id).maybeSingle()
 
   if (error || !job) return (
     <div className="empty-state">
@@ -51,7 +51,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
             <div style={{marginBottom:20}}>
               <h4 style={{marginBottom:4}}>Pay</h4>
               <span style={{fontSize:32,fontWeight:900,letterSpacing:'-0.04em',color:'var(--rose-gold)'}}>
-                {job.pay_label || centsToDollars(job.pay_amount_cents)}
+                {job.centsToDollars(job.pay_amount_cents)}
               </span>
             </div>
 
