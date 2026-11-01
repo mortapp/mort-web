@@ -23,7 +23,7 @@ export default async function Safety({ searchParams }: { searchParams?: Promise<
         <p style={{ marginBottom: 20, fontSize: 14 }}>Submitting this request can create an in-app notification for an active linked guardian, depending on that guardian's alert preferences.</p>
         <form action={safetyPing}>
           <input type="hidden" name="status" value="needs_help" />
-          <input type="hidden" name="immediate_danger" value="false" />
+          <label style={{ display: 'block', marginBottom: 12 }}><input type="checkbox" name="immediate_danger" value="true" /> I am in immediate danger</label>
           <label style={{ display: 'block', marginBottom: 12 }}>Optional note<textarea name="note" maxLength={500} placeholder="Tell your guardian what kind of help you need." /></label>
           <SubmitButton full variant="sos" size="lg" pendingLabel="Sending help request…">Send help request</SubmitButton>
         </form>
