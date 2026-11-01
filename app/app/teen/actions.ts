@@ -17,7 +17,7 @@ export async function applyToJob(formData: FormData) {
   const { data, error } = await supabase.rpc('submit_job_application', {
     p_job_id: job_id,
     p_note: note || null,
-    p_availability_confirmed: true,
+    p_availability_confirmed: v(formData, 'availability_confirmed') === 'on',
     p_portfolio_ids: [],
   })
   if (error) redirectTo(`/app/teen/jobs/${job_id}`, error.message)
