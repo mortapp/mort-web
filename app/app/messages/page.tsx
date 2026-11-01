@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function Messages({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
-  const { supabase } = await requireRole(['teen', 'adult', 'guardian'])
+  const { supabase, profile } = await requireRole(['teen', 'adult', 'guardian'])
   const { data: threadResult, error } = await supabase.rpc('list_my_message_threads_page', {
     p_query: '',
     p_cursor_updated_at: null,
@@ -26,7 +26,7 @@ export default async function Messages({ searchParams }: { searchParams?: Promis
 
       <div className="card info-card" style={{ marginBottom: 24 }}>
         <p style={{ fontSize: 13, margin: 0 }}>
-          To start a new conversation, open an application from <Link href="/app/teen/applications" style={{ color: 'var(--baby-blue)' }}>My applications</Link> (teen) or <Link href="/app/adult/applications" style={{ color: 'var(--baby-blue)' }}>Applicants</Link> (adult) and tap <strong>Message</strong>. This keeps every thread tied to a real job — no random DMs.
+          {profile?.role === 'teen' ? <>Open one of your applications and use the supported job conversation when an assignment is accepted. This keeps every thread tied to a real job — no random DMs. <Link href="/app/teen/applications" className="text-link">My applications</Link></> : profile?.role === 'adult' ? <>Review applications on your own jobs and use the supported job conversation after an assignment is accepted. <Link href="/app/adult/applications" className="text-link">Applicants</Link></> : <>Guardian inbox access is limited to conversations shared through your active consent-based connections. Guardians cannot initiate teen/adult job conversations.</>}
         </p>
       </div>
 
@@ -36,14 +36,13 @@ export default async function Messages({ searchParams }: { searchParams?: Promis
       ) : (
         <div className="grid two">
           {threads.map((t: any) => {
-            const flaggedRecently = false
             return (
               <MessageThreadCard
                 key={t.id}
                 href={`/app/messages/${t.id}`}
                 title={t.job_title || 'MORT conversation'}
                 preview={t.last_message_preview || 'No messages yet — say hello.'}
-                scannerStatus={flaggedRecently ? 'flagged' : null}
+                scannerStatus={null}
                 updatedAt={t.updated_at}
               />
             )
