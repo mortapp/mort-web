@@ -19,7 +19,7 @@ const FEATURED_CATEGORIES = [
 ]
 
 const crossing: [string, string][] = [
-  ['Discover', 'A teen can browse approved local work without seeing another person's private address.'],
+  ['Discover', 'A teen can browse approved local work without seeing another person\'s private address.'],
   ['Apply', 'A quick application. MORT never pretends the teen was already accepted.'],
   ['Accept & schedule', 'The poster chooses someone, and both agree on a time.'],
   ['Start with a PIN', 'The job only goes active through MORT’s start flow — not a random button.'],
@@ -41,7 +41,7 @@ const roles = [
 
 const safety = [
   { cls: 'card danger-card', tile: 'card-icon-tile', icon: '🚨', title: 'Help requests', text: 'A help request can create an in-app notification for an active linked guardian. It does not send live location or notify admins.' },
-  { cls: 'card highlight', tile: 'card-icon-tile blue', icon: '✅', title: 'Privacy-first safety', text: 'MORT's help-request flow is not a substitute for emergency services. Routine arrival, start, and finish check-ins are not represented as live tracking.' },
+  { cls: 'card highlight', tile: 'card-icon-tile blue', icon: '✅', title: 'Privacy-first safety', text: 'MORT\'s help-request flow is not a substitute for emergency services. Routine arrival, start, and finish check-ins are not represented as live tracking.' },
   { cls: 'card', tile: 'card-icon-tile', icon: '🛡️', title: 'Adult review', text: 'Adult identity and safety review is a launch requirement. Job publishing stays closed until the review process is operational.' },
 ]
 
