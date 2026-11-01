@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function Saved() {
   const { supabase, user } = await requireUser()
-  const { data: items } = await supabase.from('saved_jobs').select('job_id, jobs(*)').eq('user_id', user.id).order('created_at', { ascending: false })
+  const { data: items } = await supabase.from('saved_jobs').select('job_id, jobs(id, title, category, city, region, location_text, description, pay_amount_cents, pay_label, status, requires_guardian_approval)').eq('user_id', user.id).order('created_at', { ascending: false })
 
   return (
     <>
