@@ -236,16 +236,28 @@ export async function savePaymentPreference() {
 }
 
 export async function createReport(formData: FormData) {
-  const { supabase, user } = await requireUser()
-  const { error } = await supabase.from('reports').insert({
-    reporter_id: user.id,
-    target_user_id: val(formData, 'target_user_id') || null,
-    target_job_id: val(formData, 'target_job_id') || null,
-    target_message_id: val(formData, 'target_message_id') || null,
-    reason: val(formData, 'reason') || 'Safety concern',
-    details: val(formData, 'details'),
-    status: 'open',
+  const { supabase } = await requireUser()
+  const category = val(formData, 'reason') || 'other'
+  const details = val(formData, 'details') || ''
+  const { data, error } = await supabase.rpc('submit_safety_report_v2', {
+    p_target_user_id: val(formData, 'target_user_id'),
+    p_target_job_id: val(formData, 'target_job_id'),
+    p_target_message_id: val(formData, 'target_message_id'),
+    p_target_review_id: null,
+    p_application_id: null,
+    p_category: category,
+    p_severity: 'normal',
+    p_immediate_danger: false,
+    p_details: details,
+    p_occurred_at: null,
+    p_location_type: null,
+    p_desired_outcome: null,
+    p_confidential_safety_feedback: false,
+    p_client_request_id: randomUUID(),
   })
-  if (error) redirect(`/app/reports/new?message=${encodeURIComponent(error.message)}`)
+  if (error || data?.ok !== true) {
+    const code = String(data?.code || error?.message || 'report_submit_failed')
+    redirect(`/app/reports/new?message=${encodeURIComponent(code)}`)
+  }
   redirect('/app/safety?message=Report submitted')
 }
