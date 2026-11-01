@@ -51,7 +51,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
             <div style={{marginBottom:20}}>
               <h4 style={{marginBottom:4}}>Pay</h4>
               <span style={{fontSize:32,fontWeight:900,letterSpacing:'-0.04em',color:'var(--rose-gold)'}}>
-                {job.centsToDollars(job.pay_amount_cents)}
+                {centsToDollars(job.pay_amount_cents)}
               </span>
             </div>
 
