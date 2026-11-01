@@ -29,7 +29,7 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
     if (key) counts[key] = (counts[key] || 0) + 1
   }
 
-  let query = supabase.from('jobs').select('*').eq('status','open').order('created_at',{ascending:false}).limit(60)
+  let query = supabase.from('jobs').select('id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, requires_guardian_approval, teen_min_age, teen_max_age, starts_at').eq('status','open').order('created_at',{ascending:false}).limit(60)
   if (category) query = query.eq('category', category)
   if (q) query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`)
   const { data: jobs, error } = await query
