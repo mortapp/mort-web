@@ -78,7 +78,7 @@ export default async function Active({ searchParams }: { searchParams?: Promise<
                   <p style={{ fontSize: 12.5 }}>No proof uploaded yet.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {proofByApp[a.id].map((p: any) => (
+                    {proofByApp[a.application_id].map((p: any) => (
                       <div key={p.id} style={{ fontSize: 12.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, border: '1px solid var(--line)', borderRadius: 10, padding: '8px 10px' }}>
                         <span style={{ color: 'var(--muted2)' }}>{p.note || 'Proof file'} · {new Date(p.created_at).toLocaleDateString()}</span>
                         {signedUrls[p.id]
