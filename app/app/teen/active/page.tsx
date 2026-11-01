@@ -16,7 +16,7 @@ export default async function Active({ searchParams }: { searchParams?: Promise<
 
   const appIds = (apps || []).map((a: any) => a.application_id)
   const { data: proofRows } = appIds.length
-    ? await supabase.from('proof_uploads').select('*').in('application_id', appIds).order('created_at', { ascending: false })
+    ? await supabase.from('proof_uploads').select('id, application_id, storage_path, status, note, created_at').in('application_id', appIds).order('created_at', { ascending: false })
     : { data: [] as any[] }
 
   let storageIssue: string | null = null
