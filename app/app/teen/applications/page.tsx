@@ -22,7 +22,7 @@ export default async function Applications({ searchParams }: { searchParams?: Pr
       ) : (
         <div className="grid two">
           {apps.map((a: any) => {
-            const pay = a.jobs?.pay_label || (a.jobs?.pay_amount_cents ? centsToDollars(a.jobs.pay_amount_cents) : '')
+            const pay = (a.jobs?.pay_amount_cents ? centsToDollars(a.jobs.pay_amount_cents) : '')
             return (
               <ApplicationCard
                 key={a.id}
