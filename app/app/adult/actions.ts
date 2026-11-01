@@ -16,13 +16,18 @@ function getJobPayload(formData: FormData, profile: any) {
     return { error: 'Choose a valid teen age range from 13 to 17.' }
   }
   const amount = dollarsToCents(formData.get('pay_amount'))
+  if (amount === null || amount < 1000 || amount > 1000000) return { error: 'Set a job pay amount between $10 and $10,000.' }
+  const locationText = v(formData, 'location_text') || 'General area only'
+  if (locationText.length > 80 || /\\d|@|\\b(?:street|st|avenue|ave|road|rd|drive|dr|lane|ln|court|ct|boulevard|blvd|apartment|apt|unit|suite)\\b/i.test(locationText)) {
+    return { error: 'Use a neighborhood or general area only. Do not enter a street address, unit, ZIP code, or coordinates.' }
+  }
   return {
     payload: {
       title: v(formData,'title') || 'Local job',
       description: v(formData,'description') || 'No description provided',
       summary: v(formData,'description')?.slice(0, 180) || null,
       category: v(formData,'category') || 'other',
-      location_text: v(formData,'location_text') || 'Approximate location shared after approval',
+      location_text: locationText,\n      neighborhood: locationText,
       city: v(formData,'city') || profile?.city || 'Indianapolis',
       state: v(formData,'state') || profile?.region || 'IN',
       adult_job_amount_cents: amount,
