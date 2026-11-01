@@ -12,7 +12,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
   const sp = await searchParams
   const { supabase } = await requireRole(['teen'])
   const { data: runtime, error: runtimeError } = await supabase.rpc('get_runtime_feature_status')
-  if (runtimeError || runtime?.public_marketplace_closed !== false) return (
+  if (runtimeError || runtime?.public_marketplace_closed !== false || runtime?.maintenance_mode !== false) return (
     <div className="empty-state"><h3>Marketplace unavailable</h3><p>MORT job discovery is temporarily closed while production safety gates are completed.</p><Link href="/app/teen/jobs" className="btn primary">Back to jobs</Link></div>
   )
   const { data: job, error } = await supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, requires_guardian_approval, teen_min_age, teen_max_age, starts_at').eq('id', id).maybeSingle()
