@@ -40,7 +40,7 @@ export default async function NewReport({ searchParams }: { searchParams?: Promi
         </label>
         <label>
           Details
-          <textarea name="details" required defaultValue={sp.details || ''} placeholder="Tell us what happened. Include as much detail as you can." />
+          <textarea name="details" required minLength={10} maxLength={4000} defaultValue={sp.details || ''} placeholder="Tell us what happened. Include at least 10 characters." />
         </label>
         <SubmitButton variant="danger" pendingLabel="Submitting…">Submit report</SubmitButton>
       </form>
