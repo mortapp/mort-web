@@ -4,6 +4,7 @@ import { postJob } from '../actions'
 import { Toast } from '@/components/toast'
 import { SubmitButton } from '@/components/submit-button'
 import { CategoryPicker } from '@/components/category-picker'
+import { productionCapabilities } from '@/lib/production-capabilities'
 export const dynamic = 'force-dynamic'
 
 export default async function PostJob({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
@@ -11,7 +12,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
   const sp = await searchParams
   const isApproved = profile?.verification_status === 'approved'
   const { data: runtime, error: runtimeError } = await supabase.rpc('get_runtime_feature_status')
-  const canPublish = isApproved && !runtimeError && runtime?.new_job_publishing_disabled === false && runtime?.public_marketplace_closed === false && runtime?.maintenance_mode === false
+  const canPublish = isApproved && !runtimeError && runtime?.new_job_publishing_disabled === false && runtime?.public_marketplace_closed === false && runtime?.maintenance_mode === false && runtime?.payments_disabled === false && productionCapabilities.perTaskGuardianApproval
 
   return (
     <>
@@ -28,7 +29,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
       {!canPublish && (
         <div className="warning-box" style={{marginBottom:20}}>
           <strong>⚠️ Job publishing is currently unavailable</strong>
-          <p style={{marginTop:6,fontSize:14}}>{runtimeError || !runtime?.ok ? 'MORT could not verify production publishing status. No job can be submitted until the release controls are available.' : runtime?.new_job_publishing_disabled || runtime?.public_marketplace_closed || runtime?.maintenance_mode ? 'MORT has publishing disabled while production verification and safety release gates are completed.' : 'Adult identity verification must be approved before publishing. The production verification provider is not currently available.'} <a href="/app/verify" style={{color:'var(--warning)',fontWeight:600}}>View verification status →</a></p>
+          <p style={{marginTop:6,fontSize:14}}>{runtimeError || !runtime?.ok ? 'MORT could not verify production publishing status. No job can be submitted until the release controls are available.' : runtime?.new_job_publishing_disabled || runtime?.public_marketplace_closed || runtime?.maintenance_mode ? 'MORT has publishing disabled until production verification, payment funding, and the per-Task Guardian approval workflow are available.' : 'Adult identity verification must be approved before publishing. The production verification provider is not currently available.'} <a href="/app/verify" style={{color:'var(--warning)',fontWeight:600}}>View verification status →</a></p>
         </div>
       )}
 
@@ -38,7 +39,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
           <div className="grid two">
             <label>
               Job title
-              <input name="title" required placeholder="Dog walking, Lawn mowing..." />
+              <input name="title" required minLength={5} maxLength={120} placeholder="Dog walking, Lawn mowing..." />
             </label>
             <label style={{gridColumn:'1 / -1'}}>
               Category
@@ -50,7 +51,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
             </label>
             <label>
               Pay label
-              <input name="pay_label" placeholder="$20 cash after job" />
+              <span className="muted">MORT payment processing is not enabled.</span>
             </label>
             <label>
               City
@@ -79,12 +80,9 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
           </div>
           <label>
             Job description
-            <textarea name="description" required placeholder="Describe the job, what's needed, how long it takes, any special requirements..." />
+            <textarea name="description" required minLength={20} maxLength={5000} placeholder="Describe the job, what's needed, how long it takes, any special requirements..." />
           </label>
-          <label style={{flexDirection:'row',alignItems:'center',gap:10,cursor:'pointer'}}>
-            <input type="checkbox" name="requires_guardian_approval" style={{width:'auto'}} />
-            <span>Require guardian approval for teen applicants</span>
-          </label>
+          <div className="notice"><strong>Private-residence work is not supported yet.</strong><p>MORT's published Safety Rules require specific Guardian approval for each Task at a private residence and a second adult for work inside. The production website does not yet have that approval workflow.</p></div>
           <SubmitButton full size="lg" pendingLabel="Publishing…" disabled={!canPublish}>
             Publish job listing
           </SubmitButton>
@@ -98,7 +96,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
                 'Be specific about what the job involves',
                 'Set a fair pay rate for the work',
                 'Include a neighborhood or general area only — never a street address',
-                'Specify if guardian approval is needed',
+                'Do not post residential work until the per-Task Guardian approval workflow is available',
                 'Only post jobs you genuinely need help with',
               ].map(item => (
                 <div key={item} style={{display:'flex',alignItems:'flex-start',gap:8,fontSize:13,color:'var(--muted2)'}}>
@@ -109,7 +107,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
           </div>
           <div className="card">
             <h3 style={{marginBottom:8}}>💳 Payment</h3>
-            <p style={{fontSize:14}}>MORT does not process, move, hold, guarantee, or enforce payments. Users may record a payment preference such as cash, Cash App, a Square link, flexible, or none. Set a clear pay label so teens know what to expect.</p>
+            <p style={{fontSize:14}}>MORT payment processing and payouts are disabled. Published MORT Terms require payments through the approved provider; do not request cash, Cash App, or other off-platform payment.</p>
           </div>
           <div className="card danger-card">
             <h3 style={{marginBottom:8}}>⚠️ Prohibited jobs</h3>
