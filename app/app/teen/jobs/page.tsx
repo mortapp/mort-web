@@ -39,12 +39,12 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
   return (
     <>
       <PageHeaderWithActions
-        title="Find local jobs"
-        eyebrow="Teen marketplace"
-        description="Apply to jobs near you. Adults review applicants. Guardian approval may be required."
+        title="Good work, close to home"
+        eyebrow="Home · Nearby work"
+        description="Your local work feed. Explore categories, open a listing for details, and apply when a job fits."
       >
-        <Link href="/app/teen/saved" className="btn">🔖 Saved</Link>
-        <Link href="/app/teen/applications" className="btn">📋 My apps</Link>
+        <Link href="/app/teen/explore" className="btn primary">Explore jobs</Link>
+        <Link href="/app/teen/active" className="btn">Active work</Link>
       </PageHeaderWithActions>
 
 
@@ -74,8 +74,8 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
       {!jobs?.length ? (
         <EmptyState
           icon="🔍"
-          title="No open jobs yet"
-          text="When adults post verified jobs, they show here. Check back soon or try a different category."
+          title="No new work to show yet"
+          text="Approved listings will appear here when production publishing is enabled. Explore categories or review your saved jobs while the marketplace is closed."
           href="/app/teen/saved"
           action="View saved jobs"
         />
