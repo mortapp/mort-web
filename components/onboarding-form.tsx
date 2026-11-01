@@ -31,7 +31,15 @@ interface Props {
   legalAvailable: boolean
 }
 
-const categories = ['Yard work', 'Pet care', 'Tutoring', 'Cleaning', 'Tech help', 'Errands']
+const categories = [
+  ['yard_work', 'Yard work'],
+  ['pet_care', 'Pet care'],
+  ['tutoring', 'Tutoring'],
+  ['household_help', 'Household help'],
+  ['moving_help', 'Moving help'],
+  ['tech_help', 'Tech help'],
+  ['other', 'Other local work'],
+] as const
 const transport = [
   ['walking', 'Walking'],
   ['bicycle', 'Bicycle'],
@@ -132,10 +140,10 @@ export function OnboardingForm({
             <div className="card">
               <h3>What kind of work are you interested in?</h3>
               <div className="grid two">
-                {categories.map((category) => (
-                  <label key={category} className="choice">
-                    <input type="checkbox" name="preferred_job_categories" value={category.toLowerCase()} defaultChecked={(profile?.preferred_job_categories || []).includes(category.toLowerCase())} />
-                    {category}
+                {categories.map(([value, label]) => (
+                  <label key={value} className="choice">
+                    <input type="checkbox" name="preferred_job_categories" value={value} defaultChecked={(profile?.preferred_job_categories || []).includes(value)} />
+                    {label}
                   </label>
                 ))}
               </div>
