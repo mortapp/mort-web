@@ -2,12 +2,12 @@
 import { randomUUID } from 'node:crypto'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { requireUser } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 
 function v(fd: FormData, k: string) { const x = fd.get(k); return x == null ? null : String(x).trim() }
 
 export async function sendMessage(formData: FormData) {
-  const { supabase } = await requireUser()
+  const { supabase } = await requireRole(['teen', 'adult', 'guardian'])
   const thread_id = v(formData, 'thread_id')
   const body = v(formData, 'body')
   if (!thread_id || !body) redirect(`/app/messages/${thread_id || ''}?message=${encodeURIComponent('Message cannot be empty.')}`)
