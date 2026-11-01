@@ -40,7 +40,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
             </label>
             <label style={{gridColumn:'1 / -1'}}>
               Category
-              <CategoryPicker name="category" defaultValue="dog walking" />
+              <CategoryPicker name="category" defaultValue="pet_care" />
             </label>
             <label>
               Pay amount (dollars)
