@@ -7,14 +7,14 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdultJobDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const { supabase, user } = await requireRole(['adult'])
+  const { supabase, user, profile } = await requireRole(['adult'])
 
   const [{ data: job }, { data: applicationResult, error: applicationsError }, { data: runtime, error: runtimeError }] = await Promise.all([
     supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, safety_review_status, requires_guardian_approval, teen_min_age, teen_max_age, starts_at, created_at').eq('id', id).maybeSingle(),
     supabase.rpc('get_my_job_applications', { p_application_id: null }),
     supabase.rpc('get_runtime_feature_status'),
   ])
-  const canAccept = !runtimeError && runtime?.payments_disabled === false && runtime?.new_job_publishing_disabled === false && runtime?.maintenance_mode === false
+  const canAccept = profile?.verification_status === 'approved' && !runtimeError && runtime?.payments_disabled === false && runtime?.new_job_publishing_disabled === false && runtime?.maintenance_mode === false
   const apps = Array.isArray(applicationResult?.items) ? applicationResult.items.filter((item: any) => item.job_id === id) : []
 
   if (!job) return <div className="error">Job not found</div>
