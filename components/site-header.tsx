@@ -25,8 +25,8 @@ export function SiteHeader({ isSignedIn = false }: SiteHeaderProps) {
           <span aria-hidden="true">{open ? '×' : '☰'}</span>
         </button>
         <nav id="public-navigation" className={open ? 'open' : undefined} aria-label="Public navigation">
-          <Link href="/#how" onClick={close}>How it works</Link>
-          <Link href="/#roles" onClick={close}>Roles</Link>
+          <Link href="/#how-it-works" onClick={close}>How it works</Link>
+          <Link href="/#who-its-for" onClick={close}>Roles</Link>
           <Link href="/safety" onClick={close}>Safety</Link>
           <Link href="/legal/terms" onClick={close}>Legal</Link>
           <ThemeToggle />
