@@ -99,7 +99,6 @@ export async function setApplicationStatus(formData: FormData) {
 function jobActionForStatus(status: string | null) {
   if (status === 'paused') return 'pause'
   if (status === 'open') return 'resume'
-  if (status === 'closed') return 'close_applications'
   return null
 }
 
