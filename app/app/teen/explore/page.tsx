@@ -19,7 +19,7 @@ export default async function Explore({ searchParams }: { searchParams?: Promise
   const { data: result, error } = await supabase.rpc('list_open_jobs_page', {
     p_keyword: query,
     p_category: category,
-    p_limit: 60,
+    p_limit: 50,
   })
   const jobs = result?.ok === true && Array.isArray(result.items) ? result.items : []
   const errorMessage = error?.message || (result?.ok === false ? result.code : null)
