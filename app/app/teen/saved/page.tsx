@@ -5,8 +5,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function Saved() {
   const { supabase, user } = await requireUser()
-  const { data: folders } = await supabase.from('user_saved_job_folders').select('*, saved_job_folder_items(*, jobs(*))').eq('user_id', user.id)
-  const items = (folders || []).flatMap((f: any) => f.saved_job_folder_items || [])
+  const { data: items } = await supabase.from('saved_jobs').select('job_id, jobs(*)').eq('user_id', user.id).order('created_at', { ascending: false })
 
   return (
     <>
@@ -22,7 +21,7 @@ export default async function Saved() {
               title={it.jobs?.title || 'Saved job'}
               category={it.jobs?.category}
               city={it.jobs?.city}
-              state={it.jobs?.state}
+              state={it.jobs?.region}
               locationText={it.jobs?.location_text}
               description={it.jobs?.description}
               payLabel={it.jobs?.pay_label || centsToDollars(it.jobs?.pay_amount_cents)}
