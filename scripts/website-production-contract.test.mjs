@@ -63,3 +63,84 @@ test('Guardian application actions remain read-only and messaging uses scoped RP
   assert.doesNotMatch(guardian, /supabase\.rpc\(|supabase\.from\(/)
   assert.match(messages, /rpc\('send_safe_message_v2'/)
 })
+
+test('Website uses the shared MORT monochrome system with light mode primary', async () => {
+  const root = await read('app/layout.tsx')
+  const theme = await read('app/mort-2-theme.css')
+  const shell = await read('components/app-shell.tsx')
+  assert.match(root, /data-theme="light"/)
+  assert.match(theme, /:root, :root\[data-theme="light"\]/)
+  assert.match(theme, /:root\[data-theme="dark"\]/)
+  assert.match(shell, /app-mobile-nav/)
+  assert.match(shell, /consumerNav/)
+  assert.match(shell, /role === 'teen'/)
+  assert.match(shell, /role === 'adult'/)
+  assert.match(shell, /role === 'guardian'/)
+  assert.match(shell, /role === 'admin'/)
+})
+
+test('Onboarding saves canonical production job categories', async () => {
+  const source = await read('components/onboarding-form.tsx')
+  for (const category of ['yard_work', 'pet_care', 'tutoring', 'household_help', 'moving_help', 'tech_help', 'other']) {
+    assert.match(source, new RegExp(category))
+  }
+  assert.doesNotMatch(source, /category\.toLowerCase\(\)/)
+})
+
+test('Adult publishing and assignment acceptance fail closed on missing production safeguards', async () => {
+  const capabilities = await read('lib/production-capabilities.ts')
+  const action = await read('app/app/adult/actions.ts')
+  const home = await read('app/app/adult/page.tsx')
+  const post = await read('app/app/adult/post-job/page.tsx')
+  const applications = await read('app/app/adult/applications/page.tsx')
+  assert.match(capabilities, /perTaskGuardianApproval: false/)
+  assert.match(action, /runtime\?\.payments_disabled !== false/)
+  assert.match(action, /!productionCapabilities\.perTaskGuardianApproval/)
+  assert.match(action, /payment_method: 'stripe'/)
+  assert.match(action, /locationText.length > 80/)
+  assert.match(action, /toIndianapolisIso/)
+  assert.match(home, /productionCapabilities\.perTaskGuardianApproval/)
+  assert.match(post, /productionCapabilities\.perTaskGuardianApproval/)
+  assert.doesNotMatch(post, /name="requires_guardian_approval"/)
+  assert.doesNotMatch(post, /cash after job|Cash App|Square link/)
+  assert.match(applications, /productionCapabilities\.perTaskGuardianApproval/)
+})
+
+test('Google signup keeps date of birth out of the OAuth URL', async () => {
+  const actions = await read('app/(auth)/actions.ts')
+  const callback = await read('app/auth/callback/route.ts')
+  assert.match(actions, /cookieStore\.set\('mort_signup_dob'/)
+  assert.match(actions, /httpOnly: true/)
+  assert.match(actions, /maxAge: 600/)
+  assert.doesNotMatch(actions, /searchParams\.set\('signup_dob'/)
+  assert.match(callback, /request\.cookies\.get\('mort_signup_dob'/)
+  assert.match(callback, /maxAge: 0/)
+  assert.doesNotMatch(callback, /searchParams\.get\('signup_dob'/)
+})
+
+test('Support tickets and profile editing fail closed without production RPCs', async () => {
+  const support = await read('app/app/support/page.tsx')
+  const supportActions = await read('app/app/support/actions.ts')
+  const profile = await read('app/app/profile/page.tsx')
+  assert.match(support, /Ticket support is not available yet/)
+  assert.doesNotMatch(support, /from\('support_tickets'\)/)
+  assert.doesNotMatch(supportActions, /rpc\(/)
+  assert.match(profile, /Profile editing is temporarily unavailable/)
+  assert.doesNotMatch(profile, /BadgeRow|saveProfile/)
+})
+
+test('Teen applications can be withdrawn through the supported production RPC', async () => {
+  const action = await read('app/app/teen/actions.ts')
+  const page = await read('app/app/teen/applications/page.tsx')
+  assert.match(action, /export async function withdrawApplication/)
+  assert.match(action, /p_action: 'withdrawn'/)
+  assert.match(page, /Withdraw application/)
+})
+
+test('Public safety copy does not claim unavailable verification or Guardian approvals', async () => {
+  const page = await read('app/safety/page.tsx')
+  assert.match(page, /identity-verification provider is not configured/)
+  assert.match(page, /does not yet have a verified per-Task Guardian approval workflow/)
+  assert.match(page, /does not contact emergency services/)
+  assert.match(page, /payment processing and payouts/)
+})
