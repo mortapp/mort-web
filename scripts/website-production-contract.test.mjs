@@ -166,3 +166,14 @@ test('Payments UI does not offer off-platform payment preferences', async () => 
   assert.match(page, /Do not arrange cash, Cash App/)
   assert.doesNotMatch(history, /pay_label/)
 })
+
+test('Adult navigation follows Home Explore Post Inbox Profile architecture', async () => {
+  const shell = await read('components/app-shell.tsx')
+  const explore = await read('app/app/adult/explore/page.tsx')
+  const post = await read('app/app/adult/post-job/page.tsx')
+  assert.match(shell, /href: '\/app\/adult\/explore', icon: 'search', label: 'Explore'/)
+  assert.match(shell, /href: '\/app\/adult\/post-job', icon: 'plus', label: 'Post a job'/)
+  assert.match(explore, /Local service categories/)
+  assert.match(explore, /app\/adult\/post-job\?category=/)
+  assert.match(post, /defaultCategory/)
+})
