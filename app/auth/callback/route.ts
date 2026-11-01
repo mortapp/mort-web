@@ -3,6 +3,12 @@ import { createClient } from '@/lib/supabase/server'
 import { safeNext } from '@/lib/site-url'
 import { ensureProfile } from '@/lib/auth'
 
+function redirectWithSignupCookie(target: URL | string) {
+  const response = NextResponse.redirect(target)
+  response.cookies.set('mort_signup_dob', '', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/auth/callback', maxAge: 0 })
+  return response
+}
+
 function ageFromDateOfBirth(value: string | null): number | null {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null
   const [year, month, day] = value.split('-').map(Number)
@@ -19,7 +25,7 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get('code')
   const next = safeNext(requestUrl.searchParams.get('next'), '/app')
   const isSignup = requestUrl.searchParams.get('source') === 'signup'
-  const signupDob = requestUrl.searchParams.get('signup_dob')
+  const signupDob = request.cookies.get('mort_signup_dob')?.value || null
 
   if (code) {
     const supabase = await createClient()
@@ -36,7 +42,7 @@ export async function GET(request: NextRequest) {
             const message = age !== null && age < 13
               ? 'MORT is only available to people age 13 or older.'
               : 'The date of birth step was missing. Please restart signup.'
-            return NextResponse.redirect(new URL(`/signup?message=${encodeURIComponent(message)}`, requestUrl.origin))
+            return redirectWithSignupCookie(new URL(`/signup?message=${encodeURIComponent(message)}`, requestUrl.origin))
           }
           const { data: savedDob, error: dobError } = await supabase.rpc('save_my_initial_dob_v1', {
             p_date_of_birth: signupDob,
@@ -57,17 +63,17 @@ export async function GET(request: NextRequest) {
           .maybeSingle()
 
         if (profileError) {
-          return NextResponse.redirect(new URL('/auth/auth-code-error', requestUrl.origin))
+          return redirectWithSignupCookie(new URL('/auth/auth-code-error', requestUrl.origin))
         }
         if (!profile?.date_of_birth) {
           if (isSignup) {
             await supabase.auth.signOut()
-            return NextResponse.redirect(new URL('/signup?message=Date%20of%20birth%20is%20required%20to%20join%20MORT.', requestUrl.origin))
+            return redirectWithSignupCookie(new URL('/signup?message=Date%20of%20birth%20is%20required%20to%20join%20MORT.', requestUrl.origin))
           }
           const onboardingUrl = new URL('/app/onboarding', requestUrl.origin)
           onboardingUrl.searchParams.set('next', next)
           onboardingUrl.searchParams.set('message', 'Enter your date of birth to confirm you meet MORT\'s minimum age of 13.')
-          return NextResponse.redirect(onboardingUrl)
+          return redirectWithSignupCookie(onboardingUrl)
         }
         if (!profile?.onboarding_completed_at || profile.account_status !== 'active') {
           const onboardingUrl = new URL('/app/onboarding', requestUrl.origin)
@@ -75,8 +81,8 @@ export async function GET(request: NextRequest) {
           return NextResponse.redirect(onboardingUrl)
         }
       }
-      return NextResponse.redirect(new URL(next, requestUrl.origin))
+      return redirectWithSignupCookie(new URL(next, requestUrl.origin))
     }
   }
-  return NextResponse.redirect(new URL('/auth/auth-code-error', requestUrl.origin))
+  return redirectWithSignupCookie(new URL('/auth/auth-code-error', requestUrl.origin))
 }
