@@ -1,8 +1,6 @@
 import { requireUser } from '@/lib/auth'
-import { saveProfile } from '@/app/app/actions'
 import { PageHeaderWithActions, Status, XPBar, BadgeRow } from '@/components/ui'
 import { Toast } from '@/components/toast'
-import { SubmitButton } from '@/components/submit-button'
 import { AppearanceCard } from '@/components/appearance-card'
 export const dynamic = 'force-dynamic'
 
@@ -44,37 +42,18 @@ export default async function Profile({ searchParams }: { searchParams?: Promise
       <Toast message={sp?.message} />
 
       <div className="grid two" style={{gap:24,alignItems:'start'}}>
-        {/* Edit form */}
-        <form action={saveProfile} className="card form">
-          <h3 style={{marginBottom:20}}>Edit profile</h3>
-          <div className="grid two">
-            <label>
-              Display name
-              <input name="display_name" defaultValue={profile?.display_name || ''} placeholder="Your name" />
-            </label>
-            <label>
-              Username
-              <input name="username" defaultValue={profile?.username || ''} placeholder="@username" />
-            </label>
-            <label>
-              City
-              <input name="city" defaultValue={profile?.city || ''} placeholder="Indianapolis" />
-            </label>
-            <label>
-              State
-              <input name="state" defaultValue={profile?.state || ''} placeholder="IN" />
-            </label>
-            <label>
-              Date of birth
-              <input type="date" name="dob" defaultValue={profile?.dob || ''} />
-            </label>
-            <label>
-              Role
-              <input value={profile?.role || 'not chosen'} disabled style={{opacity:0.5,cursor:'not-allowed'}} />
-            </label>
-          </div>
-          <SubmitButton full size="lg" pendingLabel="Saving…">Save profile</SubmitButton>
-        </form>
+        <section className="card profile-details-card">
+          <div className="section-heading-row"><div><h3>Account details</h3><p>Private details for your signed-in account.</p></div><span className="status muted">Read only</span></div>
+          <dl className="profile-detail-list">
+            <div><dt>Display name</dt><dd>{profile?.display_name || 'Not set'}</dd></div>
+            <div><dt>Username</dt><dd>{profile?.username ? `@${profile.username}` : 'Not set'}</dd></div>
+            <div><dt>City</dt><dd>{profile?.city || 'Not set'}</dd></div>
+            <div><dt>State / region</dt><dd>{profile?.region || 'Not set'}</dd></div>
+            <div><dt>Email</dt><dd>{user.email || 'Not available'}</dd></div>
+            <div><dt>Account type</dt><dd style={{textTransform:'capitalize'}}>{profile?.role || 'Not set'}</dd></div>
+          </dl>
+          <p className="muted" style={{marginTop:16}}>Profile editing is temporarily unavailable because the production backend does not expose a supported profile-update operation. Your date of birth and account role are protected from self-service changes.</p>
+        </section>
 
         {/* Stats & badges */}
         <div style={{display:'flex',flexDirection:'column',gap:16}}>
