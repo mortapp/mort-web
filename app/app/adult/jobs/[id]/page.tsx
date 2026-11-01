@@ -74,7 +74,7 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
                 <div style={{ display: 'flex', gap: 10 }}>
                   <div className="avatar-tile sm">{(a.teen?.display_name || '?').charAt(0).toUpperCase()}</div>
                   <div>
-                    <h3>{a.profiles?.display_name || 'Applicant'}</h3>
+                    <h3>{a.teen?.display_name || 'Applicant'}</h3>
                     <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{[a.teen?.city, a.teen?.region].filter(Boolean).join(', ')}</p>
                   </div>
                 </div>
