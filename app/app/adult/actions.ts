@@ -21,10 +21,10 @@ function getJobPayload(formData: FormData, profile: any) {
       title: v(formData,'title') || 'Local job',
       description: v(formData,'description') || 'No description provided',
       summary: v(formData,'description')?.slice(0, 180) || null,
-      category: v(formData,'category') || 'general',
+      category: v(formData,'category') || 'other',
       location_text: v(formData,'location_text') || 'Approximate location shared after approval',
       city: v(formData,'city') || profile?.city || 'Indianapolis',
-      state: v(formData,'state') || profile?.state || 'IN',
+      state: v(formData,'state') || profile?.region || 'IN',
       adult_job_amount_cents: amount,
       pay_label: v(formData,'pay_label'),
       teen_min_age: teenMinAge,
@@ -41,7 +41,7 @@ function getJobPayload(formData: FormData, profile: any) {
       recurring: false,
       urgency: 'normal',
       payment_method: 'cash',
-      payment_type: 'after_completion',
+      payment_type: 'fixed',
       payment_timing: 'after_completion',
       tip_allowed: true,
       applications_open: true,
@@ -72,7 +72,6 @@ export async function postJob(formData: FormData) {
 function actionForApplicationStatus(status: string | null) {
   if (status === 'accepted') return 'accepted'
   if (status === 'rejected') return 'rejected'
-  if (status === 'completed') return 'completed'
   if (status === 'shortlisted') return 'shortlisted'
   if (status === 'viewed') return 'viewed'
   return null
