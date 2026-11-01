@@ -14,7 +14,7 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
     supabase.rpc('get_my_job_applications', { p_application_id: null }),
     supabase.rpc('get_runtime_feature_status'),
   ])
-  const canAccept = profile?.verification_status === 'approved' && !runtimeError && runtime?.payments_disabled === false && runtime?.new_job_publishing_disabled === false && runtime?.maintenance_mode === false
+  const canAccept = profile?.verification_status === 'approved' && !runtimeError && runtime?.payments_disabled === false && runtime?.new_job_publishing_disabled === false && runtime?.maintenance_mode === false && productionCapabilities.perTaskGuardianApproval
   const apps = Array.isArray(applicationResult?.items) ? applicationResult.items.filter((item: any) => item.job_id === id) : []
 
   if (!job) return <div className="error">Job not found</div>
