@@ -31,7 +31,7 @@ export function SiteHeader({ isSignedIn = false }: SiteHeaderProps) {
           <Link href="/legal/terms" onClick={close}>Legal</Link>
           <ThemeToggle />
           {isSignedIn ? (
-            <Link href="/app" className="btn sm" onClick={close}>Dashboard</Link>
+            <Link href="/app" className="btn sm" onClick={close}>Open MORT</Link>
           ) : (
             <>
               <Link href="/login" onClick={close}>Sign in</Link>
