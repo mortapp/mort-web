@@ -41,6 +41,7 @@ const consumerNav: Record<string, { primary: NavItem[]; secondary: NavItem[] }> 
       { href: '/app/profile', icon: 'user', label: 'Profile' },
     ],
     secondary: [
+      { href: '/app/adult/post-job', icon: 'plus', label: 'Post a job' },
       { href: '/app/adult/jobs', icon: 'briefcase', label: 'My jobs' },
       { href: '/app/adult/applications', icon: 'users', label: 'Applicants' },
       { href: '/app/verify', icon: 'shield', label: 'Verification' },
