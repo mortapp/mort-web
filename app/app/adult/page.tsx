@@ -8,11 +8,12 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdultHome() {
   const { supabase, user, profile } = await requireRole(['adult'])
-  const [{ data: jobs, error: jobsError }, { data: runtime, error: runtimeError }] = await Promise.all([
+  const [{ data: jobs, error: jobsError }, { data: allJobIds }, { data: runtime, error: runtimeError }] = await Promise.all([
     supabase.from('jobs').select('id, title, category, status, city, region, pay_amount_cents, pay_label, created_at').eq('poster_id', user.id).order('created_at', { ascending: false }).limit(6),
+    supabase.from('jobs').select('id').eq('poster_id', user.id),
     supabase.rpc('get_runtime_feature_status'),
   ])
-  const jobIds = (jobs || []).map((job: any) => job.id)
+  const jobIds = (allJobIds || []).map((job: any) => job.id)
   const { count: applicantsCount, error: applicantsError } = jobIds.length
     ? await supabase.from('job_applications').select('id', { count: 'exact', head: true }).in('job_id', jobIds).in('status', ['submitted', 'shortlisted'])
     : { count: 0, error: null }
@@ -29,7 +30,7 @@ export default async function AdultHome() {
       {isVerified && !canPublish && <div className="notice" style={{ marginBottom: 20 }}><strong>Job publishing is temporarily unavailable</strong><p>MORT is keeping new listings disabled while production safety and operational requirements are completed. You can still manage existing jobs and review applicants.</p></div>}
 
       <div className="stats adult-home-stats">
-        <MetricCard icon="briefcase" label="Your jobs" value={<CountUp value={jobs?.length || 0} />} />
+        <MetricCard icon="briefcase" label="Your jobs" value={<CountUp value={jobIds.length} />} />
         <MetricCard icon="users" label="Applicants waiting" value={<CountUp value={applicantsCount || 0} />} />
         <MetricCard icon="shield" label="Verification" value={<Status value={profile?.verification_status} />} />
       </div>
