@@ -35,7 +35,7 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
         <h3 style={{ marginBottom: 14 }}>Connected teens ({teens?.length || 0})</h3>
         {!teens?.length ? <EmptyState icon="shield" title="No active Guardian connections" text="Guardian Mode is optional. A teen must invite you, and both people must consent before a connection becomes active." href="/app/verify" action="Open Guardian connections" /> : (
           <div className="grid three">{teens.map((teen: any) => <div className="person-card card" key={teen.id}>
-            <div className="avatar-tile">{(teen.display_name || '?').charAt(0).toUpperCase()}</div>
+            <div className="avatar-tile">{'G'}</div>
             <div className="person-card-body"><h3>Connected teen</h3><p>Active, mutually consented Guardian connection</p></div>
           </div>)}</div>
         )}
