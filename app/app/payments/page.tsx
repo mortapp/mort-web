@@ -1,42 +1,31 @@
 import { requireUser } from '@/lib/auth'
-import { savePaymentPreference } from '@/app/app/actions'
 import { PageHeaderWithActions } from '@/components/ui'
-import { SubmitButton } from '@/components/submit-button'
 import { Toast } from '@/components/toast'
+
 export const dynamic = 'force-dynamic'
 
 export default async function Payments({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
-  const { profile } = await requireUser()
+  await requireUser()
   const sp = await searchParams
-  const pref = profile?.payment_preference || 'none'
   return (
     <>
-      <PageHeaderWithActions title="Payment preferences" eyebrow="Preference-only / fail-closed">
-        <p>MORT does not process, move, hold, guarantee, or enforce payments. The live backend currently has no safe RPC for payment preference writes, so this screen is read-only until that backend gap is closed.</p>
-      </PageHeaderWithActions>
+      <PageHeaderWithActions title="Payments & payouts" eyebrow="Not enabled in production" description="Payment setup will appear here only when the approved provider, Guardian-owned payout model, and required production safeguards are available." />
       <Toast message={sp?.message} />
-
-      <div className="warning-box" style={{ marginBottom: 20 }}>
-        ⚠️ Payment preference saving is disabled by design in this web build. Do not add bank details, card numbers, SSNs, or service-role keys.
-      </div>
-
-      <form action={savePaymentPreference} className="card form" style={{ maxWidth: 480 }}>
-        <label>Current profile preference<input value={pref} readOnly /></label>
-        <label>
-          Preference
-          <select name="preference" defaultValue={pref} disabled>
-            <option value="cash">Cash</option>
-            <option value="cash_app">Cash App</option>
-            <option value="square_link">Square link</option>
-            <option value="flexible">Flexible</option>
-            <option value="none">None yet</option>
-          </select>
-        </label>
-        <label>Cash App tag<input name="cash_app_tag" placeholder="$yourtag" disabled /></label>
-        <label>Square URL<input name="square_url" disabled /></label>
-        <label>Note<textarea name="note" disabled /></label>
-        <SubmitButton pendingLabel="Checking…">Why can&apos;t I save?</SubmitButton>
-      </form>
+      <section className="card payment-unavailable">
+        <span className="small">PAYMENT STATUS</span>
+        <h2>Payment processing is disabled.</h2>
+        <p>MORT does not currently collect, hold, fund, transfer, refund, or pay out job compensation. No bank account, debit card, credit card, tax identifier, or payout credentials are collected on this page.</p>
+        <p>The published MORT Terms require marketplace payments through the approved payment provider. Do not arrange cash, Cash App, Square, or other off-platform payments through MORT.</p>
+      </section>
+      <section className="card" style={{ marginTop: 16 }}>
+        <h3>What must be ready first</h3>
+        <ul style={{ paddingLeft: 20, marginTop: 10, display: 'grid', gap: 8 }}>
+          <li>Verified adult and Guardian-owned payout account requirements.</li>
+          <li>Production payment funding, transfers, refunds, and dispute handling.</li>
+          <li>Webhook idempotency, reconciliation, and operational monitoring.</li>
+          <li>Clear fee disclosure and teen-safe payment status history.</li>
+        </ul>
+      </section>
     </>
   )
 }
