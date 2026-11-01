@@ -27,10 +27,6 @@ export default async function NewReport({ searchParams }: { searchParams?: Promi
           </select>
         </label>
         <label>
-          Target user ID (optional)
-          <input name="target_user_id" defaultValue={sp.target_user_id || ''} placeholder="Auto-filled when reporting from a profile or message" />
-        </label>
-        <label>
           Target job ID (optional)
           <input name="target_job_id" defaultValue={sp.target_job_id || ''} />
         </label>
@@ -41,6 +37,10 @@ export default async function NewReport({ searchParams }: { searchParams?: Promi
         <label>
           Details
           <textarea name="details" required minLength={10} maxLength={4000} defaultValue={sp.details || ''} placeholder="Tell us what happened. Include at least 10 characters." />
+        </label>
+        <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+          <input type="checkbox" name="immediate_danger" style={{ width: 'auto', marginTop: 4 }} />
+          <span>I believe someone may be in immediate danger. I understand this report does not contact emergency services.</span>
         </label>
         <SubmitButton variant="danger" pendingLabel="Submitting…">Submit report</SubmitButton>
       </form>
