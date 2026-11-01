@@ -114,7 +114,7 @@ export function AppShell({ children, role = 'none', displayName }: Props) {
           </>}
           {!isAdmin && <>
             <div className="sidebar-section">Help & safety</div>
-            {renderLink({ href: '/app/safety', icon: 'shield', label: 'Safety center' })}
+            {role === 'teen' && renderLink({ href: '/app/safety', icon: 'shield', label: 'Safety center' })}
             {renderLink({ href: '/app/support', icon: 'headset', label: 'Support' })}
             {renderLink({ href: '/app/reports/new', icon: 'flag', label: 'Report an issue' })}
           </>}
@@ -136,7 +136,7 @@ export function AppShell({ children, role = 'none', displayName }: Props) {
             <span>{isAdmin ? 'MORT staff' : role === 'teen' ? 'Local work, on your terms' : role === 'guardian' ? 'Connected by consent' : 'Your local work, organized'}</span>
           </div>
           <div className="app-topbar-actions">
-            {!isAdmin && <Link href="/app/safety" className="btn ghost sm"><Icon name="shield" /><span className="hide-mobile">Safety</span></Link>}
+            {role === 'teen' && <Link href="/app/safety" className="btn ghost sm"><Icon name="shield" /><span className="hide-mobile">Safety</span></Link>}
             {!isAdmin && <Link href="/app/messages" className="btn ghost sm"><Icon name="message" /><span className="hide-mobile">Inbox</span></Link>}
             <ThemeToggle />
             {!isAdmin && <Link href="/app/profile" className="btn ghost sm"><Icon name="user" /><span className="hide-mobile">Profile</span></Link>}
