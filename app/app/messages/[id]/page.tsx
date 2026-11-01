@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { requireUser } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, Status } from '@/components/ui'
 import { sendMessage } from '../actions'
 import { SubmitButton } from '@/components/submit-button'
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export default async function ThreadDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams?: Promise<Record<string, string>> }) {
   const { id } = await params
   const sp = await searchParams
-  const { supabase, user, profile } = await requireUser()
+  const { supabase, user } = await requireRole(['teen', 'adult', 'guardian'])
 
   const { data: result, error } = await supabase.rpc('list_thread_messages_page', {
     p_thread_id: id,
