@@ -29,7 +29,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
       {!canPublish && (
         <div className="warning-box" style={{marginBottom:20}}>
           <strong>⚠️ Job publishing is currently unavailable</strong>
-          <p style={{marginTop:6,fontSize:14}}>{runtimeError || !runtime?.ok ? 'MORT could not verify production publishing status. No job can be submitted until the release controls are available.' : runtime?.new_job_publishing_disabled || runtime?.public_marketplace_closed || runtime?.maintenance_mode ? 'MORT has publishing disabled until production verification, payment funding, and the per-Task Guardian approval workflow are available.' : 'Adult identity verification must be approved before publishing. The production verification provider is not currently available.'} <a href="/app/verify" style={{color:'var(--warning)',fontWeight:600}}>View verification status →</a></p>
+          <p style={{marginTop:6,fontSize:14}}>{runtimeError || !runtime?.ok ? 'MORT could not verify production publishing status. No job can be submitted until the release controls are available.' : runtime?.new_job_publishing_disabled || runtime?.public_marketplace_closed || runtime?.maintenance_mode || runtime?.payments_disabled || !productionCapabilities.perTaskGuardianApproval ? 'MORT has publishing disabled until production verification, payment funding, and the per-Task Guardian approval workflow are available.' : 'Adult identity verification must be approved before publishing. The production verification provider is not currently available.'} <a href="/app/verify" style={{color:'var(--warning)',fontWeight:600}}>View verification status →</a></p>
         </div>
       )}
 
