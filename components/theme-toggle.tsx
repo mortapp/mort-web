@@ -11,9 +11,9 @@ export function applyTheme(t: Theme) {
 }
 
 export function useTheme(): [Theme, (t: Theme) => void] {
-  const [theme, setTheme] = useState<Theme>('dark')
+  const [theme, setTheme] = useState<Theme>('light')
   useEffect(() => {
-    const read = () => setTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')
+    const read = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light')
     read()
     window.addEventListener('mort-theme-change', read)
     return () => window.removeEventListener('mort-theme-change', read)
@@ -25,7 +25,7 @@ export function ThemeToggle() {
   const [theme, set] = useTheme()
   const next: Theme = theme === 'dark' ? 'light' : 'dark'
   return (
-    <button type="button" className="btn ghost sm theme-toggle" onClick={() => set(next)} aria-label={`Switch to ${next} theme`}>
+    <button type="button" className="btn ghost sm theme-toggle" onClick={() => set(next)} aria-label={`Switch to ${next} theme`} title={`Switch to ${next} theme`}>
       <Icon name={theme === 'dark' ? 'sun' : 'moon'} />
     </button>
   )
