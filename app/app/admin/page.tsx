@@ -20,6 +20,10 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
     <>
       <PageHeaderWithActions title="Admin operations" eyebrow="Restricted staff workspace" description="Review production records through the approved staff workflow. Sensitive actions remain unavailable where the production backend has no authorized review RPC." />
       <Toast message={sp?.message} />
+      <div className="notice" style={{ marginBottom: 20 }}>
+        <strong>Staff-only, read-only workspace.</strong>
+        <p>Production row-level security checks actual staff assignments for these records. A profile role by itself does not grant access; if a section is empty, confirm the account has an active staff assignment. No admin mutations are exposed here.</p>
+      </div>
       <div className="stats" style={{ marginBottom: 24 }}>
         <MetricCard icon="users" label="Visible profiles" value={<CountUp value={usersCount || 0} />} />
         <MetricCard icon="id-card" label="Verification cases" value={<CountUp value={pendingCases} />} />
