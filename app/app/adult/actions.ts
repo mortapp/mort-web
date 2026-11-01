@@ -52,7 +52,7 @@ function getJobPayload(formData: FormData, profile: any) {
 }
 
 export async function postJob(formData: FormData) {
-  const { supabase, profile } = await requireRole(['adult','admin'])
+  const { supabase, profile } = await requireRole(['adult'])
   if (profile?.role !== 'admin' && profile?.verification_status !== 'approved') redirect('/app/verify?message=Adults must be approved before posting jobs.')
   const built = getJobPayload(formData, profile)
   if ('error' in built) redirect('/app/adult/post-job?message=' + encodeURIComponent(built.error!))
