@@ -107,7 +107,7 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
                   {canAccept && <SubmitButton name="status" value="accepted" size="sm" pendingLabel="…">Accept & secure funding</SubmitButton>}
                   <SubmitButton name="status" value="shortlisted" variant="ghost" size="sm" pendingLabel="…">Shortlist</SubmitButton>
                   <SubmitButton name="status" value="rejected" variant="ghost" size="sm" pendingLabel="…">Reject</SubmitButton>
-                  {!canAccept && <p className="muted" style={{fontSize:12,marginTop:8}}>Acceptance is disabled until production payment funding and marketplace release controls are available. Verification is also checked by the backend when an assignment is created.</p>}
+                  {!canAccept && <p className="muted" style={{fontSize:12,marginTop:8}}>Acceptance is disabled until production payment funding and per-Task Guardian approval are available. Adult identity and teen age verification are also checked by the backend.</p>}
                 </form>
               ) : <p style={{ fontSize: 12, color: 'var(--muted2)' }}>This application has moved into the assignment workflow. Start and completion actions are controlled by the assignment lifecycle.</p>}
             </div>
