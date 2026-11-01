@@ -11,7 +11,7 @@ export default async function MyJobs({ searchParams }: { searchParams?: Promise<
   const sp = await searchParams
   const { supabase, user, profile } = await requireRole(['adult'])
   const [{ data: jobs, error }, { data: runtime, error: runtimeError }] = await Promise.all([
-    supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, safety_review_status, created_at').eq('poster_id', user.id).order('created_at', { ascending: false }),
+    supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, safety_review_status, created_at').eq('poster_id', user.id).order('created_at', { ascending: false }),
     supabase.rpc('get_runtime_feature_status'),
   ])
   const canPublish = profile?.verification_status === 'approved' && !runtimeError && runtime?.new_job_publishing_disabled === false && runtime?.public_marketplace_closed === false && runtime?.maintenance_mode === false && runtime?.payments_disabled === false && productionCapabilities.perTaskGuardianApproval
@@ -34,7 +34,7 @@ export default async function MyJobs({ searchParams }: { searchParams?: Promise<
               <div className="job-card-body">
                 <div className="job-card-top-row">
                   <h3 className="job-card-title">{j.title}</h3>
-                  <span className="job-card-pay">{j.pay_label || centsToDollars(j.pay_amount_cents)}</span>
+                  <span className="job-card-pay">{centsToDollars(j.pay_amount_cents)}</span>
                 </div>
                 <div className="job-card-meta">{j.category} · {j.city}, {j.region}</div>
                 <div className="job-card-badges">
