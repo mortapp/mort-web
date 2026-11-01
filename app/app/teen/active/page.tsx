@@ -74,7 +74,7 @@ export default async function Active({ searchParams }: { searchParams?: Promise<
 
               <div style={{ marginTop: 14 }}>
                 <h4 style={{ marginBottom: 8 }}>Proof on file ({(proofByApp[a.application_id] || []).length})</h4>
-                {!(proofByApp[a.id] || []).length ? (
+                {!(proofByApp[a.application_id] || []).length ? (
                   <p style={{ fontSize: 12.5 }}>No proof uploaded yet.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
