@@ -9,14 +9,13 @@ import { CategoryTile } from '@/components/ui'
 import { createClient } from '@/lib/supabase/server'
 
 const FEATURED_CATEGORIES = [
+  { category: 'yard_work', label: 'Yard work' },
+  { category: 'pet_care', label: 'Pet care' },
   { category: 'tutoring', label: 'Tutoring' },
-  { category: 'lawn care', label: 'Lawn care' },
-  { category: 'dog walking', label: 'Dog walking' },
-  { category: 'cleaning', label: 'Cleaning' },
-  { category: 'errands', label: 'Errands' },
-  { category: 'babysitting', label: 'Babysitting' },
-  { category: 'car washing', label: 'Car washing' },
-  { category: 'trash help', label: 'Trash help' },
+  { category: 'household_help', label: 'Household help' },
+  { category: 'moving_help', label: 'Moving help' },
+  { category: 'tech_help', label: 'Tech help' },
+  { category: 'other', label: 'Other local work' },
 ]
 
 const crossing: [string, string][] = [
@@ -30,20 +29,20 @@ const crossing: [string, string][] = [
 
 const pillars = [
   { icon: '🧭', title: 'Move', text: 'Discover and complete real work nearby — yard work, pet care, moving help, event prep and other approved local jobs.' },
-  { icon: '🛡️', title: 'Trust', text: 'Identities, reputation, history and verification give both sides a reason to rely on each other — no blank-slate strangers.' },
+  { icon: '🛡️', title: 'Trust', text: 'Verification requirements, reputation, job history and clear expectations are designed to make local work more accountable.' },
   { icon: '✦', title: 'Safety', text: 'Private messaging, reporting, optional guardian connections, and controlled job-start workflows — never behind a paywall.' },
 ]
 
 const roles = [
   { icon: '🔥', title: 'For teens', color: 'var(--primary)', items: ['Discover → apply → schedule → work → complete', 'Build a reputation that travels with you', 'Privacy-first location, in-app messaging'], cta: 'Start your hustle', href: '/signup' },
-  { icon: '🧭', title: 'For adults', color: 'var(--accent-blue)', items: ['Post → review applicants → accept → confirm', 'Verified identities and real ratings', 'Responsible for lawful, age-appropriate work'], cta: 'Post a job', href: '/signup' },
-  { icon: '🛡️', title: 'For guardians', color: 'var(--muted2)', items: ['Connect through an invite flow', 'Review supported safety updates', 'Use optional oversight controls'], cta: 'Protect your teen', href: '/signup' },
+  { icon: '🧭', title: 'For adults', color: 'var(--accent-blue)', items: ['Post → review applicants → accept → confirm', 'Identity review before publishing', 'Responsible for lawful, age-appropriate work'], cta: 'Post a job', href: '/signup' },
+  { icon: '🛡️', title: 'For guardians', color: 'var(--muted2)', items: ['Connect through a one-time invite', 'Receive supported in-app safety updates', 'Guardian Mode stays optional'], cta: 'Protect your teen', href: '/signup' },
 ]
 
 const safety = [
-  { cls: 'card danger-card', tile: 'card-icon-tile', icon: '🚨', title: 'SOS', text: 'A help request can create an in-app notification for an active linked guardian. It does not send live location or notify admins.' },
-  { cls: 'card highlight', tile: 'card-icon-tile blue', icon: '✅', title: 'Safety check-ins', text: 'MORT's help-request flow is not a substitute for emergency services. Routine arrival, start, and finish check-ins are not represented as live tracking.' },
-  { cls: 'card', tile: 'card-icon-tile', icon: '🛡️', title: 'Verified adults', text: 'Adult identity and safety review is a launch requirement. Job publishing stays closed until the review process is operational.' },
+  { cls: 'card danger-card', tile: 'card-icon-tile', icon: '🚨', title: 'Help requests', text: 'A help request can create an in-app notification for an active linked guardian. It does not send live location or notify admins.' },
+  { cls: 'card highlight', tile: 'card-icon-tile blue', icon: '✅', title: 'Privacy-first safety', text: 'MORT's help-request flow is not a substitute for emergency services. Routine arrival, start, and finish check-ins are not represented as live tracking.' },
+  { cls: 'card', tile: 'card-icon-tile', icon: '🛡️', title: 'Adult review', text: 'Adult identity and safety review is a launch requirement. Job publishing stays closed until the review process is operational.' },
 ]
 
 export default async function Home() {
@@ -67,7 +66,7 @@ export default async function Home() {
             <Link className="btn primary lg" href="/signup">Get MORT — it’s free</Link>
             <Link className="btn ghost lg" href="/#crossing">See how it works</Link>
           </div>
-          <div className="mort-assur"><b>Free</b> for teens · <b>Guardian</b> controls · <b>Adult review</b> before publishing</div>
+          <div className="mort-assur"><b>Free</b> for teens · <b>Optional Guardian</b> connections · <b>Adult review</b> before publishing</div>
           <div className="mort-scrollhint">explore</div>
         </section>
 
