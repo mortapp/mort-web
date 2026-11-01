@@ -55,9 +55,8 @@ export default async function Profile({ searchParams }: { searchParams?: Promise
           </div>
 
           <div className="card">
-            <h3 style={{marginBottom:12}}>Badges</h3>
-            <BadgeRow badges={badges} />
-            <p style={{fontSize:12,color:'var(--muted)',marginTop:12}}>Complete jobs and challenges to earn badges.</p>
+            <h3 style={{marginBottom:12}}>Progress</h3>
+            <p style={{fontSize:13}}>Your recorded XP is shown above. Challenge tracking and badge rewards are not active in production yet.</p>
           </div>
 
           <div className="card">
