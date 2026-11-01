@@ -36,11 +36,12 @@ const consumerNav: Record<string, { primary: NavItem[]; secondary: NavItem[] }> 
   adult: {
     primary: [
       { href: '/app/adult', icon: 'dashboard', label: 'Home', exact: true },
-      { href: '/app/adult/jobs', icon: 'briefcase', label: 'My jobs' },
+      { href: '/app/adult/explore', icon: 'search', label: 'Explore' },
       { href: '/app/messages', icon: 'message', label: 'Inbox' },
       { href: '/app/profile', icon: 'user', label: 'Profile' },
     ],
     secondary: [
+      { href: '/app/adult/jobs', icon: 'briefcase', label: 'My jobs' },
       { href: '/app/adult/applications', icon: 'users', label: 'Applicants' },
       { href: '/app/verify', icon: 'shield', label: 'Verification' },
       { href: '/app/payments', icon: 'card', label: 'Payment settings' },
