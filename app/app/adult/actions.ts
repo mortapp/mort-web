@@ -66,7 +66,7 @@ export async function postJob(formData: FormData) {
   if (error) redirect(`/app/adult/post-job?message=${encodeURIComponent(error.message)}`)
   if (!data?.ok) redirect(`/app/adult/post-job?message=${encodeURIComponent(rpcText(data, 'Job could not be published.'))}`)
   revalidatePath('/app/adult/jobs')
-  redirect('/app/adult/jobs?message=Job posted')
+  redirect('/app/adult/jobs?message=Job submitted for safety review')
 }
 
 function actionForApplicationStatus(status: string | null) {
