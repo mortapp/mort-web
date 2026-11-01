@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 export default async function Safety({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
   const { supabase, user } = await requireRole(['teen'])
-  const { data: pings, error } = await supabase.from('safety_pings').select('*').eq('teen_id', user.id).order('created_at', { ascending: false }).limit(20)
+  const { data: pings, error } = await supabase.from('safety_pings').select('id, status, note, immediate_danger, created_at').eq('teen_id', user.id).order('created_at', { ascending: false }).limit(20)
 
   return (
     <>
