@@ -58,7 +58,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
             </label>
             <label>
               State
-              <input name="state" defaultValue={profile?.state||''} required />
+              <input name="state" defaultValue={profile?.region||''} required />
             </label>
             <label>
               Approx. location
