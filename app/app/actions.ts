@@ -199,28 +199,11 @@ export async function completeOnboarding(formData: FormData) {
   redirect('/app/onboarding?message=Setup complete. Your account is pending review; marketplace access is not yet enabled.')
 }
 
-export async function saveProfile(formData: FormData) {
-  const { supabase } = await requireUser()
-  const username = (val(formData, 'username') || '').toLowerCase()
-  if (username && !/^[a-z0-9_]{3,24}$/.test(username)) {
-    redirect('/app/profile?message=' + encodeURIComponent('Use 3–24 lowercase letters, numbers, or underscores.'))
-  }
-
-  const { data, error } = await supabase.rpc('update_my_profile', {
-    p_patch: {
-      display_name: val(formData, 'display_name'),
-      username: username || null,
-      city: val(formData, 'city'),
-      region: (val(formData, 'state') || '').toUpperCase(),
-    },
-    p_expected_updated_at: null,
-    p_client_request_id: randomUUID(),
-  })
-  if (error || data?.ok !== true) {
-    redirect('/app/profile?message=' + encodeURIComponent('Profile could not be saved. Review the fields and try again.'))
-  }
-  revalidatePath('/app', 'layout')
-  redirect('/app/profile?message=Profile saved')
+export async function saveProfile(_formData: FormData): Promise<never> {
+  await requireUser()
+  // The active production project does not expose update_my_profile. Do not
+  // fall back to direct profile writes or call a legacy RPC.
+  redirect('/app/profile?message=' + encodeURIComponent('Profile editing is temporarily unavailable because the production profile-update RPC is not deployed. No profile data was changed.'))
 }
 
 // Compatibility endpoint for the archived pre-v2 onboarding prototype. It
@@ -240,9 +223,9 @@ export async function createReport(formData: FormData) {
   const category = val(formData, 'reason') || 'other'
   const details = val(formData, 'details') || ''
   const { data, error } = await supabase.rpc('submit_safety_report_v2', {
-    p_target_user_id: val(formData, 'target_user_id'),
-    p_target_job_id: val(formData, 'target_job_id'),
-    p_target_message_id: val(formData, 'target_message_id'),
+    p_target_user_id: val(formData, 'target_user_id') || null,
+    p_target_job_id: val(formData, 'target_job_id') || null,
+    p_target_message_id: val(formData, 'target_message_id') || null,
     p_target_review_id: null,
     p_application_id: null,
     p_category: category,
