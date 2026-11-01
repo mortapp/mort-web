@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { requireRole } from '@/lib/auth'
-import { PageHeaderWithActions, Status, MetricCard, EmptyState, CategoryPill } from '@/components/ui'
+import { PageHeaderWithActions, Status, MetricCard, EmptyState } from '@/components/ui'
 import { CountUp } from '@/components/count-up'
 import { centsToDollars } from '@/lib/money'
 
@@ -23,7 +23,7 @@ export default async function AdultHome() {
   return (
     <>
       <PageHeaderWithActions title="Your local work" eyebrow="Home · Adult / Business" description="Manage your listings, review applicants, and keep each job moving.">
-        {canPublish ? <Link href="/app/adult/post-job" className="btn primary"> <span aria-hidden="true">+</span> Post a job</Link> : <Link href="/app/verify" className="btn">View verification</Link>}
+        {canPublish ? <Link href="/app/adult/post-job" className="btn primary"><span aria-hidden="true">+</span> Post a job</Link> : <Link href={isVerified ? '/app/adult/jobs' : '/app/verify'} className="btn">{isVerified ? 'View my jobs' : 'View verification'}</Link>}
       </PageHeaderWithActions>
 
       {!isVerified && <div className="notice" style={{ marginBottom: 20 }}><strong>Adult verification required</strong><p>Complete the available verification steps before job publishing can be enabled.</p><Link href="/app/verify" className="text-link">Review verification status</Link></div>}
