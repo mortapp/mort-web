@@ -6,8 +6,12 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdultApplications({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
-  const { supabase } = await requireRole(['adult'])
-  const { data: result, error } = await supabase.rpc('get_my_job_applications', { p_application_id: null })
+  const { supabase, profile } = await requireRole(['adult'])
+  const [{ data: result, error }, { data: runtime, error: runtimeError }] = await Promise.all([
+    supabase.rpc('get_my_job_applications', { p_application_id: null }),
+    supabase.rpc('get_runtime_feature_status'),
+  ])
+  const canAccept = profile?.verification_status === 'approved' && !runtimeError && runtime?.payments_disabled === false && runtime?.new_job_publishing_disabled === false && runtime?.maintenance_mode === false
   const apps = result?.ok === true && Array.isArray(result.items) ? result.items : []
 
   return (
@@ -31,9 +35,10 @@ export default async function AdultApplications({ searchParams }: { searchParams
               {a.status === 'submitted' || a.status === 'shortlisted' ? (
                 <form action={setApplicationStatus} className="row-actions" style={{ marginTop: 12 }}>
                   <input type="hidden" name="application_id" value={a.id} />
-                  <button name="status" value="accepted" className="btn primary sm">Accept</button>
+                  {canAccept && <button name="status" value="accepted" className="btn primary sm">Accept & secure funding</button>}
                   <button name="status" value="shortlisted" className="btn sm">Shortlist</button>
-                  <button name="status" value="rejected" className="btn sm">Reject</button>
+                  <button name="status" value="rejected" className="btn sm">Not selected</button>
+                  {!canAccept && <p className="muted" style={{fontSize:12,marginTop:8}}>Acceptance is disabled until adult identity verification, teen age verification, and production payment funding are available.</p>}
                 </form>
               ) : <p style={{ fontSize: 12, color: 'var(--muted2)' }}>This application is in the assignment workflow. Manage active work from the job assignment screen.</p>}
             </ApplicationCard>
