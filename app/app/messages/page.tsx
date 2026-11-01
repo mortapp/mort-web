@@ -7,12 +7,13 @@ export const dynamic = 'force-dynamic'
 export default async function Messages({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
   const { supabase, user } = await requireUser()
-  const { data: threads } = await supabase
-    .from('message_threads')
-    .select('*, jobs(title), messages(body, created_at, scanner_status)')
-    .or(`teen_id.eq.${user.id},adult_id.eq.${user.id},guardian_id.eq.${user.id}`)
-    .order('updated_at', { ascending: false })
-    .limit(50)
+  const { data: threadResult, error } = await supabase.rpc('list_my_message_threads_page', {
+    p_query: '',
+    p_cursor_updated_at: null,
+    p_cursor_id: null,
+    p_limit: 50,
+  })
+  const threads = Array.isArray(threadResult?.items) ? threadResult.items : []
 
   return (
     <>
@@ -29,20 +30,19 @@ export default async function Messages({ searchParams }: { searchParams?: Promis
         </p>
       </div>
 
-      {!threads?.length ? (
+      {error && <div className="error">Messages could not be loaded. Try again later.</div>}
+      {!threads.length ? (
         <EmptyState icon="💬" title="No conversations yet" text="Threads open automatically once you're connected through a job application." />
       ) : (
         <div className="grid two">
           {threads.map((t: any) => {
-            const msgs = (t.messages || []).sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-            const last = msgs[msgs.length - 1]
-            const flaggedRecently = msgs.some((m: any) => m.scanner_status === 'flagged')
+            const flaggedRecently = false
             return (
               <MessageThreadCard
                 key={t.id}
                 href={`/app/messages/${t.id}`}
-                title={t.jobs?.title || 'MORT conversation'}
-                preview={last?.body || 'No messages yet — say hello.'}
+                title={t.job_title || 'MORT conversation'}
+                preview={t.last_message_preview || 'No messages yet — say hello.'}
                 scannerStatus={flaggedRecently ? 'flagged' : null}
                 updatedAt={t.updated_at}
               />
