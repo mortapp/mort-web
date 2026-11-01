@@ -126,7 +126,7 @@ export async function setApplicationStatus(formData: FormData) {
   if (!action) redirect('/app/adult/applications?message=' + encodeURIComponent('That application action is not allowed here.'))
   if (action === 'accepted') {
     const { data: runtime, error: runtimeError } = await supabase.rpc('get_runtime_feature_status')
-    if (profile?.verification_status !== 'approved' || runtimeError || runtime?.payments_disabled !== false || runtime?.new_job_publishing_disabled !== false || runtime?.maintenance_mode !== false) {
+    if (profile?.verification_status !== 'approved' || runtimeError || runtime?.payments_disabled !== false || runtime?.new_job_publishing_disabled !== false || runtime?.maintenance_mode !== false || !productionCapabilities.perTaskGuardianApproval) {
       redirect('/app/adult/applications?message=' + encodeURIComponent('Accepting applicants is unavailable until production payment funding and marketplace release controls are enabled. No assignment was created.'))
     }
   }
