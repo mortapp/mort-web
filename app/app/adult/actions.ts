@@ -18,7 +18,7 @@ function getJobPayload(formData: FormData, profile: any) {
   const amount = dollarsToCents(formData.get('pay_amount'))
   if (amount === null || amount < 1000 || amount > 1000000) return { error: 'Set a job pay amount between $10 and $10,000.' }
   const locationText = v(formData, 'location_text') || 'General area only'
-  if (locationText.length > 80 || /\\d|@|\\b(?:street|st|avenue|ave|road|rd|drive|dr|lane|ln|court|ct|boulevard|blvd|apartment|apt|unit|suite)\\b/i.test(locationText)) {
+  if (locationText.length > 80 || /\d|@|\b(?:street|st|avenue|ave|road|rd|drive|dr|lane|ln|court|ct|boulevard|blvd|apartment|apt|unit|suite)\b/i.test(locationText)) {
     return { error: 'Use a neighborhood or general area only. Do not enter a street address, unit, ZIP code, or coordinates.' }
   }
   return {
