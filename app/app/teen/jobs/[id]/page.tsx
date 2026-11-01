@@ -103,6 +103,12 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
                 Message to adult
                 <textarea name="note" placeholder="I can do this job. I have experience with..." style={{minHeight:120}} />
               </label>
+              {job.starts_at && (
+                <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                  <input type="checkbox" name="availability_confirmed" required style={{ width: 'auto', marginTop: 4 }} />
+                  <span>I confirm I can be available at the listed start time.</span>
+                </label>
+              )}
               <SubmitButton full size="lg" pendingLabel="Applying…">Apply for job</SubmitButton>
             </form>
           </div>
