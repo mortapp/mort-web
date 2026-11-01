@@ -8,10 +8,8 @@ export const dynamic = 'force-dynamic'
 
 export default async function MyJobs({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
-  const { supabase, user, profile } = await requireRole(['adult','admin'])
-  let q = supabase.from('jobs').select('*').order('created_at', { ascending: false })
-  if (profile?.role !== 'admin') q = q.eq('poster_id', user.id)
-  const { data: jobs } = await q
+  const { supabase, user } = await requireRole(['adult'])
+  const { data: jobs, error } = await supabase.from('jobs').select('*').eq('poster_id', user.id).order('created_at', { ascending: false })
 
   return (
     <>
@@ -20,6 +18,7 @@ export default async function MyJobs({ searchParams }: { searchParams?: Promise<
       </PageHeaderWithActions>
       <Toast message={sp?.message} />
 
+      {error && <div className="error">Your jobs could not be loaded.</div>}
       {!jobs?.length ? (
         <EmptyState icon="📁" title="No jobs yet" text="Post your first job." href="/app/adult/post-job" action="Post job" />
       ) : (
@@ -32,7 +31,7 @@ export default async function MyJobs({ searchParams }: { searchParams?: Promise<
                   <h3 className="job-card-title">{j.title}</h3>
                   <span className="job-card-pay">{j.pay_label || centsToDollars(j.pay_amount_cents)}</span>
                 </div>
-                <div className="job-card-meta">{j.category} · {j.city}, {j.state}</div>
+                <div className="job-card-meta">{j.category} · {j.city}, {j.region}</div>
                 <div className="job-card-badges">
                   <Status value={j.status} />
                 </div>
