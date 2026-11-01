@@ -11,7 +11,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
   const { id } = await params
   const sp = await searchParams
   const { supabase } = await requireUser()
-  const { data: job, error } = await supabase.from('jobs').select('*').eq('id', id).maybeSingle()
+  const { data: job, error } = await supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, requires_guardian_approval, teen_min_age, teen_max_age, starts_at').eq('id', id).maybeSingle()
 
   if (error || !job) return (
     <div className="empty-state">
