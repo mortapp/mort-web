@@ -61,9 +61,7 @@ const consumerNav: Record<string, { primary: NavItem[]; secondary: NavItem[] }> 
     primary: [
       { href: '/app/admin', icon: 'lock', label: 'Review workspace', exact: true },
     ],
-    secondary: [
-      { href: '/app/verify', icon: 'shield', label: 'Verification queue' },
-    ],
+    secondary: [],
   },
 }
 
