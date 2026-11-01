@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { requireUser } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
 import { PageHeaderWithActions, EmptyState, JobCard, CategoryTile } from '@/components/ui'
 export const dynamic = 'force-dynamic'
@@ -15,7 +15,7 @@ const FEATURED_CATEGORIES = [
 ]
 
 export default async function Jobs({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
-  const { supabase } = await requireUser()
+  const { supabase } = await requireRole(['teen'])
   const sp = await searchParams
   const category = sp?.category
   const q = sp?.q
