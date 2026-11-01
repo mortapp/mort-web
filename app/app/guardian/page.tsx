@@ -11,8 +11,8 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
     .select('id, teen_user_id, status, teen_consent_at, guardian_consent_at, updated_at')
     .eq('guardian_user_id', user.id).eq('status', 'active').order('updated_at', { ascending: false })
   const teenIds = (links || []).filter((link: any) => link.teen_consent_at && link.guardian_consent_at).map((link: any) => link.teen_user_id)
-  const [{ data: teens }, { data: pingRows, error: pingError }, { data: appResult, error: appError }] = await Promise.all([
-    teenIds.length ? supabase.from('profiles').select('id, display_name, city, region, verification_status').in('id', teenIds) : Promise.resolve({ data: [] as any[] }),
+  const teens = (links || []).filter((link: any) => link.teen_consent_at && link.guardian_consent_at)
+  const [{ data: pingRows, error: pingError }, { data: appResult, error: appError }] = await Promise.all([
     teenIds.length ? supabase.from('safety_pings').select('id, teen_id, status, note, created_at').in('teen_id', teenIds).order('created_at', { ascending: false }).limit(30) : Promise.resolve({ data: [] as any[] }),
     supabase.rpc('get_my_job_applications', { p_application_id: null }),
   ])
@@ -36,7 +36,7 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
         {!teens?.length ? <EmptyState icon="shield" title="No active Guardian connections" text="Guardian Mode is optional. A teen must invite you, and both people must consent before a connection becomes active." href="/app/verify" action="Open Guardian connections" /> : (
           <div className="grid three">{teens.map((teen: any) => <div className="person-card card" key={teen.id}>
             <div className="avatar-tile">{(teen.display_name || '?').charAt(0).toUpperCase()}</div>
-            <div className="person-card-body"><h3>{teen.display_name || 'Connected teen'}</h3><p>{[teen.city, teen.region].filter(Boolean).join(', ')}</p><Status value={teen.verification_status} /></div>
+            <div className="person-card-body"><h3>Connected teen</h3><p>Active, mutually consented Guardian connection</p></div>
           </div>)}</div>
         )}
       </section>
