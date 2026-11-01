@@ -37,7 +37,7 @@ function getJobPayload(formData: FormData, profile: any) {
   const city = v(formData, 'city') || profile?.city || 'Indianapolis'
   const state = (v(formData, 'state') || profile?.region || 'IN').toUpperCase()
   if (title.length < 5 || title.length > 120 || description.length < 20 || description.length > 5000) return { error: 'Enter a job title (5–120 characters) and description (20–5,000 characters).' }
-  if (!city || city.length > 80 || /\\d|@/.test(city) || !/^[A-Z]{2}$/.test(state)) return { error: 'Enter a valid city and two-letter state.' }
+  if (!city || city.length > 80 || /\d|@/.test(city) || !/^[A-Z]{2}$/.test(state)) return { error: 'Enter a valid city and two-letter state.' }
   let startsAt: string | null
   try { startsAt = toIndianapolisIso(v(formData, 'starts_at')) } catch { return { error: 'Choose a valid start time in Indianapolis local time.' } }
   const teenMinAge = Number(v(formData,'teen_min_age') || 13)
