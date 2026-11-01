@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { requireRole } from '@/lib/auth'
 import { dollarsToCents } from '@/lib/money'
+import { productionCapabilities } from '@/lib/production-capabilities'
 
 function v(fd: FormData,k:string){const x=fd.get(k); return x==null?null:String(x).trim()}
 function requestId(){ return crypto.randomUUID() }
@@ -61,10 +62,10 @@ function getJobPayload(formData: FormData, profile: any) {
       city,
       state,
       adult_job_amount_cents: amount,
-      pay_label: v(formData,'pay_label'),
+      pay_label: null,
       teen_min_age: teenMinAge,
       teen_max_age: teenMaxAge,
-      requires_guardian_approval: formData.get('requires_guardian_approval') === 'on',
+      requires_guardian_approval: false,
       estimated_duration_minutes: 60,
       workers_needed: 1,
       travel_radius_miles: 10,
@@ -75,7 +76,7 @@ function getJobPayload(formData: FormData, profile: any) {
       schedule_type: 'flexible',
       recurring: false,
       urgency: 'normal',
-      payment_method: 'cash',
+      payment_method: 'stripe',
       payment_type: 'fixed',
       payment_timing: 'after_completion',
       tip_allowed: true,
@@ -91,8 +92,8 @@ export async function postJob(formData: FormData) {
   const { supabase, profile } = await requireRole(['adult'])
   if (profile?.verification_status !== 'approved') redirect('/app/verify?message=Adults must be approved before posting jobs.')
   const { data: runtime, error: runtimeError } = await supabase.rpc('get_runtime_feature_status')
-  if (runtimeError || runtime?.new_job_publishing_disabled !== false || runtime?.public_marketplace_closed !== false || runtime?.maintenance_mode !== false) {
-    redirect('/app/adult/post-job?message=' + encodeURIComponent('Production job publishing is currently disabled. No job was submitted.'))
+  if (runtimeError || runtime?.new_job_publishing_disabled !== false || runtime?.public_marketplace_closed !== false || runtime?.maintenance_mode !== false || runtime?.payments_disabled !== false || !productionCapabilities.perTaskGuardianApproval) {
+    redirect('/app/adult/post-job?message=' + encodeURIComponent('Production job publishing is disabled until payment funding and the per-Task Guardian approval workflow are available. No job was submitted.'))
   }
   const built = getJobPayload(formData, profile)
   if ('error' in built) redirect('/app/adult/post-job?message=' + encodeURIComponent(built.error!))
