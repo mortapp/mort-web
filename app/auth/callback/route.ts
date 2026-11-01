@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
             const message = savedDob?.code === 'minimum_age_required'
               ? 'MORT is only available to people age 13 or older.'
               : 'We could not save your date of birth. Please restart signup or contact MORT support.'
-            return NextResponse.redirect(new URL(`/signup?message=${encodeURIComponent(message)}`, requestUrl.origin))
+            return redirectWithSignupCookie(new URL(`/signup?message=${encodeURIComponent(message)}`, requestUrl.origin))
           }
         }
 
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
         if (!profile?.onboarding_completed_at || profile.account_status !== 'active') {
           const onboardingUrl = new URL('/app/onboarding', requestUrl.origin)
           onboardingUrl.searchParams.set('next', next)
-          return NextResponse.redirect(onboardingUrl)
+          return redirectWithSignupCookie(onboardingUrl)
         }
       }
       return redirectWithSignupCookie(new URL(next, requestUrl.origin))
