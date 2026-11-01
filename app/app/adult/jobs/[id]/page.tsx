@@ -10,7 +10,7 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
   const { supabase, user } = await requireRole(['adult'])
 
   const [{ data: job }, { data: applicationResult, error: applicationsError }] = await Promise.all([
-    supabase.from('jobs').select('*').eq('id', id).maybeSingle(),
+    supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, safety_review_status, requires_guardian_approval, teen_min_age, teen_max_age, starts_at, created_at').eq('id', id).maybeSingle(),
     supabase.rpc('get_my_job_applications', { p_application_id: null }),
   ])
   const apps = Array.isArray(applicationResult?.items) ? applicationResult.items.filter((item: any) => item.job_id === id) : []
