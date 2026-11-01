@@ -33,6 +33,10 @@ export default async function ThreadDetail({ params, searchParams }: { params: P
       </PageHeaderWithActions>
 
       <Toast message={sp?.message} />
+      <div className="notice" style={{ marginBottom: 16 }}>
+        <strong>Blocking is not available in the current production backend.</strong>
+        <p>If a conversation becomes unsafe, stop replying and use Report to submit the message for review. If there is immediate danger, contact emergency services or a trusted adult; do not wait for MORT.</p>
+      </div>
 
       <div className="card" style={{ marginBottom: 16 }}>
         <div className="message-list">
