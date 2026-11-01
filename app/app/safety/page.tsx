@@ -20,7 +20,7 @@ export default async function Safety({ searchParams }: { searchParams?: Promise<
       <div className="sos-card" style={{ maxWidth: 640, marginBottom: 24 }}>
         <div style={{ fontSize: 42, marginBottom: 12 }}>SOS</div>
         <h2 style={{ fontSize: 24, marginBottom: 8 }}>I need help</h2>
-        <p style={{ marginBottom: 20, fontSize: 14 }}>Submitting this request can create an in-app notification for an active linked guardian, depending on that guardian's alert preferences.</p>
+        <p style={{ marginBottom: 20, fontSize: 14 }}>Submitting this request can create an in-app notification for an active linked guardian, depending on that guardian&apos;s alert preferences.</p>
         <form action={safetyPing}>
           <input type="hidden" name="status" value="needs_help" />
           <label style={{ display: 'block', marginBottom: 12 }}><input type="checkbox" name="immediate_danger" value="true" /> I am in immediate danger</label>
