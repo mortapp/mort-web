@@ -3,6 +3,7 @@ import { PageHeaderWithActions, Status, CategoryPill } from '@/components/ui'
 import { setApplicationStatus } from '../../actions'
 import { PROOF_BUCKET } from '@/lib/mort'
 import { SubmitButton } from '@/components/submit-button'
+import { productionCapabilities } from '@/lib/production-capabilities'
 export const dynamic = 'force-dynamic'
 
 export default async function AdultJobDetail({ params }: { params: Promise<{ id: string }> }) {
