@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 export default async function MyJobs({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
   const { supabase, user } = await requireRole(['adult'])
-  const { data: jobs, error } = await supabase.from('jobs').select('*').eq('poster_id', user.id).order('created_at', { ascending: false })
+  const { data: jobs, error } = await supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, safety_review_status, created_at').eq('poster_id', user.id).order('created_at', { ascending: false })
 
   return (
     <>
