@@ -76,7 +76,7 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
         </div>
       </div>
 
-      {error && <div className="error" style={{marginBottom:16}}>{error.message}</div>}
+      {errorMessage && <div className="error" style={{marginBottom:16}}>{errorMessage === 'public_marketplace_disabled' ? 'The MORT marketplace is temporarily unavailable while production safety gates are completed.' : errorMessage}</div>}
 
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
         <h4 style={{margin:0}}>{category ? `${category}` : 'All open jobs'}</h4>
