@@ -222,6 +222,7 @@ export async function createReport(formData: FormData) {
   const { supabase, profile } = await requireUser()
   const category = val(formData, 'reason') || 'other'
   const details = val(formData, 'details') || ''
+  const immediateDanger = val(formData, 'immediate_danger') === 'on'
   const { data, error } = await supabase.rpc('submit_safety_report_v2', {
     p_target_user_id: val(formData, 'target_user_id') || null,
     p_target_job_id: val(formData, 'target_job_id') || null,
@@ -229,8 +230,8 @@ export async function createReport(formData: FormData) {
     p_target_review_id: null,
     p_application_id: null,
     p_category: category,
-    p_severity: 'normal',
-    p_immediate_danger: false,
+    p_severity: immediateDanger ? 'critical' : 'normal',
+    p_immediate_danger: immediateDanger,
     p_details: details,
     p_occurred_at: null,
     p_location_type: null,
