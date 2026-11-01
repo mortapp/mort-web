@@ -29,7 +29,7 @@ export default async function ThreadDetail({ params, searchParams }: { params: P
     <>
       <PageHeaderWithActions title={thread.job_title || 'Conversation'} eyebrow="Messages">
         <Link href="/app/messages" className="btn ghost sm">← All threads</Link>
-        <Link href={`/app/reports/new?target_message_id=&reason=privacy&details=${encodeURIComponent('Reporting a concern from this conversation.')}`} className="btn danger sm">🚩 Report</Link>
+        <Link href={`/app/reports/new?target_message_id=${messages[messages.length - 1]?.id || ''}&reason=privacy&details=${encodeURIComponent('Reporting a concern from this conversation.')}`} className="btn danger sm">🚩 Report</Link>
       </PageHeaderWithActions>
 
       <Toast message={sp?.message} />
