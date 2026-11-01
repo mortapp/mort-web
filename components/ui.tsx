@@ -210,41 +210,43 @@ export function EmptyState({ icon = '📭', title, text, href, action }: EmptySt
 // =====================================================================
 // CATEGORY PILL
 // =====================================================================
+const categoryLabels: Record<string, string> = {
+  yard_work: 'Yard work', 'yard work': 'Yard work',
+  pet_care: 'Pet care', 'pet care': 'Pet care',
+  tutoring: 'Tutoring',
+  household_help: 'Household help', 'household help': 'Household help',
+  moving_help: 'Moving help', 'moving help': 'Moving help',
+  tech_help: 'Tech help', 'tech help': 'Tech help',
+  other: 'Other',
+}
+
 export const categoryColors: Record<string, string> = {
-  'dog walking': 'rose',
-  'lawn care': 'rose',
-  'cleaning': 'blue',
-  'tutoring': 'blue',
-  'errands': 'yellow',
-  'trash help': 'yellow',
-  'car washing': 'blue',
-  'snow shoveling': 'blue',
-  'babysitting': 'yellow',
-  'general': 'muted',
+  yard_work: 'muted', 'yard work': 'muted',
+  pet_care: 'muted', 'pet care': 'muted',
+  tutoring: 'muted',
+  household_help: 'muted', 'household help': 'muted',
+  moving_help: 'muted', 'moving help': 'muted',
+  tech_help: 'muted', 'tech help': 'muted',
+  other: 'muted',
 }
 
 export const categoryIcons: Record<string, string> = {
-  'dog walking': '🐕',
-  'lawn care': '🌿',
-  'cleaning': '🧹',
-  'tutoring': '📚',
-  'errands': '🛒',
-  'trash help': '🗑️',
-  'car washing': '🚗',
-  'snow shoveling': '❄️',
-  'babysitting': '👶',
-  'raking leaves': '🍂',
-  'moving': '📦',
-  'event help': '🎉',
-  'general': '⚡',
+  yard_work: '🌿', 'yard work': '🌿',
+  pet_care: '🐕', 'pet care': '🐕',
+  tutoring: '📚',
+  household_help: '🧹', 'household help': '🧹',
+  moving_help: '📦', 'moving help': '📦',
+  tech_help: '💻', 'tech help': '💻',
+  other: '＋',
 }
 
 export function CategoryPill({ category }: { category?: string | null }) {
   if (!category) return null
   const key = category.toLowerCase()
   const color = categoryColors[key] || 'muted'
-  const icon = categoryIcons[key] || '⚡'
-  return <span className={`pill ${color}`}>{icon} {category}</span>
+  const icon = categoryIcons[key] || '＋'
+  const label = categoryLabels[key] || category.replace(/_/g, ' ')
+  return <span className={`pill ${color}`}>{icon} {label}</span>
 }
 
 // =====================================================================
