@@ -10,7 +10,7 @@ export default async function Active({ searchParams }: { searchParams?: Promise<
   const { supabase, user } = await requireRole(['teen'])
   const { data: apps, error: assignmentsError } = await supabase
     .from('job_assignments')
-    .select('id, application_id, job_id, teen_user_id, adult_user_id, status, agreed_amount, accepted_at, started_at, completed_by_teen_at, completed_by_adult_at, closed_at, created_at, jobs(id, title, category, city, region, location_text, pay_amount_cents, pay_label, status)')
+    .select('id, application_id, job_id, teen_user_id, adult_user_id, status, agreed_amount, accepted_at, started_at, completed_by_teen_at, completed_by_adult_at, closed_at, created_at, jobs(id, title, category, city, region, location_text, status)')
     .eq('teen_user_id', user.id)
     .order('created_at', { ascending: false })
 
