@@ -26,7 +26,7 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
   const { data: jobResult, error } = await supabase.rpc('list_open_jobs_page', {
     p_keyword: q || '',
     p_category: category || null,
-    p_limit: 60,
+    p_limit: 50,
   })
   const jobs = jobResult?.ok === true && Array.isArray(jobResult.items) ? jobResult.items : []
   const errorMessage = error?.message || (jobResult?.ok === false ? jobResult.code : null)
@@ -88,7 +88,7 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
               title={j.title}
               category={j.category}
               city={j.city}
-              state={j.region}
+              state={j.state}
               locationText={j.location_text}
               description={j.description}
               payLabel={j.pay_label || centsToDollars(j.pay_amount_cents)}
