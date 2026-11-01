@@ -18,7 +18,7 @@ export default async function AdultHome() {
   return (
     <>
       <PageHeaderWithActions title="Your work, close to home" eyebrow="Home" description="Keep your listings and applicant activity connected to one clear job workflow.">
-        {canPublish ? <Link href="/app/adult/post-job" className="btn primary"><span aria-hidden="true">+</span> Post a job</Link> : <Link href={isVerified ? '/app/adult/jobs' : '/app/verify'} className="btn">{isVerified ? 'View my jobs' : 'View verification'}</Link>}
+        {canPublish ? <Link href="/app/adult/post-job" className="btn primary"><span aria-hidden="true">+</span> Post a job</Link> : <Link href={isVerified ? '/app/adult/post-job' : '/app/verify'} className="btn">{isVerified ? 'View posting requirements' : 'View verification'}</Link>}
       </PageHeaderWithActions>
 
       {!isVerified && <div className="notice" style={{ marginBottom: 20 }}><strong>Adult verification required</strong><p>Complete the available verification steps before job publishing can be enabled.</p><Link href="/app/verify" className="text-link">Review verification status</Link></div>}
