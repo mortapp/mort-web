@@ -298,7 +298,10 @@ interface JobCardProps {
 export function JobCard({ title, category, city, state, locationText, description, payLabel, status, requiresGuardianApproval, href }: JobCardProps) {
   const key = (category || '').toLowerCase()
   const tileColor = categoryColors[key] || 'muted'
-  const icon = categoryIcons[key] || '⚡'
+  const icon = categoryIcons[key] || '＋'
+  const categoryLabel = categoryLabels[key] || (category || '').replace(/_/g, ' ')
+  const generalLocation = [city, state].filter(Boolean).join(', ')
+  const additionalLocation = locationText && locationText.toLowerCase() !== generalLocation.toLowerCase() ? locationText : null
   return (
     <Link href={href} className="job-card">
       <div className={`job-card-icon ${tileColor}`}>{icon}</div>
@@ -308,7 +311,7 @@ export function JobCard({ title, category, city, state, locationText, descriptio
           <span className="job-card-pay">{payLabel || 'Pay TBD'}</span>
         </div>
         <div className="job-card-meta">
-          {category ? `${category} · ` : ''}{[city, state].filter(Boolean).join(', ')}{locationText ? ` · ${locationText}` : ''}
+          {category ? `${categoryLabel} · ` : ''}{generalLocation}{additionalLocation ? ` · ${additionalLocation}` : ''}
         </div>
         {description && <p className="job-card-desc">{description}</p>}
         <div className="job-card-badges">
