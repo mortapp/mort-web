@@ -10,6 +10,8 @@ export const dynamic = 'force-dynamic'
 export default async function PostJob({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const { supabase, profile } = await requireRole(['adult'])
   const sp = await searchParams
+  const allowedCategories = ['yard_work', 'pet_care', 'tutoring', 'household_help', 'moving_help', 'tech_help', 'other']
+  const defaultCategory = allowedCategories.includes(sp?.category || '') ? sp?.category : 'pet_care'
   const isApproved = profile?.verification_status === 'approved'
   const { data: runtime, error: runtimeError } = await supabase.rpc('get_runtime_feature_status')
   const canPublish = isApproved && !runtimeError && runtime?.new_job_publishing_disabled === false && runtime?.public_marketplace_closed === false && runtime?.maintenance_mode === false && runtime?.payments_disabled === false && productionCapabilities.perTaskGuardianApproval
@@ -43,7 +45,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
             </label>
             <label style={{gridColumn:'1 / -1'}}>
               Category
-              <CategoryPicker name="category" defaultValue="pet_care" />
+              <CategoryPicker name="category" defaultValue={defaultCategory} />
             </label>
             <label>
               Job pay (USD · minimum $10)
