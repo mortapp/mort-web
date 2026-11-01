@@ -8,14 +8,13 @@ export const dynamic = 'force-dynamic'
 export default async function Active({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
   const { supabase, user } = await requireRole(['teen'])
-  const { data: apps } = await supabase
-    .from('applications')
+  const { data: apps, error: assignmentsError } = await supabase
+    .from('job_assignments')
     .select('*, jobs(*)')
-    .eq('teen_id', user.id)
-    .in('status', ['accepted','in_progress','proof_submitted','completion_pending_release','completed','disputed'])
-    .order('updated_at', { ascending: false })
+    .eq('teen_user_id', user.id)
+    .order('created_at', { ascending: false })
 
-  const appIds = (apps || []).map((a: any) => a.id)
+  const appIds = (apps || []).map((a: any) => a.application_id)
   const { data: proofRows } = appIds.length
     ? await supabase.from('proof_uploads').select('*').in('application_id', appIds).order('created_at', { ascending: false })
     : { data: [] as any[] }
@@ -58,6 +57,7 @@ export default async function Active({ searchParams }: { searchParams?: Promise<
         </div>
       )}
 
+      {assignmentsError && <div className="error">Active assignments could not be loaded. Try again later.</div>}
       {!apps?.length ? (
         <EmptyState icon="⚙️" title="No active jobs" text="Accepted jobs show here so you can check in and upload proof." href="/app/teen/jobs" action="Browse jobs" />
       ) : (
@@ -73,7 +73,7 @@ export default async function Active({ searchParams }: { searchParams?: Promise<
               </div>
 
               <div style={{ marginTop: 14 }}>
-                <h4 style={{ marginBottom: 8 }}>Proof on file ({(proofByApp[a.id] || []).length})</h4>
+                <h4 style={{ marginBottom: 8 }}>Proof on file ({(proofByApp[a.application_id] || []).length})</h4>
                 {!(proofByApp[a.id] || []).length ? (
                   <p style={{ fontSize: 12.5 }}>No proof uploaded yet.</p>
                 ) : (
@@ -90,7 +90,7 @@ export default async function Active({ searchParams }: { searchParams?: Promise<
                 )}
               </div>
 
-              {a.status === 'in_progress' ? <ProofUpload applicationId={a.id} /> : <p style={{ fontSize: 12.5, marginTop: 12, color: 'var(--muted2)' }}>Proof upload opens once the job is marked in progress.</p>}
+              {a.status === 'in_progress' ? <ProofUpload applicationId={a.application_id} /> : <p style={{ fontSize: 12.5, marginTop: 12, color: 'var(--muted2)' }}>Proof upload opens once the job is marked in progress.</p>}
             </div>
           ))}
         </div>
