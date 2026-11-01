@@ -1,7 +1,7 @@
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, Status, XPBar } from '@/components/ui'
 import { Toast } from '@/components/toast'
-import { AppearanceCard } from '@/components/appearance-card'
+import { ThemeToggle } from '@/components/theme-toggle'
 export const dynamic = 'force-dynamic'
 
 function getLevelInfo(xp: number) {
@@ -48,7 +48,11 @@ export default async function Profile({ searchParams }: { searchParams?: Promise
 
         {/* Stats & badges */}
         <div style={{display:'flex',flexDirection:'column',gap:16}}>
-          <AppearanceCard />
+          <div className="card">
+            <h3 style={{marginBottom:8}}>Appearance</h3>
+            <p style={{fontSize:13,marginBottom:12}}>Choose the light or dark presentation for your MORT workspace.</p>
+            <ThemeToggle />
+          </div>
           {profile?.role === 'teen' && <div className="card">
             <h3 style={{marginBottom:16}}>Hustle progress</h3>
             <XPBar current={xp} max={lvl.next} level={lvl.level} levelName={lvl.name} />
