@@ -7,9 +7,11 @@ import { CategoryPicker } from '@/components/category-picker'
 export const dynamic = 'force-dynamic'
 
 export default async function PostJob({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
-  const { profile } = await requireRole(['adult','admin'])
+  const { supabase, profile } = await requireRole(['adult'])
   const sp = await searchParams
-  const isApproved = profile?.role === 'admin' || profile?.verification_status === 'approved'
+  const isApproved = profile?.verification_status === 'approved'
+  const { data: runtime } = await supabase.rpc('get_runtime_feature_status')
+  const canPublish = isApproved && runtime?.new_job_publishing_disabled === false
 
   return (
     <>
@@ -23,10 +25,10 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
 
       <Toast message={sp?.message} />
 
-      {!isApproved && (
+      {!canPublish && (
         <div className="warning-box" style={{marginBottom:20}}>
-          <strong>⚠️ Verification required</strong>
-          <p style={{marginTop:6,fontSize:14}}>Adults must be verified by admin before posting jobs. <a href="/app/verify" style={{color:'var(--warning)',fontWeight:600}}>Submit verification →</a></p>
+          <strong>⚠️ Job publishing is currently unavailable</strong>
+          <p style={{marginTop:6,fontSize:14}}>{runtime?.new_job_publishing_disabled ? 'MORT has publishing disabled while production verification and safety release gates are completed.' : 'Adult identity verification must be approved before publishing. The production verification provider is not currently available.'} <a href="/app/verify" style={{color:'var(--warning)',fontWeight:600}}>View verification status →</a></p>
         </div>
       )}
 
@@ -83,7 +85,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
             <input type="checkbox" name="requires_guardian_approval" style={{width:'auto'}} />
             <span>Require guardian approval for teen applicants</span>
           </label>
-          <SubmitButton full size="lg" pendingLabel="Publishing…" disabled={!isApproved}>
+          <SubmitButton full size="lg" pendingLabel="Publishing…" disabled={!canPublish}>
             Publish job listing
           </SubmitButton>
         </form>
