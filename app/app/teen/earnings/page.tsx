@@ -6,70 +6,31 @@ export const dynamic = 'force-dynamic'
 
 export default async function Earnings() {
   const { supabase, user } = await requireRole(['teen'])
-  const { data: apps } = await supabase
-    .from('applications')
-    .select('*, jobs(pay_amount_cents,pay_label,title,category,city,state)')
-    .eq('teen_id', user.id)
-    .in('status', ['completed','accepted'])
-    .order('created_at', {ascending:false})
-
-  const total = (apps||[]).reduce((s: number, a: any) => s + (a.jobs?.pay_amount_cents || 0), 0)
-  const completed = (apps||[]).filter((a: any) => a.status === 'completed').length
-  const active = (apps||[]).filter((a: any) => a.status === 'accepted').length
+  const { data: assignments, error } = await supabase.from('job_assignments')
+    .select('id, status, agreed_amount, accepted_at, completed_by_teen_at, completed_by_adult_at, jobs(title, category, city, region, pay_amount_cents, pay_label)')
+    .eq('teen_user_id', user.id).order('created_at', { ascending: false })
+  const completed = (assignments || []).filter((item: any) => item.status === 'completed')
+  const active = (assignments || []).filter((item: any) => !['completed', 'cancelled', 'disputed'].includes(item.status))
+  const totalCents = completed.reduce((sum: number, item: any) => sum + Number(item.jobs?.pay_amount_cents || 0), 0)
 
   return (
     <>
-      <PageHeaderWithActions
-        title="Earnings ledger"
-        eyebrow="Cash / Cash App"
-        description="This is a record ledger, not a payment processor. MORT tracks what you earned."
-      />
-
-      <div className="stats" style={{marginBottom:24}}>
-        <MetricCard icon="💰" label="Tracked earnings" value={<CountUp value={Math.round(total/100)} prefix="$" />} sub="potential pay" color="var(--primary)" />
-        <MetricCard icon="✅" label="Completed jobs" value={<CountUp value={completed} />} />
-        <MetricCard icon="⚙️" label="Active jobs" value={<CountUp value={active} />} color={active ? 'var(--warning)' : undefined} />
-        <MetricCard icon="📋" label="Total tracked" value={<CountUp value={apps?.length || 0} />} />
+      <PageHeaderWithActions title="Assignment history" eyebrow="Compensation overview" description="This is an estimate based on completed assignment records, not proof of payment. MORT does not process or guarantee compensation." />
+      {error && <div className="error">Assignment history could not be loaded.</div>}
+      <div className="stats" style={{ marginBottom: 24 }}>
+        <MetricCard icon="💰" label="Estimated completed value" value={<CountUp value={Math.round(totalCents / 100)} prefix="$" />} sub="not verified as paid" />
+        <MetricCard icon="✅" label="Completed assignments" value={<CountUp value={completed.length} />} />
+        <MetricCard icon="⚙️" label="Open assignments" value={<CountUp value={active.length} />} />
+        <MetricCard icon="📋" label="Total assignments" value={<CountUp value={assignments?.length || 0} />} />
       </div>
-
       <div className="card">
-        <h3 style={{marginBottom:16}}>Job history</h3>
-        {!apps?.length ? (
-          <div style={{textAlign:'center',padding:'32px 0',color:'var(--muted)'}}>
-            <div style={{fontSize:32,marginBottom:8}}>💰</div>
-            <p>No completed jobs yet. Apply to jobs to start earning.</p>
-          </div>
-        ) : (
-          <div className="table-wrap">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Job</th>
-                  <th>Category</th>
-                  <th>Location</th>
-                  <th>Pay</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {apps.map((a: any) => (
-                  <tr key={a.id}>
-                    <td style={{fontWeight:600}}>{a.jobs?.title}</td>
-                    <td style={{color:'var(--muted2)',fontSize:13}}>{a.jobs?.category}</td>
-                    <td style={{color:'var(--muted2)',fontSize:13}}>{a.jobs?.city}, {a.jobs?.state}</td>
-                    <td style={{color:'var(--primary)',fontWeight:700}}>{a.jobs?.pay_label || centsToDollars(a.jobs?.pay_amount_cents)}</td>
-                    <td><Status value={a.status} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      <div className="card info-card" style={{marginTop:16}}>
-        <h4 style={{marginBottom:8}}>💳 Payment info</h4>
-        <p style={{fontSize:14}}>MORT records earnings but does not process payments. Adults pay via cash or Cash App after job completion. Always confirm payment method before starting a job.</p>
+        <h3 style={{ marginBottom: 16 }}>Job history</h3>
+        {!assignments?.length ? <p style={{ color: 'var(--muted2)' }}>No accepted assignments yet.</p> : <div className="table-wrap"><table className="table">
+          <thead><tr><th>Job</th><th>Category</th><th>Location</th><th>Listed pay</th><th>Assignment status</th></tr></thead>
+          <tbody>{assignments.map((item: any) => <tr key={item.id}>
+            <td>{item.jobs?.title || 'Job'}</td><td>{item.jobs?.category}</td><td>{[item.jobs?.city, item.jobs?.region].filter(Boolean).join(', ')}</td><td>{item.jobs?.pay_label || centsToDollars(item.jobs?.pay_amount_cents)}</td><td><Status value={item.status} /></td>
+          </tr>)}</tbody>
+        </table></div>}
       </div>
     </>
   )
