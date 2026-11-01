@@ -141,9 +141,10 @@ test('Teen applications can be withdrawn through the supported production RPC', 
 test('Public safety copy does not claim unavailable verification or Guardian approvals', async () => {
   const page = await read('app/safety/page.tsx')
   assert.match(page, /identity-verification provider is not configured/)
-  assert.match(page, /does not yet have a verified per-Task Guardian approval workflow/)
+  assert.match(page, /does not yet provide a verified per-Task Guardian approval workflow/)
   assert.match(page, /does not contact emergency services/)
-  assert.match(page, /payment processing and payouts/)
+  assert.match(page, /payment processing/)
+  assert.match(page, /payouts/)
 })
 
 test('Messaging is role-scoped and discloses missing block controls', async () => {
