@@ -10,8 +10,8 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
   const { supabase, profile } = await requireRole(['adult'])
   const sp = await searchParams
   const isApproved = profile?.verification_status === 'approved'
-  const { data: runtime } = await supabase.rpc('get_runtime_feature_status')
-  const canPublish = isApproved && runtime?.new_job_publishing_disabled === false
+  const { data: runtime, error: runtimeError } = await supabase.rpc('get_runtime_feature_status')
+  const canPublish = isApproved && !runtimeError && runtime?.new_job_publishing_disabled === false && runtime?.public_marketplace_closed === false && runtime?.maintenance_mode === false
 
   return (
     <>
@@ -28,7 +28,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
       {!canPublish && (
         <div className="warning-box" style={{marginBottom:20}}>
           <strong>⚠️ Job publishing is currently unavailable</strong>
-          <p style={{marginTop:6,fontSize:14}}>{runtime?.new_job_publishing_disabled ? 'MORT has publishing disabled while production verification and safety release gates are completed.' : 'Adult identity verification must be approved before publishing. The production verification provider is not currently available.'} <a href="/app/verify" style={{color:'var(--warning)',fontWeight:600}}>View verification status →</a></p>
+          <p style={{marginTop:6,fontSize:14}}>{runtimeError || !runtime?.ok ? 'MORT could not verify production publishing status. No job can be submitted until the release controls are available.' : runtime?.new_job_publishing_disabled || runtime?.public_marketplace_closed || runtime?.maintenance_mode ? 'MORT has publishing disabled while production verification and safety release gates are completed.' : 'Adult identity verification must be approved before publishing. The production verification provider is not currently available.'} <a href="/app/verify" style={{color:'var(--warning)',fontWeight:600}}>View verification status →</a></p>
         </div>
       )}
 
@@ -45,8 +45,8 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
               <CategoryPicker name="category" defaultValue="pet_care" />
             </label>
             <label>
-              Pay amount (dollars)
-              <input name="pay_amount" placeholder="20" type="number" min="1" />
+              Job pay (USD · minimum $10)
+              <input name="pay_amount" placeholder="20" type="number" min="10" max="10000" step="0.01" required />
             </label>
             <label>
               Pay label
@@ -61,8 +61,8 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
               <input name="state" defaultValue={profile?.region||''} required />
             </label>
             <label>
-              Approx. location
-              <input name="location_text" placeholder="Near Pike Township, West side..." />
+              Neighborhood / general area
+              <input name="location_text" placeholder="Broad Ripple, west side..." maxLength={80} />
             </label>
             <label>
               Start date/time
@@ -97,7 +97,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
               {[
                 'Be specific about what the job involves',
                 'Set a fair pay rate for the work',
-                'Include your general neighborhood (not full address)',
+                'Include a neighborhood or general area only — never a street address',
                 'Specify if guardian approval is needed',
                 'Only post jobs you genuinely need help with',
               ].map(item => (
