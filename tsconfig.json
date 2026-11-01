@@ -38,6 +38,7 @@
   "exclude": [
     "node_modules",
     "page (1).tsx",
-    "mortwebpolish/mort-web-port/**"
+    "mortwebpolish/mort-web-port/**",
+    "mort-2.0-slice-1/**"
   ]
 }
