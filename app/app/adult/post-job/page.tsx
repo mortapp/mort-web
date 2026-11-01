@@ -19,7 +19,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
       <PageHeaderWithActions
         title="Post a job"
         eyebrow="Adult / business"
-        description="Create a local job listing for teens in your area."
+        description="Prepare job details for review when all production safeguards are available."
       >
         <Status value={profile?.verification_status} />
       </PageHeaderWithActions>
@@ -50,16 +50,12 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
               <input name="pay_amount" placeholder="20" type="number" min="10" max="10000" step="0.01" required />
             </label>
             <label>
-              Pay label
-              <span className="muted">MORT payment processing is not enabled.</span>
-            </label>
-            <label>
               City
               <input name="city" defaultValue={profile?.city||''} required />
             </label>
             <label>
               State
-              <input name="state" defaultValue={profile?.region||''} required />
+              <input name="state" defaultValue={profile?.region||''} required maxLength={2} pattern="[A-Za-z]{2}" />
             </label>
             <label>
               Neighborhood / general area
@@ -68,6 +64,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
             <label>
               Start date/time
               <input type="datetime-local" name="starts_at" />
+              <span className="small">Start times use Indianapolis local time.</span>
             </label>
             <label>
               Min teen age
