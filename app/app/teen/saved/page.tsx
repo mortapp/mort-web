@@ -1,10 +1,10 @@
-import { requireUser } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
 import { PageHeaderWithActions, EmptyState, JobCard } from '@/components/ui'
 export const dynamic = 'force-dynamic'
 
 export default async function Saved() {
-  const { supabase, user } = await requireUser()
+  const { supabase, user } = await requireRole(['teen'])
   const { data: items } = await supabase.from('saved_jobs').select('job_id, jobs(id, title, category, city, region, location_text, description, pay_amount_cents, pay_label, status, requires_guardian_approval)').eq('user_id', user.id).order('created_at', { ascending: false })
 
   return (
