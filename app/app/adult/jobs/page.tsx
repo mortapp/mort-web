@@ -37,11 +37,13 @@ export default async function MyJobs({ searchParams }: { searchParams?: Promise<
                 </div>
                 <div className="row-actions" style={{ marginTop: 10 }}>
                   <Link className="btn sm" href={`/app/adult/jobs/${j.id}`}>Open applicants</Link>
-                  <form action={setJobStatus}>
-                    <input type="hidden" name="job_id" value={j.id} />
-                    <input type="hidden" name="status" value={j.status === 'open' ? 'paused' : 'open'} />
-                    <button className="btn ghost sm">{j.status === 'open' ? 'Pause' : 'Reopen'}</button>
-                  </form>
+                  {j.status === 'open' || j.status === 'paused' ? (
+                    <form action={setJobStatus}>
+                      <input type="hidden" name="job_id" value={j.id} />
+                      <input type="hidden" name="status" value={j.status === 'open' ? 'paused' : 'open'} />
+                      <button className="btn ghost sm">{j.status === 'open' ? 'Pause' : 'Reopen'}</button>
+                    </form>
+                  ) : null}
                 </div>
               </div>
             </div>
