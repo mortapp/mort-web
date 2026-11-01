@@ -45,7 +45,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
             </label>
             <label style={{gridColumn:'1 / -1'}}>
               Category
-              <CategoryPicker name="category" defaultValue={defaultCategory} />
+              <CategoryPicker key={defaultCategory} name="category" defaultValue={defaultCategory} />
             </label>
             <label>
               Job pay (USD · minimum $10)
