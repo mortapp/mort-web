@@ -29,7 +29,7 @@ const consumerNav: Record<string, { primary: NavItem[]; secondary: NavItem[] }> 
       { href: '/app/teen/applications', icon: 'clipboard', label: 'Applications' },
       { href: '/app/teen/active', icon: 'bolt', label: 'Active jobs' },
       { href: '/app/teen/saved', icon: 'bookmark', label: 'Saved jobs' },
-      { href: '/app/teen/earnings', icon: 'wallet', label: 'Earnings' },
+      { href: '/app/teen/earnings', icon: 'wallet', label: 'History' },
       { href: '/app/challenges', icon: 'trophy', label: 'Progress' },
     ],
   },
