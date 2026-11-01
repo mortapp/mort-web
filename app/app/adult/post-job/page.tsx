@@ -79,9 +79,9 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
           </div>
           <label>
             Job description
-            <textarea name="description" required minLength={20} maxLength={5000} placeholder="Describe the job, what's needed, how long it takes, any special requirements..." />
+            <textarea name="description" required minLength={20} maxLength={5000} placeholder="Describe the job, what is needed, how long it takes, and any special requirements..." />
           </label>
-          <div className="notice"><strong>Private-residence work is not supported yet.</strong><p>MORT's published Safety Rules require specific Guardian approval for each Task at a private residence and a second adult for work inside. The production website does not yet have that approval workflow.</p></div>
+          <div className="notice"><strong>Private-residence work is not supported yet.</strong><p>MORT&apos;s published Safety Rules require specific Guardian approval for each Task at a private residence and a second adult for work inside. The production website does not yet have that approval workflow.</p></div>
           <SubmitButton full size="lg" pendingLabel="Publishing…" disabled={!canPublish}>
             Publish job listing
           </SubmitButton>
