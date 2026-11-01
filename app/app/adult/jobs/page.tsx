@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { requireRole } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
+import { productionCapabilities } from '@/lib/production-capabilities'
 import { PageHeaderWithActions, Status, EmptyState, CategoryPill } from '@/components/ui'
 import { setJobStatus } from '../actions'
 import { Toast } from '@/components/toast'
@@ -13,7 +14,7 @@ export default async function MyJobs({ searchParams }: { searchParams?: Promise<
     supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, safety_review_status, created_at').eq('poster_id', user.id).order('created_at', { ascending: false }),
     supabase.rpc('get_runtime_feature_status'),
   ])
-  const canPublish = profile?.verification_status === 'approved' && !runtimeError && runtime?.new_job_publishing_disabled === false && runtime?.public_marketplace_closed === false && runtime?.maintenance_mode === false
+  const canPublish = profile?.verification_status === 'approved' && !runtimeError && runtime?.new_job_publishing_disabled === false && runtime?.public_marketplace_closed === false && runtime?.maintenance_mode === false && runtime?.payments_disabled === false && productionCapabilities.perTaskGuardianApproval
 
   return (
     <>
