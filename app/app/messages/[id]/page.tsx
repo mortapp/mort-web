@@ -12,32 +12,24 @@ export default async function ThreadDetail({ params, searchParams }: { params: P
   const sp = await searchParams
   const { supabase, user, profile } = await requireUser()
 
-  const { data: thread } = await supabase
-    .from('message_threads')
-    .select('*, jobs(title, poster_id)')
-    .eq('id', id)
-    .maybeSingle()
-
-  if (!thread) {
-    return <div className="error">Conversation not found.</div>
+  const { data: result, error } = await supabase.rpc('list_thread_messages_page', {
+    p_thread_id: id,
+    p_cursor_created_at: null,
+    p_cursor_id: null,
+    p_limit: 100,
+  })
+  const thread = result?.thread || null
+  const messages = Array.isArray(result?.items) ? [...result.items].reverse() : []
+  if (!thread || error || result?.ok === false) {
+    return <div className="error">Conversation not found or unavailable.</div>
   }
-
-  const isParticipant = [thread.teen_id, thread.adult_id, thread.guardian_id].includes(user.id) || profile?.role === 'admin'
-  if (!isParticipant) {
-    return <div className="error">You don&apos;t have access to this conversation.</div>
-  }
-
-  const { data: messages } = await supabase
-    .from('messages')
-    .select('*')
-    .eq('thread_id', id)
-    .order('created_at', { ascending: true })
+  await supabase.rpc('mark_message_thread_read', { p_thread_id: id })
 
   return (
     <>
-      <PageHeaderWithActions title={thread.jobs?.title || 'Conversation'} eyebrow="Messages">
+      <PageHeaderWithActions title={thread.job_title || 'Conversation'} eyebrow="Messages">
         <Link href="/app/messages" className="btn ghost sm">← All threads</Link>
-        <Link href={`/app/reports/new?target_message_id=&reason=${encodeURIComponent('Off-platform pressure')}&details=${encodeURIComponent('Reporting a concern from thread ' + id)}`} className="btn danger sm">🚩 Report</Link>
+        <Link href={`/app/reports/new?target_message_id=&reason=privacy&details=${encodeURIComponent('Reporting a concern from this conversation.')}`} className="btn danger sm">🚩 Report</Link>
       </PageHeaderWithActions>
 
       <Toast message={sp?.message} />
