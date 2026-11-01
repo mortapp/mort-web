@@ -54,7 +54,6 @@ const consumerNav: Record<string, { primary: NavItem[]; secondary: NavItem[] }> 
       { href: '/app/profile', icon: 'user', label: 'Profile' },
     ],
     secondary: [
-      { href: '/app/safety', icon: 'alert', label: 'Safety center' },
       { href: '/app/support', icon: 'headset', label: 'Support' },
     ],
   },
