@@ -14,7 +14,7 @@ export default async function Adult() {
   ] = await Promise.all([
     Promise.resolve({ count: jobIdList.length }),
     jobIdList.length
-      ? supabase.from('applications').select('id', { count: 'exact', head: true }).in('job_id', jobIdList).in('status', ['submitted','adult_review'])
+      ? supabase.from('job_applications').select('id', { count: 'exact', head: true }).in('job_id', jobIdList).in('status', ['submitted','shortlisted'])
       : Promise.resolve({ count: 0 }),
   ])
 
