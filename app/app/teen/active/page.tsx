@@ -46,20 +46,20 @@ export default async function Active({ searchParams }: { searchParams?: Promise<
       <PageHeaderWithActions
         title="Active jobs"
         eyebrow="Safety + proof"
-        description="Upload real photo/video proof for jobs in progress. Adults and admins can review it."
+        description="Upload proof files for assignments in progress. Adults can review evidence attached to their own jobs."
       />
 
       <Toast message={sp?.message} />
       {storageIssue && (
         <div className="warning-box" style={{ marginBottom: 20 }}>
           <strong>⚠️ Proof storage isn&apos;t fully set up</strong>
-          <p style={{ marginTop: 6, fontSize: 13 }}>{storageIssue} Ask your admin to finish the Supabase Storage setup in the README (bucket: <code>{PROOF_BUCKET}</code>).</p>
+          <p style={{ marginTop: 6, fontSize: 13 }}>{storageIssue} Proof storage is not currently available. Your assignment record remains unchanged; do not repeatedly retry the same upload.</p>
         </div>
       )}
 
       {assignmentsError && <div className="error">Active assignments could not be loaded. Try again later.</div>}
       {!apps?.length ? (
-        <EmptyState icon="⚙️" title="No active jobs" text="Accepted jobs show here so you can check in and upload proof." href="/app/teen/jobs" action="Browse jobs" />
+        <EmptyState icon="⚙️" title="No active jobs" text="Accepted assignments appear here when work is in progress. MORT does not provide live location check-ins." href="/app/teen/jobs" action="Browse jobs" />
       ) : (
         <div className="grid two" style={{ alignItems: 'start' }}>
           {apps.map((a: any) => (
