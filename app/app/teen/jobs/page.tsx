@@ -15,7 +15,7 @@ const FEATURED_CATEGORIES = [
 ]
 
 export default async function Jobs({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
-  const { supabase, user } = await requireUser()
+  const { supabase } = await requireUser()
   const sp = await searchParams
   const category = sp?.category
   const q = sp?.q
