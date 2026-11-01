@@ -1,4 +1,5 @@
 'use server'
+import { randomUUID } from 'node:crypto'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { requireRole } from '@/lib/auth'
@@ -28,20 +29,32 @@ export async function applyToJob(formData: FormData) {
 export async function saveJob(formData: FormData) {
   const { supabase, user } = await requireRole(['teen'])
   const job_id = v(formData,'job_id')
-  let { data: folder } = await supabase.from('user_saved_job_folders').select('*').eq('user_id', user.id).eq('name','Saved').maybeSingle()
-  if (!folder) { const res = await supabase.from('user_saved_job_folders').insert({ user_id: user.id, name: 'Saved' }).select('*').single(); folder = res.data }
-  if (folder) await supabase.from('saved_job_folder_items').insert({ folder_id: folder.id, job_id })
+  if (!job_id) redirectTo('/app/teen/jobs', 'Missing job.')
+  const { error } = await supabase.from('saved_jobs').upsert(
+    { user_id: user.id, job_id },
+    { onConflict: 'user_id,job_id', ignoreDuplicates: true }
+  )
+  if (error) redirectTo(`/app/teen/jobs/${job_id}`, 'Could not save this job.')
+  revalidatePath('/app/teen/saved')
   redirectTo(`/app/teen/jobs/${job_id}`, 'Saved job')
 }
 
 export async function safetyPing(formData: FormData) {
-  const { supabase, user } = await requireRole(['teen'])
+  const { supabase } = await requireRole(['teen'])
   const requestedStatus = v(formData,'status')
-  const status = (requestedStatus === 'ok' || requestedStatus === 'needs_help') ? requestedStatus : 'ok'
+  if (requestedStatus !== 'needs_help') {
+    redirectTo('/app/safety', 'Routine check-ins are not available here. Use the help request only when you need assistance.')
+  }
   const note = v(formData,'note')
-  const { error } = await supabase.from('safety_pings').insert({ teen_id: user.id, status, note })
-  if (error) redirectTo('/app/safety', error.message)
-  redirectTo('/app/safety', 'Safety ping sent')
+  const { data, error } = await supabase.rpc('create_safety_ping_v2', {
+    p_status: 'needs_help',
+    p_note: note || null,
+    p_job_id: v(formData,'job_id'),
+    p_immediate_danger: v(formData,'immediate_danger') === 'true',
+    p_client_request_id: randomUUID(),
+  })
+  if (error || data?.ok !== true) redirectTo('/app/safety', rpcText(data, error?.message || 'Help request could not be sent.'))
+  redirectTo('/app/safety', 'Help request submitted. If you are in immediate danger, call emergency services.')
 }
 
 export async function recordProofUpload(formData: FormData): Promise<{ error?: string; ok?: boolean; message?: string }> {
