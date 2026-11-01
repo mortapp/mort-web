@@ -7,15 +7,16 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdultJobDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const { supabase, user, profile } = await requireRole(['adult','admin'])
+  const { supabase, user } = await requireRole(['adult'])
 
-  const [{ data: job }, { data: apps }] = await Promise.all([
+  const [{ data: job }, { data: applicationResult, error: applicationsError }] = await Promise.all([
     supabase.from('jobs').select('*').eq('id', id).maybeSingle(),
-    supabase.from('applications').select('*, profiles(display_name, username, city, state)').eq('job_id', id).order('created_at', { ascending: false }),
+    supabase.rpc('get_my_job_applications', { p_application_id: null }),
   ])
+  const apps = Array.isArray(applicationResult?.items) ? applicationResult.items.filter((item: any) => item.job_id === id) : []
 
   if (!job) return <div className="error">Job not found</div>
-  if (profile?.role !== 'admin' && job.poster_id !== user.id) return <div className="error">You can only view applicants for jobs you posted.</div>
+  if (job.poster_id !== user.id) return <div className="error">You can only view applicants for jobs you posted.</div>
 
   const appIds = (apps || []).map((a: any) => a.id)
   const { data: proofRows } = appIds.length
@@ -57,8 +58,9 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
         </div>
       )}
 
-      <h2 style={{ marginBottom: 16 }}>Applicants ({apps?.length || 0})</h2>
-      {!apps?.length ? (
+      {applicationsError && <div className="error">Applicants could not be loaded.</div>}
+      <h2 style={{ marginBottom: 16 }}>Applicants ({apps.length})</h2>
+      {!apps.length ? (
         <div className="empty-state">
           <div className="empty-icon">👥</div>
           <h3>No applicants yet</h3>
@@ -70,10 +72,10 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
             <div className="application-card" key={a.id}>
               <div className="application-card-header">
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <div className="avatar-tile sm">{(a.profiles?.display_name || '?').charAt(0).toUpperCase()}</div>
+                  <div className="avatar-tile sm">{(a.teen?.display_name || '?').charAt(0).toUpperCase()}</div>
                   <div>
                     <h3>{a.profiles?.display_name || 'Applicant'}</h3>
-                    <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{[a.profiles?.city, a.profiles?.state].filter(Boolean).join(', ')}</p>
+                    <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{[a.teen?.city, a.teen?.region].filter(Boolean).join(', ')}</p>
                   </div>
                 </div>
                 <Status value={a.status} />
@@ -96,13 +98,14 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
                 </div>
               )}
 
-              <form action={setApplicationStatus} className="row-actions">
-                <input type="hidden" name="application_id" value={a.id} />
-                <SubmitButton name="status" value="accepted" size="sm" pendingLabel="…">Accept</SubmitButton>
-                <SubmitButton name="status" value="rejected" variant="ghost" size="sm" pendingLabel="…">Reject</SubmitButton>
-                <SubmitButton name="status" value="in_progress" variant="safe" size="sm" pendingLabel="…">Start work</SubmitButton>
-                <SubmitButton name="status" value="completed" variant="safe" size="sm" pendingLabel="…">Mark completed</SubmitButton>
-              </form>
+              {a.status === 'submitted' || a.status === 'shortlisted' ? (
+                <form action={setApplicationStatus} className="row-actions">
+                  <input type="hidden" name="application_id" value={a.id} />
+                  <SubmitButton name="status" value="accepted" size="sm" pendingLabel="…">Accept</SubmitButton>
+                  <SubmitButton name="status" value="shortlisted" variant="ghost" size="sm" pendingLabel="…">Shortlist</SubmitButton>
+                  <SubmitButton name="status" value="rejected" variant="ghost" size="sm" pendingLabel="…">Reject</SubmitButton>
+                </form>
+              ) : <p style={{ fontSize: 12, color: 'var(--muted2)' }}>This application has moved into the assignment workflow. Start and completion actions are controlled by the assignment lifecycle.</p>}
             </div>
           ))}
         </div>
