@@ -9,10 +9,12 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
   const { id } = await params
   const { supabase, user } = await requireRole(['adult'])
 
-  const [{ data: job }, { data: applicationResult, error: applicationsError }] = await Promise.all([
+  const [{ data: job }, { data: applicationResult, error: applicationsError }, { data: runtime, error: runtimeError }] = await Promise.all([
     supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, safety_review_status, requires_guardian_approval, teen_min_age, teen_max_age, starts_at, created_at').eq('id', id).maybeSingle(),
     supabase.rpc('get_my_job_applications', { p_application_id: null }),
+    supabase.rpc('get_runtime_feature_status'),
   ])
+  const canAccept = !runtimeError && runtime?.payments_disabled === false && runtime?.new_job_publishing_disabled === false && runtime?.maintenance_mode === false
   const apps = Array.isArray(applicationResult?.items) ? applicationResult.items.filter((item: any) => item.job_id === id) : []
 
   if (!job) return <div className="error">Job not found</div>
@@ -101,9 +103,10 @@ export default async function AdultJobDetail({ params }: { params: Promise<{ id:
               {a.status === 'submitted' || a.status === 'shortlisted' ? (
                 <form action={setApplicationStatus} className="row-actions">
                   <input type="hidden" name="application_id" value={a.id} />
-                  <SubmitButton name="status" value="accepted" size="sm" pendingLabel="…">Accept</SubmitButton>
+                  {canAccept && <SubmitButton name="status" value="accepted" size="sm" pendingLabel="…">Accept & secure funding</SubmitButton>}
                   <SubmitButton name="status" value="shortlisted" variant="ghost" size="sm" pendingLabel="…">Shortlist</SubmitButton>
                   <SubmitButton name="status" value="rejected" variant="ghost" size="sm" pendingLabel="…">Reject</SubmitButton>
+                  {!canAccept && <p className="muted" style={{fontSize:12,marginTop:8}}>Acceptance is disabled until production payment funding and marketplace release controls are available. Verification is also checked by the backend when an assignment is created.</p>}
                 </form>
               ) : <p style={{ fontSize: 12, color: 'var(--muted2)' }}>This application has moved into the assignment workflow. Start and completion actions are controlled by the assignment lifecycle.</p>}
             </div>
