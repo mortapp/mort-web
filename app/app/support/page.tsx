@@ -1,73 +1,35 @@
 import Link from 'next/link'
 import { requireUser } from '@/lib/auth'
-import { PageHeaderWithActions, Status, EmptyState } from '@/components/ui'
-import { createSupportTicket } from './actions'
-import { SUPPORT_CATEGORIES } from '@/lib/mort'
+import { PageHeaderWithActions } from '@/components/ui'
 import { Toast } from '@/components/toast'
-import { SubmitButton } from '@/components/submit-button'
+
 export const dynamic = 'force-dynamic'
 
-export default async function Support({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
-  const sp = await searchParams
-  const { supabase, user } = await requireUser()
-
-  let tickets: any[] | null = null
-  let loadError: string | null = null
-  const { data, error } = await supabase.from('support_tickets').select('*').eq('requester_id', user.id).order('created_at', { ascending: false })
-  if (error) loadError = error.message
-  else tickets = data
-
+export default async function Support({ searchParams }: { searchParams?: Promise<Record<string, string>> }) {
+  await requireUser()
+  const params = await searchParams
   return (
     <>
-      <PageHeaderWithActions title="Support" eyebrow="We're here to help" description="Safety issues are always reviewed first. For emergencies, contact local emergency services." />
-      <Toast message={sp?.message} />
-
-      {loadError && (
-        <div className="warning-box" style={{ marginBottom: 20 }}>
-          <strong>⚠️ Support tickets could not load</strong>
-          <p style={{ marginTop: 6, fontSize: 13 }}>{loadError}</p>
-        </div>
-      )}
-
-      <div className="grid two" style={{ alignItems: 'start' }}>
-        <form action={createSupportTicket} className="card form">
-          <h3>New ticket</h3>
-          <label>
-            Category
-            <select name="category" defaultValue="job problem">
-              {SUPPORT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </label>
-          <label>
-            Subject
-            <input name="subject" required placeholder="Short summary" />
-          </label>
-          <label>
-            Message
-            <textarea name="message" required placeholder="Tell us what's going on." />
-          </label>
-          <SubmitButton pendingLabel="Submitting…">Submit ticket</SubmitButton>
-        </form>
-
-        <div>
-          <h3 style={{ marginBottom: 12 }}>My tickets</h3>
-          {!tickets?.length ? (
-            <EmptyState icon="🎧" title="No tickets yet" text="Submitted tickets will show up here." />
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {tickets.map((t: any) => (
-                <Link key={t.id} href={`/app/support/${t.id}`} className="card">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                    <h3 style={{ fontSize: 14 }}>{t.subject}</h3>
-                    <Status value={t.status} />
-                  </div>
-                  <p style={{ fontSize: 12, marginTop: 4 }}>{t.category} · {new Date(t.created_at).toLocaleDateString()}</p>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
+      <PageHeaderWithActions title="Help & support" eyebrow="MORT support" description="Find the right next step without sending private documents or payment details through an unsupported channel." />
+      <Toast message={params?.message} />
+      <section className="card support-unavailable">
+        <span className="small">SUPPORT TICKETS</span>
+        <h2>Ticket support is not available yet.</h2>
+        <p>The active production backend does not currently expose the support-ticket tables or RPCs needed for a secure ticket inbox. MORT has not submitted or stored a support ticket from this page.</p>
+      </section>
+      <div className="grid two" style={{ marginTop: 16 }}>
+        <section className="card">
+          <h3>Report a safety or privacy concern</h3>
+          <p style={{ marginTop: 6 }}>Use the supported reporting flow to submit a concern about a job, message, or account.</p>
+          <Link href="/app/reports/new" className="btn primary" style={{ marginTop: 16 }}>Submit a report</Link>
+        </section>
+        <section className="card">
+          <h3>Immediate danger</h3>
+          <p style={{ marginTop: 6 }}>MORT is not an emergency-response service. If you or someone else may be in immediate danger, contact 911 or your local emergency service first.</p>
+          <Link href="/app/safety" className="text-link" style={{ marginTop: 14, display: 'inline-block' }}>Teen Safety Center</Link>
+        </section>
       </div>
+      <p className="muted" style={{ marginTop: 16 }}>Do not send passwords, full card numbers, bank details, Social Security numbers, or identity documents to MORT through chat or an unapproved upload flow.</p>
     </>
   )
 }
