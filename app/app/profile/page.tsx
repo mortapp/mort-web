@@ -1,5 +1,5 @@
 import { requireUser } from '@/lib/auth'
-import { PageHeaderWithActions, Status, XPBar, BadgeRow } from '@/components/ui'
+import { PageHeaderWithActions, Status, XPBar } from '@/components/ui'
 import { Toast } from '@/components/toast'
 import { AppearanceCard } from '@/components/appearance-card'
 export const dynamic = 'force-dynamic'
@@ -18,16 +18,7 @@ export default async function Profile({ searchParams }: { searchParams?: Promise
   const xp = profile?.xp_points || 0
   const lvl = getLevelInfo(xp)
 
-  const badges = [
-    { icon: '🐕', label: 'Dog Walker', earned: false },
-    { icon: '🌿', label: 'Lawn Helper', earned: false },
-    { icon: '⚡', label: 'Fast Responder', earned: false },
-    { icon: '⭐', label: '5-Star Worker', earned: false },
-    { icon: '🛡️', label: 'Guardian Verified', earned: !!profile?.guardian_required },
-    { icon: '✅', label: 'Safe Check-In', earned: false },
-    { icon: '🌅', label: 'Weekend Warrior', earned: false },
-    { icon: '🔥', label: 'First Hustle', earned: false },
-  ]
+
 
   return (
     <>
