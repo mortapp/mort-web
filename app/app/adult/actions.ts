@@ -73,7 +73,7 @@ function actionForApplicationStatus(status: string | null) {
   if (status === 'accepted') return 'accepted'
   if (status === 'rejected') return 'rejected'
   if (status === 'completed') return 'completed'
-  if (status === 'in_progress') return 'in_progress'
+  if (status === 'shortlisted') return 'shortlisted'
   if (status === 'viewed') return 'viewed'
   return null
 }
@@ -85,10 +85,9 @@ export async function setApplicationStatus(formData: FormData) {
   if (!application_id) redirect('/app/adult/applications?message=' + encodeURIComponent('Missing application.'))
   if (!action) redirect('/app/adult/applications?message=' + encodeURIComponent('That application action is not allowed here.'))
 
-  const { data, error } = await supabase.rpc('update_application_status_v3', {
+  const { data, error } = await supabase.rpc('update_my_job_application_status', {
     p_application_id: application_id,
     p_action: action,
-    p_client_request_id: requestId(),
     p_expected_updated_at: null,
   })
   if (error) redirect(`/app/adult/applications?message=${encodeURIComponent(error.message)}`)
