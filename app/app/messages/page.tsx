@@ -1,12 +1,12 @@
 import Link from 'next/link'
-import { requireUser } from '@/lib/auth'
+import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, MessageThreadCard, EmptyState } from '@/components/ui'
 import { Toast } from '@/components/toast'
 export const dynamic = 'force-dynamic'
 
 export default async function Messages({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
-  const { supabase, user } = await requireUser()
+  const { supabase } = await requireRole(['teen', 'adult', 'guardian'])
   const { data: threadResult, error } = await supabase.rpc('list_my_message_threads_page', {
     p_query: '',
     p_cursor_updated_at: null,
