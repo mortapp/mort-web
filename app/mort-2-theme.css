@@ -285,3 +285,12 @@
   --yellow: #A3A3A3;
 }
 .job-card-icon.blue,.category-tile-icon.blue,.avatar-tile.blue { background:var(--el-3);color:var(--text); }
+
+.adult-explore-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px; }
+.adult-explore-card { min-height:126px;display:grid;grid-template-columns:30px 1fr 20px;align-items:start;gap:12px;transition:transform .16s,border-color .16s; }
+.adult-explore-card:hover { transform:translateY(-2px);border-color:var(--border-strong); }
+.adult-explore-number { color:var(--muted);font-size:10px;font-weight:750;letter-spacing:.12em; }
+.adult-explore-card h3 { font-size:16px; }
+.adult-explore-card p { margin-top:7px;font-size:12px;line-height:1.55; }
+.adult-explore-arrow { color:var(--muted);font-size:17px; }
+@media(max-width:680px){.adult-explore-grid{grid-template-columns:1fr}}
