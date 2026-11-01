@@ -56,7 +56,7 @@ export default async function Explore({ searchParams }: { searchParams?: Promise
         <EmptyState icon="search" title="No listings match yet" text={errorMessage ? 'Search is temporarily unavailable. Your account and saved work remain unchanged.' : 'Try a different keyword or category. New approved listings will appear here when publishing is enabled.'} href="/app/teen/jobs" action="Back to Home" />
       ) : (
         <div className="explore-job-list">
-          {jobs.map((job: any) => <JobCard key={job.id} id={job.id} title={job.title} category={job.category} city={job.city} state={job.region} locationText={job.location_text} description={job.description} payLabel={job.pay_label || centsToDollars(job.pay_amount_cents)} status={job.status} requiresGuardianApproval={job.requires_guardian_approval} href={`/app/teen/jobs/${job.id}`} />)}
+          {jobs.map((job: any) => <JobCard key={job.id} id={job.id} title={job.title} category={job.category} city={job.city} state={job.state} locationText={job.location_text} description={job.description} payLabel={job.pay_label || centsToDollars(job.pay_amount_cents)} status={job.status} requiresGuardianApproval={job.requires_guardian_approval} href={`/app/teen/jobs/${job.id}`} />)}
         </div>
       )}
     </>
