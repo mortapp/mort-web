@@ -5,7 +5,7 @@ import { CountUp } from '@/components/count-up'
 export const dynamic = 'force-dynamic'
 
 export default async function Adult() {
-  const { supabase, user, profile } = await requireRole(['adult','admin'])
+  const { supabase, user, profile } = await requireRole(['adult'])
   const { data: myJobIds } = await supabase.from('jobs').select('id').eq('poster_id', user.id)
   const jobIdList = (myJobIds || []).map((j: any) => j.id)
   const [
