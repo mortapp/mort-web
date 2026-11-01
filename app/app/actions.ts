@@ -219,7 +219,7 @@ export async function savePaymentPreference() {
 }
 
 export async function createReport(formData: FormData) {
-  const { supabase } = await requireUser()
+  const { supabase, profile } = await requireUser()
   const category = val(formData, 'reason') || 'other'
   const details = val(formData, 'details') || ''
   const { data, error } = await supabase.rpc('submit_safety_report_v2', {
@@ -242,5 +242,6 @@ export async function createReport(formData: FormData) {
     const code = String(data?.code || error?.message || 'report_submit_failed')
     redirect(`/app/reports/new?message=${encodeURIComponent(code)}`)
   }
-  redirect('/app/safety?message=Report submitted')
+  const destination = profile?.role === 'teen' ? '/app/safety' : profile?.role === 'guardian' ? '/app/guardian' : profile?.role === 'admin' ? '/app/admin' : '/app/adult'
+  redirect(`${destination}?message=Report submitted`)
 }
