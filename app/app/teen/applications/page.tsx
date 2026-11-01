@@ -24,7 +24,7 @@ export default async function Applications({ searchParams }: { searchParams?: Pr
             return (
               <ApplicationCard
                 key={a.id}
-                href={!canMessage ? `/app/teen/jobs/${a.job_id}` : undefined}
+                href={`/app/teen/jobs/${a.job_id}`}
                 title={a.jobs?.title || 'Job'}
                 subtitle={[a.jobs?.city, a.jobs?.state, pay].filter(Boolean).join(' · ')}
                 note={a.note}
