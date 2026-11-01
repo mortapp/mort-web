@@ -17,11 +17,11 @@ export default async function Login({ searchParams }: { searchParams?: Promise<R
     <AuthShell
       kicker="Welcome back"
       title="Back to the hustle."
-      description="Your jobs, applications, earnings, and safety tools are waiting for you."
+      description="Your jobs, applications, history, and available safety tools are waiting for you."
       bullets={[
-        { icon: '✓', text: 'Browse local jobs near you' },
-        { icon: '✓', text: 'Track applications and earnings' },
-        { icon: '✓', text: 'Check in safely on active jobs' },
+        { icon: '✓', text: 'Explore local job categories' },
+        { icon: '✓', text: 'Track applications and job history' },
+        { icon: '✓', text: 'Use the available job and safety tools' },
       ]}
     >
       <div className="auth-form-heading">
