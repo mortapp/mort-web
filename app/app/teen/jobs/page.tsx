@@ -21,18 +21,20 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
   const q = sp?.q
 
 
-  // Live counts per category so the tiles aren't guessing.
-  const { data: openJobsForCounts } = await supabase.from('jobs').select('category').eq('status', 'open')
+  // Use the production marketplace RPC so release controls are enforced
+  // server-side. Direct table reads do not consult the marketplace kill switch.
+  const { data: jobResult, error } = await supabase.rpc('list_open_jobs_page', {
+    p_keyword: q || '',
+    p_category: category || null,
+    p_limit: 60,
+  })
+  const jobs = jobResult?.ok === true && Array.isArray(jobResult.items) ? jobResult.items : []
+  const errorMessage = error?.message || (jobResult?.ok === false ? jobResult.code : null)
   const counts: Record<string, number> = {}
-  for (const j of openJobsForCounts || []) {
+  for (const j of jobs) {
     const key = (j.category || '').toLowerCase().trim()
     if (key) counts[key] = (counts[key] || 0) + 1
   }
-
-  let query = supabase.from('jobs').select('id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, requires_guardian_approval, teen_min_age, teen_max_age, starts_at').eq('status','open').order('created_at',{ascending:false}).limit(60)
-  if (category) query = query.eq('category', category)
-  if (q) query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`)
-  const { data: jobs, error } = await query
 
   return (
     <>
