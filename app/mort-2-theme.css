@@ -128,3 +128,17 @@
  .app-mobile-nav .mobile-nav-add { width:40px;height:40px;border-radius:13px; }
  .app-content .page-header { margin-bottom:22px; }
 }
+
+.app-topbar-context { color:var(--muted);font-size:13px;font-weight:550;letter-spacing:.01em; }
+.app-topbar-actions { display:flex;align-items:center;gap:8px; }
+.workspace-label { margin-top:7px;color:var(--muted);font-size:9px;font-weight:750;letter-spacing:.14em; }
+.app-sidebar-backdrop { display:none; }
+.app-shell-admin .sidebar { border-right-color:var(--border-strong); }
+.app-shell-admin .app-topbar-context { color:var(--text);font-weight:650; }
+@media(max-width:768px){
+ .app-sidebar-backdrop { display:block;position:fixed;inset:0;z-index:48;border:0;background:rgba(0,0,0,.42); }
+ .app-topbar-context { font-size:12px;max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+ .app-topbar-actions { gap:5px; }
+ .app-mobile-nav a { text-align:center; }
+ .app-mobile-nav .mobile-nav-icon { margin:0 auto; }
+}
