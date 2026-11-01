@@ -11,6 +11,10 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
   const { id } = await params
   const sp = await searchParams
   const { supabase } = await requireUser()
+  const { data: runtime, error: runtimeError } = await supabase.rpc('get_runtime_feature_status')
+  if (runtimeError || runtime?.public_marketplace_closed !== false) return (
+    <div className="empty-state"><h3>Marketplace unavailable</h3><p>MORT job discovery is temporarily closed while production safety gates are completed.</p><Link href="/app/teen/jobs" className="btn primary">Back to jobs</Link></div>
+  )
   const { data: job, error } = await supabase.from('jobs').select('id, poster_id, title, description, category, status, city, region, location_text, pay_amount_cents, pay_label, requires_guardian_approval, teen_min_age, teen_max_age, starts_at').eq('id', id).maybeSingle()
 
   if (error || !job) return (
@@ -115,7 +119,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
           <div className="card">
             <h3 style={{marginBottom:8}}>⚠️ Report this job</h3>
             <p style={{fontSize:14,marginBottom:16}}>Something seem off? Report it to our admin team.</p>
-            <Link href="/app/reports/new" className="btn danger" style={{width:'100%',justifyContent:'center',display:'flex'}}>
+            <Link href={`/app/reports/new?target_job_id=${job.id}&reason=other`} className="btn danger" style={{width:'100%',justifyContent:'center',display:'flex'}}>
               Report job
             </Link>
           </div>
