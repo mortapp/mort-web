@@ -6,10 +6,39 @@ import { dollarsToCents } from '@/lib/money'
 
 function v(fd: FormData,k:string){const x=fd.get(k); return x==null?null:String(x).trim()}
 function requestId(){ return crypto.randomUUID() }
+function toIndianapolisIso(value: string | null) {
+  if (!value) return null
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value)
+  if (!match) throw new Error('invalid_start_time')
+  const [, year, month, day, hour, minute] = match
+  const naiveUtc = Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute))
+  const zone = 'America/Indiana/Indianapolis'
+  const offsetName = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'longOffset' })
+    .formatToParts(new Date(naiveUtc)).find(part => part.type === 'timeZoneName')?.value || 'GMT'
+  const offsetMatch = /GMT([+-])(\d{2}):(\d{2})/.exec(offsetName)
+  const offsetMinutes = offsetMatch ? (offsetMatch[1] === '+' ? 1 : -1) * (Number(offsetMatch[2]) * 60 + Number(offsetMatch[3])) : 0
+  const instant = new Date(naiveUtc - offsetMinutes * 60_000)
+  const local = new Intl.DateTimeFormat('en-CA', { timeZone: zone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(instant)
+  const valueFor = (type: string) => local.find(part => part.type === type)?.value
+  if (valueFor('year') !== year || valueFor('month') !== month || valueFor('day') !== day || valueFor('hour') !== hour || valueFor('minute') !== minute) {
+    throw new Error('invalid_start_time')
+  }
+  return instant.toISOString()
+}
 function rpcText(data: any, fallback = 'The backend rejected this request.') {
   return data?.message || data?.code || fallback
 }
 function getJobPayload(formData: FormData, profile: any) {
+  const category = v(formData, 'category') || 'other'
+  if (!['yard_work','pet_care','tutoring','household_help','moving_help','tech_help','other'].includes(category)) return { error: 'Choose a valid job category.' }
+  const title = v(formData, 'title') || ''
+  const description = v(formData, 'description') || ''
+  const city = v(formData, 'city') || profile?.city || 'Indianapolis'
+  const state = (v(formData, 'state') || profile?.region || 'IN').toUpperCase()
+  if (title.length < 5 || title.length > 120 || description.length < 20 || description.length > 5000) return { error: 'Enter a job title (5–120 characters) and description (20–5,000 characters).' }
+  if (!city || city.length > 80 || !/^[A-Z]{2}$/.test(state)) return { error: 'Enter a valid city and two-letter state.' }
+  let startsAt: string | null
+  try { startsAt = toIndianapolisIso(v(formData, 'starts_at')) } catch { return { error: 'Choose a valid start time in Indianapolis local time.' } }
   const teenMinAge = Number(v(formData,'teen_min_age') || 13)
   const teenMaxAge = Number(v(formData,'teen_max_age') || 17)
   if (!Number.isInteger(teenMinAge) || !Number.isInteger(teenMaxAge) || teenMinAge < 13 || teenMaxAge > 17 || teenMinAge > teenMaxAge) {
@@ -23,14 +52,14 @@ function getJobPayload(formData: FormData, profile: any) {
   }
   return {
     payload: {
-      title: v(formData,'title') || 'Local job',
-      description: v(formData,'description') || 'No description provided',
-      summary: v(formData,'description')?.slice(0, 180) || null,
-      category: v(formData,'category') || 'other',
+      title,
+      description,
+      summary: description.slice(0, 180),
+      category,
       location_text: locationText,
       neighborhood: locationText,
-      city: v(formData,'city') || profile?.city || 'Indianapolis',
-      state: v(formData,'state') || profile?.region || 'IN',
+      city,
+      state,
       adult_job_amount_cents: amount,
       pay_label: v(formData,'pay_label'),
       teen_min_age: teenMinAge,
@@ -51,7 +80,8 @@ function getJobPayload(formData: FormData, profile: any) {
       payment_timing: 'after_completion',
       tip_allowed: true,
       applications_open: true,
-      starts_at: v(formData,'starts_at') || null,
+      starts_at: startsAt,
+      timezone: 'America/Indiana/Indianapolis',
       acceptable_transportation_methods: ['walking','bicycle','car','public_transit','rideshare','other'],
     }
   }
@@ -59,7 +89,11 @@ function getJobPayload(formData: FormData, profile: any) {
 
 export async function postJob(formData: FormData) {
   const { supabase, profile } = await requireRole(['adult'])
-  if (profile?.role !== 'admin' && profile?.verification_status !== 'approved') redirect('/app/verify?message=Adults must be approved before posting jobs.')
+  if (profile?.verification_status !== 'approved') redirect('/app/verify?message=Adults must be approved before posting jobs.')
+  const { data: runtime, error: runtimeError } = await supabase.rpc('get_runtime_feature_status')
+  if (runtimeError || runtime?.new_job_publishing_disabled !== false || runtime?.public_marketplace_closed !== false || runtime?.maintenance_mode !== false) {
+    redirect('/app/adult/post-job?message=' + encodeURIComponent('Production job publishing is currently disabled. No job was submitted.'))
+  }
   const built = getJobPayload(formData, profile)
   if ('error' in built) redirect('/app/adult/post-job?message=' + encodeURIComponent(built.error!))
 
