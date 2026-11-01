@@ -26,6 +26,20 @@ export async function applyToJob(formData: FormData) {
   redirectTo('/app/teen/applications', data?.message || 'Application submitted')
 }
 
+export async function withdrawApplication(formData: FormData) {
+  const { supabase } = await requireRole(['teen'])
+  const applicationId = v(formData, 'application_id')
+  if (!applicationId) redirectTo('/app/teen/applications', 'Missing application.')
+  const { data, error } = await supabase.rpc('update_my_job_application_status', {
+    p_application_id: applicationId,
+    p_action: 'withdrawn',
+    p_expected_updated_at: null,
+  })
+  if (error || data?.ok !== true) redirectTo('/app/teen/applications', rpcText(data, error?.message || 'Application could not be withdrawn.'))
+  revalidatePath('/app/teen/applications')
+  redirectTo('/app/teen/applications', 'Application withdrawn.')
+}
+
 export async function saveJob(formData: FormData) {
   const { supabase, user } = await requireRole(['teen'])
   const job_id = v(formData,'job_id')
