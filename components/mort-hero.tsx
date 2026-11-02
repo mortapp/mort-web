@@ -41,7 +41,7 @@ export function MortHero() {
         <span className="ltr" aria-hidden="true">T</span>
       </h1>
       <p className="mort-typed"><span ref={line} /><span className="mort-caret" /></p>
-      <p className="lead">Find real local work, connect safely, and build experience while you earn — for teens 13–17, with the structure and accountability the informal world never had.</p>
+      <p className="lead">MORT is designed for teens 13–17 to prepare for age-appropriate local work, with safety controls built into the workflow. The marketplace is not open yet.</p>
     </div>
   )
 }
