@@ -64,13 +64,13 @@ export default async function Home() {
           <MortHero />
           <div className="mort-cta-row">
             <Link className="btn primary lg" href="/signup">Get MORT — it’s free</Link>
-            <Link className="btn ghost lg" href="/#crossing">See how it works</Link>
+            <Link className="btn ghost lg" href="/#how">See how it works</Link>
           </div>
           <div className="mort-assur"><b>Pre-launch</b> · Marketplace closed · Adult verification unavailable · Payments disabled</div>
           <div className="mort-scrollhint">explore</div>
         </section>
 
-        <section id="crossing" className="section container mort-narrow mort-center">
+        <section id="how" className="section container mort-narrow mort-center">
           <div className="kicker">The crossing</div>
           <h2>Every job is a short voyage.</h2>
           <p className="lead mort-lead-center">MORT is building a structured path from discovery and application through scheduling, safe job start and completion. The marketplace is not open yet.</p>
@@ -173,7 +173,7 @@ export default async function Home() {
             <div>
               <h4 style={{ marginBottom: 12 }}>Product</h4>
               <div className="footer-links">
-                <Link href="/#crossing">How it works</Link>
+                <Link href="/#how">How it works</Link>
                 <Link href="/#roles">For teens</Link>
                 <Link href="/#roles">For adults</Link>
                 <Link href="/safety">Safety</Link>
