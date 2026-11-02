@@ -31,7 +31,7 @@ export default function SafetyPage() {
           </div>
           <div className="card">
             <h3>Guardian oversight</h3>
-            <p>Guardians can require approval before a teen&apos;s application goes to the job poster, and can see safety pings and job activity for connected teens at any time.</p>
+            <p>Guardian oversight is optional. Teens can choose to connect a Guardian, and available safety notifications and shared activity depend on the active link and its settings.</p>
           </div>
           <div className="card">
             <h3>Moderated messaging</h3>
