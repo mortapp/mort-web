@@ -29,21 +29,21 @@ const crossing: [string, string][] = [
 ]
 
 const pillars = [
-  { icon: '🧭', title: 'Move', text: 'Discover and complete real work nearby — yard work, pet care, moving help, event prep and other approved local jobs.' },
-  { icon: '🛡️', title: 'Trust', text: 'Identities, reputation, history and verification give both sides a reason to rely on each other — no blank-slate strangers.' },
-  { icon: '✦', title: 'Safety', text: 'Approximate location, private messaging, reporting, check-ins, an optional guardian, and PIN-based job start — never behind a paywall.' },
+  { icon: '🧭', title: 'Move', text: 'MORT is designed to connect teens with age-appropriate local work. Job discovery and publishing are currently closed.' },
+  { icon: '🛡️', title: 'Trust', text: 'MORT is building account eligibility, job history and identity-verification controls. Identity-verification submissions are not currently available.' },
+  { icon: '✦', title: 'Safety', text: 'The product includes reporting, blocking, check-ins, private-location controls and optional Guardian oversight. These tools do not guarantee safety or provide emergency response.' },
 ]
 
 const roles = [
-  { icon: '🔥', title: 'For teens', color: 'var(--primary)', items: ['Discover → apply → schedule → work → complete', 'Build a reputation that travels with you', 'Privacy-first location, in-app messaging'], cta: 'Start your hustle', href: '/signup' },
-  { icon: '🧭', title: 'For adults', color: 'var(--accent-blue)', items: ['Post → review applicants → accept → confirm', 'Verified identities and real ratings', 'Responsible for lawful, age-appropriate work'], cta: 'Post a job', href: '/signup' },
-  { icon: '🛡️', title: 'For guardians', color: 'var(--muted2)', items: ['Connect with an invite code', 'See applications and safety pings', 'Approve or pause any job'], cta: 'Protect your teen', href: '/signup' },
+  { icon: '🔥', title: 'For teens', color: 'var(--primary)', items: ['Create an account and complete eligibility steps', 'Prepare to discover age-appropriate local work when the marketplace opens', 'Use safety tools and optional connected-Guardian oversight'], cta: 'Get started', href: '/signup' },
+  { icon: '🧭', title: 'For adults', color: 'var(--accent-blue)', items: ['Adult verification is required before posting', 'Verification submissions are currently unavailable', 'Job posting stays disabled until verification is operational'], cta: 'Get started', href: '/signup' },
+  { icon: '🛡️', title: 'For guardians', color: 'var(--muted2)', items: ['Connect with an invite code', 'See activity and safety information for linked teens', 'Require application approval where the job or Guardian settings enable it'], cta: 'Guardian information', href: '/safety' },
 ]
 
 const safety = [
-  { cls: 'card danger-card', tile: 'card-icon-tile', icon: '🚨', title: 'SOS', text: 'One tap sends an emergency ping to guardians and admins with your last known job location.' },
-  { cls: 'card highlight', tile: 'card-icon-tile blue', icon: '✅', title: 'Safety check-ins', text: 'Teens check in when they arrive, start and finish. Guardians see every ping.' },
-  { cls: 'card', tile: 'card-icon-tile', icon: '🛡️', title: 'Verified adults', text: 'Every adult is reviewed by admins before they can post jobs or contact teens.' },
+  { cls: 'card danger-card', tile: 'card-icon-tile', icon: '🚨', title: 'Safety pings', text: 'Teens can create an in-app safety ping for connected Guardians. MORT is not an emergency-response service; call 911 if someone is in immediate danger.' },
+  { cls: 'card highlight', tile: 'card-icon-tile blue', icon: '✅', title: 'Safety check-ins', text: 'The app supports scheduled job check-ins and completion records. Guardian visibility depends on an active connection and the relevant access controls.' },
+  { cls: 'card', tile: 'card-icon-tile', icon: '🛡️', title: 'Adult verification', text: 'Adult verification submissions are not currently available. Adults cannot post jobs until the verification workflow is operational and approval is recorded.' },
 ]
 
 export default async function Home() {
@@ -60,22 +60,20 @@ export default async function Home() {
     <>
       <SiteHeader isSignedIn={!!user} />
       <main>
-        {/* Immersive hero — the voyage fills the screen */}
         <section className="mort-hero-section">
           <MortHero />
           <div className="mort-cta-row">
             <Link className="btn primary lg" href="/signup">Get MORT — it’s free</Link>
             <Link className="btn ghost lg" href="/#crossing">See how it works</Link>
           </div>
-          <div className="mort-assur"><b>Free</b> for teens · <b>Guardian</b> controls · <b>Verified</b> adults only</div>
+          <div className="mort-assur"><b>Pre-launch</b> · Marketplace closed · Adult verification unavailable · Payments disabled</div>
           <div className="mort-scrollhint">explore</div>
         </section>
 
-        {/* The crossing — the job lifecycle as a short voyage */}
         <section id="crossing" className="section container mort-narrow mort-center">
           <div className="kicker">The crossing</div>
           <h2>Every job is a short voyage.</h2>
-          <p className="lead mort-lead-center">From the moment a teen applies to the moment the work is done, MORT tracks exactly where things stand — and who acts next.</p>
+          <p className="lead mort-lead-center">MORT is building a structured path from discovery and application through scheduling, safe job start and completion. The marketplace is not open yet.</p>
           <div className="card mort-crossing-wrap" style={{ marginTop: 32, textAlign: 'left' }}>
             <MortVoyage />
           </div>
@@ -89,11 +87,10 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Move · Trust · Safety */}
         <section className="section container mort-center">
           <div className="kicker">Move · Trust · Safety</div>
           <h2>Not a gig app. Its own category.</h2>
-          <p className="lead mort-lead-center">MORT is local opportunity infrastructure — identity, job states, evidence and accountability wrapped around real nearby work.</p>
+          <p className="lead mort-lead-center">MORT is local opportunity infrastructure — account eligibility, job states, evidence and accountability designed around real nearby work.</p>
           <div className="grid three" style={{ marginTop: 32, textAlign: 'left' }}>
             {pillars.map(p => (
               <div className="card" key={p.title}>
@@ -105,20 +102,18 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Real local work — live categories */}
         <section id="categories" className="section container mort-center">
-          <div className="kicker">Real local work</div>
+          <div className="kicker">Future local work</div>
           <h2>Tutoring. Lawn care. Dog walking. Real jobs, not gig-app filler.</h2>
-          <p className="lead mort-lead-center">Every job on MORT is something a teen can actually do nearby, for someone in their community.</p>
+          <p className="lead mort-lead-center">These are examples of work MORT is designed to support. Job discovery and applications are not currently available.</p>
           <div className="grid four" style={{ marginTop: 32 }}>
             {FEATURED_CATEGORIES.map(c => (
               <CategoryTile key={c.category} category={c.category} label={c.label} count={counts[c.category] || 0}
-                href={`/signup?next=${encodeURIComponent(`/app/teen/jobs?category=${c.category}`)}`} />
+                href="/signup" />
             ))}
           </div>
         </section>
 
-        {/* Roles */}
         <section id="roles" className="section container mort-center">
           <div className="kicker">Who it’s for</div>
           <h2>Related experiences, tuned to each side.</h2>
@@ -140,11 +135,10 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Safety — never premium */}
         <section className="section container mort-center">
           <div className="kicker">Safety, never premium</div>
           <h2>Built in from the very first screen.</h2>
-          <p className="lead mort-lead-center">MORT can’t guarantee anyone’s safety and doesn’t claim to read every message — but report, block and the Safety Center are free for everyone, always.</p>
+          <p className="lead mort-lead-center">MORT can’t guarantee anyone’s safety and does not provide 24/7 monitoring or emergency response. Reporting and blocking tools are designed to be available without a paid plan.</p>
           <div className="grid three" style={{ marginTop: 32, textAlign: 'left' }}>
             {safety.map(s => (
               <div className={s.cls} key={s.title}>
@@ -156,12 +150,11 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Final CTA */}
         <section className="section container mort-center" style={{ paddingBottom: 90 }}>
           <div className="card" style={{ maxWidth: 760, margin: '0 auto', padding: '56px 30px' }}>
-            <div className="kicker" style={{ justifyContent: 'center' }}>Start the crossing</div>
+            <div className="kicker" style={{ justifyContent: 'center' }}>Pre-launch</div>
             <h2>Earn nearby. Move smart.</h2>
-            <p className="lead mort-lead-center" style={{ margin: '12px auto 28px' }}>Create an account in under a minute. Safety tools are on from the very first screen.</p>
+            <p className="lead mort-lead-center" style={{ margin: '12px auto 28px' }}>Create an account to prepare for MORT. Account creation does not grant marketplace access; job discovery, publishing, identity verification and payments remain disabled.</p>
             <Link className="btn primary lg" href="/signup">Get MORT</Link>
           </div>
         </section>
@@ -198,7 +191,6 @@ export default async function Home() {
               <div className="footer-links">
                 <Link href="/signup">Create account</Link>
                 <Link href="/login">Sign in</Link>
-                <Link href="/signup?next=%2Fapp%2Fteen%2Fjobs">Browse jobs</Link>
               </div>
             </div>
           </div>
