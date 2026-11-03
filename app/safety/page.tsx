@@ -9,37 +9,38 @@ export default function SafetyPage() {
         <div className="kicker">Safety first</div>
         <h1 style={{ marginBottom: 12 }}>MORT Safety</h1>
         <p className="lead" style={{ marginBottom: 20 }}>
-          MORT is built around teen safety at every step — before, during, and after a job.
+          MORT is building safety controls for teen and adult accounts. The marketplace is currently closed, adult verification submissions are unavailable, and these controls are not a substitute for human supervision or emergency services.
         </p>
 
         <div className="emergency-disclaimer" style={{ marginBottom: 32, maxWidth: 720 }}>
-          ⚠️ <strong>MORT is not a replacement for calling 911 or local emergency services.</strong> If you or someone else is in immediate danger, call emergency services first.
+          ⚠️ <strong>MORT is not a replacement for calling 911 or local emergency services.</strong> If you or someone else is in immediate danger, call emergency services first. MORT does not provide 24/7 emergency monitoring or dispatch.
         </div>
 
         <div className="grid two">
           <div className="card">
-            <h3>Marketplace rules</h3>
-            <p>No off-platform payment pressure, private info requests, unsafe meetups, harassment, bullying, fake jobs, or adult-to-teen manipulation of any kind.</p>
+            <h3>Marketplace status</h3>
+            <p>Job discovery, applications, adult job publishing, identity-verification submissions, real document collection and payments are currently disabled. Do not treat account creation as approval to use the marketplace.</p>
           </div>
           <div className="card">
             <h3>Teen controls</h3>
-            <p>Safety pings, one-tap reporting, Guardian Mode oversight, verified adults, visible job locations, proof-of-work uploads, and a dispute record for every job.</p>
+            <p>The product includes reporting, blocking, safety pings, job check-in workflows and private-location controls. Guardian visibility depends on an active Guardian connection and the relevant access permissions.</p>
           </div>
           <div className="card">
             <h3>Adult verification</h3>
-            <p>Adults and businesses submit a verification request before they can post jobs. A human admin reviews and approves or rejects every request.</p>
+            <p>Adult verification submissions are currently unavailable. Adults cannot post jobs or contact teens through marketplace workflows until a real verification process is operational and approval is recorded. MORT does not claim an adult is verified merely because an account was created.</p>
           </div>
           <div className="card">
             <h3>Guardian oversight</h3>
-            <p>Guardians can require approval before a teen&apos;s application goes to the job poster, and can see safety pings and job activity for connected teens at any time.</p>
+            <p>Guardian participation is optional where the product and applicable requirements allow it. A connected Guardian can receive safety information for the linked teen and can require application approval when the job or Guardian settings enable that requirement. Guardian access is limited to the linked teen.</p>
           </div>
           <div className="card">
-            <h3>Moderated messaging</h3>
-            <p>Teens and adults can only message once there&apos;s a real job application between them — never random direct messages. Messages are scanned for common risk patterns.</p>
+            <h3>Messaging and reports</h3>
+            <p>Messaging is restricted to permitted job-related conversations and uses server-side safety controls. Users can block and report concerns. MORT does not claim that every message is read by a person or that every report receives an immediate response.</p>
           </div>
           <div className="card danger-card">
             <h3>Legal &amp; safety limitations (please read)</h3>
-            <p>The MORT legal documents have been reviewed and published. Our Safety Rules explain the safeguards and boundaries that apply to Tasks, including Guardian approval for each Task at a private residence and a second adult other than the Poster being present throughout work inside a residence. These rules reduce risk but do not guarantee safety. MORT does not provide 24/7 emergency response, and you should call 911 for immediate danger.</p><p><Link href="/legal/safety">Read the published Safety Rules</Link></p>
+            <p>MORT’s published Safety Rules describe safeguards and boundaries for Tasks, including Guardian approval for each Task at a private residence and a second adult other than the Poster being present throughout work inside a residence. These rules reduce risk but do not guarantee safety. MORT is not an emergency-response service; call 911 for immediate danger.</p>
+            <p><Link href="/legal/safety">Read the published Safety Rules</Link></p>
           </div>
         </div>
       </main>
