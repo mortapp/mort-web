@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "prebuild": "npm run test:production-config && npm run verify:legal",
+    "prebuild": "npm run test:prelaunch-auth-copy && npm run test:production-config && npm run verify:legal",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
