@@ -1,19 +1,38 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 import { useTheme } from '@/components/theme-toggle'
 
 type Pet = 'cat' | 'dog' | 'off'
+const petChangeEvent = 'mort-pet-change'
+
+function subscribeToPetChanges(onStoreChange: () => void) {
+  window.addEventListener(petChangeEvent, onStoreChange)
+  window.addEventListener('storage', onStoreChange)
+  return () => {
+    window.removeEventListener(petChangeEvent, onStoreChange)
+    window.removeEventListener('storage', onStoreChange)
+  }
+}
+
+function getPetSnapshot(): Pet {
+  try {
+    const value = localStorage.getItem('mort-pet')
+    return value === 'cat' || value === 'dog' ? value : 'off'
+  } catch {
+    return 'off'
+  }
+}
+
+function getServerPetSnapshot(): Pet {
+  return 'off'
+}
 
 export function AppearanceCard() {
   const [theme, setTheme] = useTheme()
-  const [pet, setPet] = useState<Pet>('off')
-  useEffect(() => {
-    try { const v = localStorage.getItem('mort-pet'); if (v === 'cat' || v === 'dog') setPet(v) } catch {}
-  }, [])
+  const pet = useSyncExternalStore(subscribeToPetChanges, getPetSnapshot, getServerPetSnapshot)
   function choose(v: Pet) {
-    setPet(v)
     try { localStorage.setItem('mort-pet', v) } catch {}
-    window.dispatchEvent(new CustomEvent('mort-pet-change', { detail: v }))
+    window.dispatchEvent(new Event(petChangeEvent))
   }
   const act = (a: 'put' | 'drop') => window.dispatchEvent(new CustomEvent('mort-pet-action', { detail: a }))
   return (

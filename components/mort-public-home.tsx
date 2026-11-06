@@ -65,7 +65,7 @@ export function MortPublicHome({ isSignedIn = false }: { isSignedIn?: boolean })
 
         <section className="mp-intro mp-section" id="how">
           <div className="mp-shell">
-            <div className="mp-section-head"><div><div className="mp-eyebrow">THE IDEA</div><h2>Opportunity should<br />be <span>closer to home.</span></h2></div><p>Finding a first job shouldn't mean sorting through random posts, sharing too much personal information, or figuring everything out alone. MORT gives local work a clearer path.</p></div>
+            <div className="mp-section-head"><div><div className="mp-eyebrow">THE IDEA</div><h2>Opportunity should<br />be <span>closer to home.</span></h2></div><p>Finding a first job shouldn&apos;t mean sorting through random posts, sharing too much personal information, or figuring everything out alone. MORT gives local work a clearer path.</p></div>
             <div className="mp-steps">
               {[
                 ['01', 'Discover', 'When the marketplace opens, explore approved local opportunities with useful details and privacy in mind.'],
@@ -88,7 +88,7 @@ export function MortPublicHome({ isSignedIn = false }: { isSignedIn?: boolean })
         <section className="mp-audience mp-section">
           <div className="mp-shell">
             <div className="mp-audience-heading"><div className="mp-eyebrow">ONE COMMUNITY, CLEAR ROLES</div><h2>Made for both sides<br />of the <span>neighborhood.</span></h2></div>
-            <div className="mp-audience-switch" role="group" aria-label="Choose who MORT is for"><button type="button" aria-pressed={audience === 'teen'} className={audience === 'teen' ? 'active' : ''} onClick={() => setAudience('teen')}>I'm a teen</button><button type="button" aria-pressed={audience === 'adult'} className={audience === 'adult' ? 'active' : ''} onClick={() => setAudience('adult')}>I'm hiring</button></div>
+            <div className="mp-audience-switch" role="group" aria-label="Choose who MORT is for"><button type="button" aria-pressed={audience === 'teen'} className={audience === 'teen' ? 'active' : ''} onClick={() => setAudience('teen')}>I&apos;m a teen</button><button type="button" aria-pressed={audience === 'adult'} className={audience === 'adult' ? 'active' : ''} onClick={() => setAudience('adult')}>I&apos;m hiring</button></div>
             <div className="mp-audience-card">
               <div className="mp-audience-card-copy"><span className="mp-audience-kicker">{audience === 'teen' ? 'FOR TEENS · AGES 13–17' : 'FOR ADULTS & LOCAL BUSINESSES'}</span><h3>{audience === 'teen' ? 'Turn your time into something.' : 'Find a helping hand nearby.'}</h3><p>{audience === 'teen' ? 'Prepare for future age-appropriate work. Marketplace discovery and applications are not open yet.' : 'Adult verification submissions are currently unavailable. Job posting remains disabled until a genuine verification process is operational.'}</p><Link href="/signup" className="mp-button mp-button-dark">{audience === 'teen' ? 'Create a teen account' : 'Create an adult account'} <span>↗</span></Link></div>
               <div className="mp-audience-card-side"><div className="mp-side-number">{audience === 'teen' ? '13—17' : 'LOCAL'}</div><p>{audience === 'teen' ? 'A space designed around the needs and safety of young people.' : 'A practical way to connect with local talent and get everyday work done.'}</p><div className="mp-side-rule" /><span>MOVE SMART. STAY ACCOUNTABLE.</span></div>
