@@ -16,12 +16,12 @@ export default async function Login({ searchParams }: { searchParams?: Promise<R
   return (
     <AuthShell
       kicker="Welcome back"
-      title="Back to the hustle."
-      description="Your jobs, applications, earnings, and safety tools are waiting for you."
+      title="Welcome back to MORT."
+      description="Sign in to manage your account. Marketplace access is not open yet."
       bullets={[
-        { icon: '✓', text: 'Browse local jobs near you' },
-        { icon: '✓', text: 'Track applications and earnings' },
-        { icon: '✓', text: 'Check in safely on active jobs' },
+        { icon: '✓', text: 'Use your account credentials to sign in' },
+        { icon: '•', text: 'Job discovery and applications are unavailable' },
+        { icon: '•', text: 'Verification submissions are unavailable' },
       ]}
     >
       <div className="auth-form-heading">
