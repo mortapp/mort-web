@@ -1,5 +1,7 @@
 # Supabase Live Check Notes
 
+> **Historical / not production evidence:** These notes were collected from a deleted Supabase project. Do not use them to infer current production RPCs, RLS policies, storage policies, or account settings. The only approved production project is `jxbnrkasktbhtiujkhay`; none of the observations below have been re-verified against it from this workspace.
+
 Prepared after querying the existing MORT Supabase project `rakjydmgwwgtdislanbt`.
 
 ## Confirmed live

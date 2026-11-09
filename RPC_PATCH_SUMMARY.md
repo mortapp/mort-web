@@ -1,5 +1,7 @@
 # MORT Web RPC Compatibility Patch Summary
 
+> **Historical snapshot warning:** The live-backend observations behind the original compatibility work were collected from a deleted Supabase project. Do not use this document as evidence of the current production schema or connect to that deleted project. The only approved production project is `jxbnrkasktbhtiujkhay`; its current RPC and RLS behavior has not been verified from this workspace.
+
 This patch applies the key finding from `SCHEMA_RPC_COMPATIBILITY_REPORT.md`: the live MORT backend expects write operations through existing SECURITY DEFINER RPC functions instead of direct table insert/update calls.
 
 ## Changed
@@ -33,4 +35,4 @@ npm run lint
 npm run build
 ```
 
-Then test live flows with separate teen/adult/guardian/admin accounts against project `rakjydmgwwgtdislanbt`.
+Do not follow the historical test-target reference in prior copies of this document. Live testing must use only the approved production project `jxbnrkasktbhtiujkhay`, with authorized test accounts and current backend-owner confirmation.

@@ -10,13 +10,13 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test:prelaunch-auth-copy": "node --test scripts/prelaunch-auth-copy.test.mjs",
-    "test:production-config": "node --test scripts/csp-origin.test.mjs scripts/legal-publication.test.mjs scripts/onboarding-v2-contract.test.mjs",
+    "test:production-config": "node --test scripts/csp-origin.test.mjs scripts/google-signup-state.test.mjs scripts/legal-publication.test.mjs scripts/onboarding-v2-contract.test.mjs scripts/site-url.test.mjs",
     "verify:legal": "node scripts/verify-legal-publication.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.0",
     "@supabase/supabase-js": "2.110.1",
-    "next": "16.3.5",
+    "next": "16.4.5",
     "react": "19.2.7",
     "react-dom": "19.2.7"
   },
@@ -25,7 +25,7 @@
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "eslint": "9.39.4",
-    "eslint-config-next": "16.2.10",
+    "eslint-config-next": "16.4.5",
     "typescript": "6.0.3"
   }
 }
