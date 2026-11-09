@@ -1,7 +1,24 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { safeNext } from '@/lib/site-url'
+import { safeNext } from '@/lib/site-url.mjs'
 import { ensureProfile } from '@/lib/auth'
+import {
+  getGoogleSignupDateOfBirth,
+  GOOGLE_SIGNUP_COOKIE,
+  GOOGLE_SIGNUP_COOKIE_PATH,
+} from '@/lib/google-signup-state.mjs'
+
+function callbackRedirect(request: NextRequest, path: string) {
+  const response = NextResponse.redirect(new URL(path, request.url))
+  response.cookies.set(GOOGLE_SIGNUP_COOKIE, '', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: GOOGLE_SIGNUP_COOKIE_PATH,
+    maxAge: 0,
+  })
+  return response
+}
 
 function ageFromDateOfBirth(value: string | null): number | null {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null
@@ -19,7 +36,10 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get('code')
   const next = safeNext(requestUrl.searchParams.get('next'), '/app')
   const isSignup = requestUrl.searchParams.get('source') === 'signup'
-  const signupDob = requestUrl.searchParams.get('signup_dob')
+  const signupDob = getGoogleSignupDateOfBirth(
+    request.cookies.get(GOOGLE_SIGNUP_COOKIE)?.value,
+    requestUrl.searchParams.get('signup_nonce'),
+  )
 
   if (code) {
     const supabase = await createClient()
@@ -36,7 +56,7 @@ export async function GET(request: NextRequest) {
             const message = age !== null && age < 13
               ? 'MORT is only available to people age 13 or older.'
               : 'The date of birth step was missing. Please restart signup.'
-            return NextResponse.redirect(new URL(`/signup?message=${encodeURIComponent(message)}`, requestUrl.origin))
+            return callbackRedirect(request, `/signup?message=${encodeURIComponent(message)}`)
           }
           const { data: savedDob, error: dobError } = await supabase.rpc('save_my_initial_dob_v1', {
             p_date_of_birth: signupDob,
@@ -46,7 +66,7 @@ export async function GET(request: NextRequest) {
             const message = savedDob?.code === 'minimum_age_required'
               ? 'MORT is only available to people age 13 or older.'
               : 'We could not save your date of birth. Please restart signup or contact MORT support.'
-            return NextResponse.redirect(new URL(`/signup?message=${encodeURIComponent(message)}`, requestUrl.origin))
+            return callbackRedirect(request, `/signup?message=${encodeURIComponent(message)}`)
           }
         }
 
@@ -57,7 +77,7 @@ export async function GET(request: NextRequest) {
           .maybeSingle()
 
         if (profileError) {
-          return NextResponse.redirect(new URL('/auth/auth-code-error', requestUrl.origin))
+          return callbackRedirect(request, '/auth/auth-code-error')
         }
         if (profile?.role === 'admin') {
           return NextResponse.redirect(new URL(next.startsWith('/app/admin') ? next : '/app/admin', requestUrl.origin))
@@ -65,20 +85,20 @@ export async function GET(request: NextRequest) {
         if (!profile?.date_of_birth) {
           if (isSignup) {
             await supabase.auth.signOut()
-            return NextResponse.redirect(new URL('/signup?message=Date%20of%20birth%20is%20required%20to%20join%20MORT.', requestUrl.origin))
+            return callbackRedirect(request, '/signup?message=Date%20of%20birth%20is%20required%20to%20join%20MORT.')
           }
           const onboardingUrl = new URL('/app/onboarding', requestUrl.origin)
           onboardingUrl.searchParams.set('next', next)
           onboardingUrl.searchParams.set('message', 'Enter your date of birth to confirm you meet MORT\'s minimum age of 13.')
-          return NextResponse.redirect(onboardingUrl)
+          return callbackRedirect(request, `${onboardingUrl.pathname}${onboardingUrl.search}`)
         }
         if (!profile?.onboarding_completed_at || profile.account_status !== 'active') {
           const onboardingUrl = new URL('/app/onboarding', requestUrl.origin)
           onboardingUrl.searchParams.set('next', next)
-          return NextResponse.redirect(onboardingUrl)
+          return callbackRedirect(request, `${onboardingUrl.pathname}${onboardingUrl.search}`)
         }
       }
-      return NextResponse.redirect(new URL(next, requestUrl.origin))
+      return callbackRedirect(request, next)
     }
   }
   // The code was rejected (link already used, or opened in a different browser
@@ -86,8 +106,8 @@ export async function GET(request: NextRequest) {
   // session, continue to the app instead of dead-ending.
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (user) return NextResponse.redirect(new URL(next, requestUrl.origin))
+  if (user) return callbackRedirect(request, next)
   const loginUrl = new URL('/login', requestUrl.origin)
   loginUrl.searchParams.set('message', 'That verification link was already used or has expired. Try signing in — if your email is not verified yet, we will send you a fresh link.')
-  return NextResponse.redirect(loginUrl)
+  return callbackRedirect(request, `${loginUrl.pathname}${loginUrl.search}`)
 }

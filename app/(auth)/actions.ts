@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/server'
 import { getSiteUrlFromHeaders, safeNext } from '@/lib/site-url'
 import { ensureProfile, sanitizeRole } from '@/lib/auth'
 import { isLeakedPassword, LEAKED_PASSWORD_MESSAGE } from '@/lib/leaked-password'
+import { cookies } from 'next/headers'
+import { createGoogleSignupState, GOOGLE_SIGNUP_COOKIE, GOOGLE_SIGNUP_COOKIE_PATH } from '@/lib/google-signup-state.mjs'
 
 function msg(path: string, message: string): never { redirect(`${path}${path.includes('?') ? '&' : '?'}message=${encodeURIComponent(message)}`) }
 
@@ -97,23 +99,18 @@ export async function signInWithGoogle(formData: FormData) {
   const supabase = await createClient()
   const source = String(formData.get('source') || 'login') === 'signup' ? 'signup' : 'login'
   const next = safeNext(String(formData.get('next') || ''), '/app')
-  const displayName = String(formData.get('display_name') || '').trim().slice(0, 80)
-  let role = sanitizeRole(formData.get('role'))
-  let dob = ''
+  let signupState: ReturnType<typeof createGoogleSignupState> | null = null
 
   if (source === 'signup') {
     const checked = checkedSignupDob(formData, `/signup?next=${encodeURIComponent(next)}`)
-    dob = checked.dob
-    role = signupRole(formData, checked.age)
+    signupState = createGoogleSignupState(checked.dob)
   }
 
   const callbackUrl = new URL(`${await getSiteUrlFromHeaders()}/auth/callback`)
   callbackUrl.searchParams.set('next', next)
-  if (source === 'signup') {
+  if (signupState) {
     callbackUrl.searchParams.set('source', 'signup')
-    callbackUrl.searchParams.set('signup_dob', dob)
-    callbackUrl.searchParams.set('role', role)
-    if (displayName) callbackUrl.searchParams.set('display_name', displayName)
+    callbackUrl.searchParams.set('signup_nonce', signupState.nonce)
   }
 
   const fallbackPath = source === 'signup'
@@ -127,6 +124,16 @@ export async function signInWithGoogle(formData: FormData) {
 
   if (error) msg(fallbackPath, error.message)
   if (!data?.url) msg(fallbackPath, 'Google sign-in is not configured yet. Check Supabase Auth provider settings.')
+  if (signupState) {
+    const cookieStore = await cookies()
+    cookieStore.set(GOOGLE_SIGNUP_COOKIE, signupState.cookieValue, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: GOOGLE_SIGNUP_COOKIE_PATH,
+      maxAge: 300,
+    })
+  }
   redirect(data.url)
 }
 
