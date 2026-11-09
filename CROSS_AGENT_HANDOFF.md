@@ -44,4 +44,5 @@ The web also performs selected direct table reads and writes for profile setup, 
 ## Current web work
 
 - Website PR #15 remains open and was not merged. Its passing CI and local checks make it ready for review.
-- This hardening branch is based on PR #15 to keep its changes separate; no deployment or production settings were changed.
+- [Web hardening PR #16](https://github.com/mortapp/mort-web/pull/16) is open and stacked on PR #15; no CI checks were reported when this handoff was updated.
+- No deployment or production settings were changed.

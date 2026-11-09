@@ -38,6 +38,7 @@ Statuses describe evidence available in this workspace. A passing local build is
 ## Evidence links
 
 - [Website PR #15](https://github.com/mortapp/mort-web/pull/15) — open; not merged.
+- [Web hardening PR #16](https://github.com/mortapp/mort-web/pull/16) — open and stacked on PR #15; CI checks were not reported at review time.
 - [PR #15 validation run](https://github.com/mortapp/mort-web/actions/runs/42214503370/job/127881027524) — passed.
 - [Production website](https://mortapp.org) and [Vercel domain](https://mort-web.vercel.app) — read-only HEAD checks returned 200; `www.mortapp.org` redirects to the canonical production domain.
 - Local test details: [role isolation results](./ROLE_ISOLATION_TESTS.md), [security audit](./WEB_SECURITY_AUDIT.md), and [release acceptance](./WEB_RELEASE_ACCEPTANCE.md).
