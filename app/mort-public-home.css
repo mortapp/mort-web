@@ -65,16 +65,6 @@
 }
 .mp-text-link:hover { text-decoration-color: var(--text); }
 
-/* ============================ LAUNCH BANNER ============================ */
-.mp-launch-banner {
-  background: var(--primary-tint-bg);
-  border-bottom: 1px solid var(--border);
-  font-size: 13px; line-height: 1.55; color: var(--muted2);
-  padding: 10px 0;
-}
-.mp-launch-banner .mp-shell { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
-.mp-launch-banner strong { color: var(--text); font-weight: 750; text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; }
-
 /* ============================ HERO ============================ */
 .mp-hero { padding: clamp(72px, 10vw, 128px) 0 clamp(56px, 7vw, 96px); position: relative; overflow: hidden; }
 .mp-hero::before {

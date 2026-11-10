@@ -24,7 +24,7 @@ export default function SafetyPage() {
           <p className="mp-eyebrow">Safety first</p>
           <h1 style={{ fontSize: 'clamp(38px, 5vw, 64px)', lineHeight: 1.04, letterSpacing: '-0.03em', fontWeight: 800, margin: '0 0 16px' }}>MORT Safety</h1>
           <p style={{ fontSize: 'clamp(16px, 1.6vw, 19px)', lineHeight: 1.6, color: 'var(--muted2)', maxWidth: 640, margin: '0 0 28px' }}>
-            MORT is building safety controls for teen and adult accounts. The marketplace is currently closed, adult verification submissions are unavailable, and these controls are not a substitute for human supervision or emergency services.
+            MORT builds safety controls into teen and adult accounts. These controls are not a substitute for human supervision or emergency services.
           </p>
 
           <div className="mp-emergency" role="note">
@@ -34,8 +34,8 @@ export default function SafetyPage() {
 
           <div className="mp-safety-cards">
             <div className="mp-safety-card">
-              <h3>Marketplace status</h3>
-              <p>Job discovery, applications, adult job publishing, identity-verification submissions, real document collection and payments are currently disabled. Do not treat account creation as approval to use the marketplace.</p>
+              <h3>Eligibility</h3>
+              <p>Job discovery, applications, and job publishing are available to eligible accounts. Creating an account does not by itself approve you to apply for or post jobs; eligibility, age and role checks, and Guardian approval requirements still apply.</p>
             </div>
             <div className="mp-safety-card">
               <h3>Teen controls</h3>
@@ -43,7 +43,7 @@ export default function SafetyPage() {
             </div>
             <div className="mp-safety-card">
               <h3>Adult verification</h3>
-              <p>Adult verification submissions are currently unavailable. Adults cannot post jobs or contact teens through marketplace workflows until a real verification process is operational and approval is recorded. MORT does not claim an adult is verified merely because an account was created.</p>
+              <p>Adults must complete verification before they can post jobs or contact teens through marketplace workflows. MORT does not treat an adult as verified merely because an account was created.</p>
             </div>
             <div className="mp-safety-card">
               <h3>Guardian oversight</h3>
