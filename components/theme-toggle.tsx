@@ -11,7 +11,7 @@ export function applyTheme(t: Theme) {
 }
 
 export function useTheme(): [Theme, (t: Theme) => void] {
-  const [theme, setTheme] = useState<Theme>('dark')
+  const [theme, setTheme] = useState<Theme>('light')
   useEffect(() => {
     const read = () => setTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')
     read()

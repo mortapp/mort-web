@@ -3,13 +3,14 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { Logomark } from '@/components/logomark'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 const categories = [
-  ['Tutoring', '01', 'Academic support'],
-  ['Lawn care', '02', 'Yards and outdoor work'],
-  ['Dog walking', '03', 'Pet care'],
-  ['Errands', '04', 'Helpful local tasks'],
-  ['Car washing', '05', 'Simple neighborhood services'],
+  ['Tutoring', '01', 'Help with schoolwork'],
+  ['Lawn care', '02', 'Mowing and yard work'],
+  ['Dog walking', '03', 'Pet care nearby'],
+  ['Errands', '04', 'Everyday helpful tasks'],
+  ['Car washing', '05', 'Neighborhood car care'],
   ['Moving help', '06', 'Age-appropriate assistance'],
 ]
 
@@ -21,11 +22,12 @@ export function MortPublicHome({ isSignedIn = false }: { isSignedIn?: boolean })
         <div className="mp-shell mp-nav-inner">
           <Link href="/" className="mp-brand"><Logomark size={30} /><span>MORT</span></Link>
           <nav aria-label="Main navigation">
-            <Link href="#how">How it works</Link><Link href="#opportunities">Opportunities</Link><Link href="/safety">Safety</Link>
+            <Link href="#how">How it works</Link><Link href="#work">Work</Link><Link href="/safety">Safety</Link>
           </nav>
           <div className="mp-nav-actions">
+            <ThemeToggle />
             <Link href={isSignedIn ? '/app' : '/login'} className="mp-signin">{isSignedIn ? 'Dashboard' : 'Sign in'}</Link>
-            <Link href="/signup" className="mp-button mp-button-dark">Create account <span aria-hidden="true">↗</span></Link>
+            <Link href="/signup" className="mp-button mp-button-solid">Create account <span aria-hidden="true">↗</span></Link>
           </div>
         </div>
       </header>
@@ -33,77 +35,91 @@ export function MortPublicHome({ isSignedIn = false }: { isSignedIn?: boolean })
       <main>
         <div className="mp-launch-banner" role="status"><div className="mp-shell"><strong>Pre-launch</strong><span>The marketplace is not open. Job discovery, job publishing, verification submissions, and payments are disabled.</span></div></div>
         <section className="mp-hero">
-          <div className="mp-shell mp-hero-grid">
-            <div className="mp-hero-copy">
-              <div className="mp-eyebrow"><span /> LOCAL WORK. REAL OPPORTUNITY.</div>
-              <h1>Make your<br /><span>next move.</span></h1>
-              <p className="mp-hero-lead">MORT is preparing a safer way for teens to discover age-appropriate local work. The marketplace is not open yet.</p>
-              <div className="mp-hero-actions">
-                <Link href="/signup" className="mp-button mp-button-blue">Create account <span>↗</span></Link>
-                <Link href="#how" className="mp-text-link">See how MORT works <span>↓</span></Link>
-              </div>
-              <div className="mp-proof"><span className="mp-proof-mark">✓</span><span>Designed for ages 13–17</span><i /><span>Safety built into the experience</span></div>
+          <div className="mp-shell">
+            <p className="mp-eyebrow"><span aria-hidden="true" /> Local work. Real opportunity.</p>
+            <h1>Make your<br /><span>next move.</span></h1>
+            <p className="mp-hero-lead">MORT is preparing a safer way for teens to find age-appropriate local work — and for neighbors to hire them. Join now and be ready when the marketplace opens.</p>
+            <div className="mp-hero-actions">
+              <Link href="/signup" className="mp-button mp-button-solid">Create account <span aria-hidden="true">↗</span></Link>
+              <Link href="#how" className="mp-text-link">See how MORT works <span aria-hidden="true">↓</span></Link>
             </div>
-            <div className="mp-hero-art" aria-label="Illustration of a local job opportunity card">
-              <div className="mp-orbit mp-orbit-one" /><div className="mp-orbit mp-orbit-two" />
-              <div className="mp-art-glow" />
-              <div className="mp-floating-label mp-label-top"><span className="mp-label-dot" /> LOCAL OPPORTUNITY</div>
-              <div className="mp-job-preview">
-                <div className="mp-job-top"><span className="mp-job-icon">✳</span><span className="mp-job-status">Example preview</span></div>
-                <div className="mp-job-category">YARD WORK</div>
-                <h3>Help tidy up a backyard</h3>
-                <p>A neighborhood task with clear expectations and agreed timing.</p>
-                <div className="mp-job-meta"><span>⌖ Nearby area</span><span>◷ Flexible</span></div>
-                <div className="mp-job-divider" />
-                <div className="mp-job-bottom"><span>Clear details. Safer connections.</span><span className="mp-arrow">↗</span></div>
-              </div>
-              <div className="mp-floating-label mp-label-bottom"><span className="mp-shield">✓</span> SAFETY COMES FIRST</div>
-            </div>
+            <div className="mp-proof"><span className="mp-proof-mark" aria-hidden="true">✓</span><span>Designed for ages 13–17</span><i aria-hidden="true" /><span>Safety built into the experience</span></div>
           </div>
-          <div className="mp-shell mp-hero-foot"><span>01 / A NEW KIND OF LOCAL MARKETPLACE</span><span>BUILT FOR THE NEXT GENERATION <b>↘</b></span></div>
         </section>
 
         <section className="mp-intro mp-section" id="how">
           <div className="mp-shell">
-            <div className="mp-section-head"><div><div className="mp-eyebrow">THE IDEA</div><h2>Opportunity should<br />be <span>closer to home.</span></h2></div><p>Finding a first job shouldn't mean sorting through random posts, sharing too much personal information, or figuring everything out alone. MORT gives local work a clearer path.</p></div>
+            <div className="mp-section-head">
+              <div><p className="mp-eyebrow">The loop</p><h2>From first look<br />to <span>first payment.</span></h2></div>
+              <p>One clear path, built for real neighborhood work.</p>
+            </div>
             <div className="mp-steps">
               {[
-                ['01', 'Discover', 'When the marketplace opens, explore approved local opportunities with useful details and privacy in mind.'],
-                ['02', 'Connect', 'When applications become available, apply through MORT. The person posting the job reviews applicants and makes the choice.'],
-                ['03', 'Get it done', 'When a job is available, agree on the details, follow the job steps, and keep safety tools close.'],
-              ].map(([n, title, body]) => <article className="mp-step" key={n}><span className="mp-step-number">{n}</span><div><h3>{title}</h3><p>{body}</p></div><span className="mp-step-arrow">↗</span></article>)}
+                ['01', 'See the work', 'When the marketplace opens, browse approved local jobs with clear details and privacy in mind.'],
+                ['02', 'Apply in minutes', 'Send a short, honest application. The person posting the job reviews and chooses.'],
+                ['03', 'Do it, get paid', 'Agree on the details, follow the job steps, keep safety tools close, and build your reputation.'],
+              ].map(([n, title, body]) => <article className="mp-step" key={n}><span className="mp-step-number">{n}</span><div><h3>{title}</h3><p>{body}</p></div></article>)}
             </div>
           </div>
         </section>
 
-        <section className="mp-opportunities mp-section" id="opportunities">
+        <section className="mp-opportunities mp-section" id="work">
           <div className="mp-shell">
-            <div className="mp-section-topline"><div className="mp-eyebrow">WORK THAT MATTERS</div><span>LOCAL SKILLS. REAL EXPERIENCE.</span></div>
-            <div className="mp-opportunity-heading"><h2>Start with what<br /><span>you can do.</span></h2><p>From helping a neighbor to sharing a skill, MORT focuses on practical, age-appropriate work that makes a difference close to home.</p></div>
-            <div className="mp-category-grid">{categories.map(([name, n, desc]) => <Link href={`/signup?next=${encodeURIComponent('/app/teen/jobs')}`} className="mp-category" key={n}><span className="mp-category-number">{n}</span><span className="mp-category-icon">{['⌁','✳','♡','↗','◉','▤'][Number(n)-1]}</span><h3>{name}</h3><p>{desc}</p><span className="mp-category-arrow">↗</span></Link>)}</div>
+            <div className="mp-section-topline"><p className="mp-eyebrow">Work that matters</p><span>Local skills. Real experience.</span></div>
+            <div className="mp-section-head mp-opportunity-heading"><div><h2>Start with what<br /><span>you can do.</span></h2></div><p>From helping a neighbor to sharing a skill, MORT focuses on practical, age-appropriate work close to home.</p></div>
+            <div className="mp-category-grid">{categories.map(([name, n, desc]) => <Link href={`/signup?next=${encodeURIComponent('/app/teen/jobs')}`} className="mp-category" key={n}><span className="mp-category-number">{n}</span><span className="mp-category-icon" aria-hidden="true">{['✦','✳','♡','↗','◉','▤'][Number(n)-1]}</span><h3>{name}</h3><p>{desc}</p><span className="mp-category-arrow" aria-hidden="true">↗</span></Link>)}</div>
             <p className="mp-category-note">Examples only. Job discovery and applications are not currently available.</p>
           </div>
         </section>
 
         <section className="mp-audience mp-section">
           <div className="mp-shell">
-            <div className="mp-audience-heading"><div className="mp-eyebrow">ONE COMMUNITY, CLEAR ROLES</div><h2>Made for both sides<br />of the <span>neighborhood.</span></h2></div>
-            <div className="mp-audience-switch" role="group" aria-label="Choose who MORT is for"><button type="button" aria-pressed={audience === 'teen'} className={audience === 'teen' ? 'active' : ''} onClick={() => setAudience('teen')}>I'm a teen</button><button type="button" aria-pressed={audience === 'adult'} className={audience === 'adult' ? 'active' : ''} onClick={() => setAudience('adult')}>I'm hiring</button></div>
+            <div className="mp-section-head"><div><p className="mp-eyebrow">One community, clear roles</p><h2>Made for both sides<br />of the <span>neighborhood.</span></h2></div><p>Pick your side of the street.</p></div>
+            <div className="mp-audience-switch" role="group" aria-label="Choose who MORT is for"><button type="button" aria-pressed={audience === 'teen'} className={audience === 'teen' ? 'active' : ''} onClick={() => setAudience('teen')}>I&rsquo;m a teen</button><button type="button" aria-pressed={audience === 'adult'} className={audience === 'adult' ? 'active' : ''} onClick={() => setAudience('adult')}>I&rsquo;m hiring</button></div>
             <div className="mp-audience-card">
-              <div className="mp-audience-card-copy"><span className="mp-audience-kicker">{audience === 'teen' ? 'FOR TEENS · AGES 13–17' : 'FOR ADULTS & LOCAL BUSINESSES'}</span><h3>{audience === 'teen' ? 'Turn your time into something.' : 'Find a helping hand nearby.'}</h3><p>{audience === 'teen' ? 'Prepare for future age-appropriate work. Marketplace discovery and applications are not open yet.' : 'Adult verification submissions are currently unavailable. Job posting remains disabled until a genuine verification process is operational.'}</p><Link href="/signup" className="mp-button mp-button-dark">{audience === 'teen' ? 'Create a teen account' : 'Create an adult account'} <span>↗</span></Link></div>
-              <div className="mp-audience-card-side"><div className="mp-side-number">{audience === 'teen' ? '13—17' : 'LOCAL'}</div><p>{audience === 'teen' ? 'A space designed around the needs and safety of young people.' : 'A practical way to connect with local talent and get everyday work done.'}</p><div className="mp-side-rule" /><span>MOVE SMART. STAY ACCOUNTABLE.</span></div>
+              <div className="mp-audience-card-copy"><span className="mp-audience-kicker">{audience === 'teen' ? 'For teens · ages 13–17' : 'For adults & local businesses'}</span><h3>{audience === 'teen' ? 'Turn your time into something.' : 'Find a helping hand nearby.'}</h3><p>{audience === 'teen' ? 'Get ready for real, age-appropriate work in your neighborhood. Discovery and applications open at launch.' : 'Post jobs for verified local teens once adult verification is live. Job posting is disabled until that process is operational.'}</p><Link href="/signup" className="mp-button mp-button-solid">{audience === 'teen' ? 'Create a teen account' : 'Create an adult account'} <span aria-hidden="true">↗</span></Link></div>
+              <div className="mp-audience-card-side"><div className="mp-side-number">{audience === 'teen' ? '13—17' : 'LOCAL'}</div><p>{audience === 'teen' ? 'A space designed around the needs and safety of young people.' : 'A practical way to connect with local talent and get everyday work done.'}</p><div className="mp-side-rule" /><span>Move smart. Stay accountable.</span></div>
             </div>
           </div>
         </section>
 
         <section className="mp-safety mp-section">
-          <div className="mp-shell mp-safety-grid"><div><div className="mp-eyebrow">SAFETY IS THE FOUNDATION</div><h2>Built with<br /><span>care in mind.</span></h2><p>MORT is designed with privacy, accountability, and clear boundaries at its core. No platform can guarantee safety, but the right tools and rules can make a meaningful difference.</p><Link href="/safety" className="mp-text-link">Explore the safety approach <span>↗</span></Link></div>
-            <div className="mp-safety-list"><article><span>01</span><div><h3>Privacy-aware discovery</h3><p>Keep precise personal location details out of public listings.</p></div><b>↗</b></article><article><span>02</span><div><h3>Clear account roles</h3><p>Separate experiences for teens, adults, guardians, and admins.</p></div><b>↗</b></article><article><span>03</span><div><h3>Tools to speak up</h3><p>Reporting, blocking, and safety guidance are part of the product.</p></div><b>↗</b></article></div>
+          <div className="mp-shell mp-safety-grid">
+            <div>
+              <p className="mp-eyebrow">Safety is the foundation</p>
+              <h2>Built with<br /><span>care in mind.</span></h2>
+              <p>MORT is designed with privacy, accountability, and clear boundaries at its core. No platform can guarantee safety, but the right tools and rules make a real difference.</p>
+              <Link href="/safety" className="mp-text-link">Explore the safety approach <span aria-hidden="true">↗</span></Link>
+            </div>
+            <div className="mp-safety-list">
+              <article><span>01</span><div><h3>Privacy-aware discovery</h3><p>Keep precise personal location details out of public listings.</p></div></article>
+              <article><span>02</span><div><h3>Clear account roles</h3><p>Separate experiences for teens, adults, guardians, and admins.</p></div></article>
+              <article><span>03</span><div><h3>Tools to speak up</h3><p>Reporting, blocking, and safety guidance are part of the product.</p></div></article>
+            </div>
           </div>
         </section>
-        <section className="mp-final"><div className="mp-shell"><div className="mp-final-panel"><div className="mp-eyebrow">MORT IS PREPARING TO LAUNCH</div><h2>Earn nearby.<br /><span>Move smart.</span></h2><Link href="/signup" className="mp-button mp-button-light">Get started <span>↗</span></Link><div className="mp-final-mark">MORT®</div></div></div></section>
+
+        <section className="mp-final">
+          <div className="mp-shell">
+            <div className="mp-final-panel">
+              <p className="mp-eyebrow mp-final-eyebrow">MORT is preparing to launch</p>
+              <h2>Earn nearby.<br /><span>Move smart.</span></h2>
+              <Link href="/signup" className="mp-button mp-button-invert">Get started <span aria-hidden="true">↗</span></Link>
+            </div>
+          </div>
+        </section>
       </main>
-      <footer className="mp-footer"><div className="mp-shell"><div className="mp-footer-main"><Link href="/" className="mp-brand"><Logomark size={28} /><span>MORT</span></Link><p>Local opportunity, with a little more thought behind it.</p><div className="mp-footer-links"><Link href="#how">How it works</Link><Link href="/safety">Safety</Link><Link href="/legal/terms">Terms</Link><Link href="/legal/privacy">Privacy</Link><Link href="/login">Sign in</Link></div></div><div className="mp-footer-bottom"><span>© 2026 MORT. All rights reserved.</span><span>Availability and features may vary by location and account status.</span></div></div></footer>
+
+      <footer className="mp-footer">
+        <div className="mp-shell">
+          <div className="mp-footer-main">
+            <Link href="/" className="mp-brand"><Logomark size={28} /><span>MORT</span></Link>
+            <p>Local opportunity, with a little more thought behind it.</p>
+            <div className="mp-footer-links"><Link href="#how">How it works</Link><Link href="/safety">Safety</Link><Link href="/legal/terms">Terms</Link><Link href="/legal/privacy">Privacy</Link><Link href="/login">Sign in</Link></div>
+          </div>
+          <div className="mp-footer-bottom"><span>© 2026 MORT. All rights reserved.</span><span>Availability and features may vary by location and account status.</span></div>
+        </div>
+      </footer>
     </div>
   )
 }

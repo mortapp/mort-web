@@ -1,64 +1,98 @@
-/* MORT 2.0 theme layer. Loaded after globals.css; it only overrides design tokens,
-   so every existing component picks up the approved palette without edits.
-   Dark is the default. Light is applied with <html data-theme="light">. */
+/* MORT 2.0 theme layer — MONOCHROME EDITION.
+   Loaded after globals.css; it only overrides design tokens, so every existing
+   component picks up the approved palette without edits.
+
+   Palette (per the MORT design system): white, black, silver, gray, charcoal.
+   No blue or purple brand accent anywhere. Light is the default presentation;
+   dark is a fully designed counterpart (near-black / charcoal / silver), not an
+   inversion. Semantic colors (success/warning/danger) stay for status, used
+   sparingly and never as the only cue. */
 :root, :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0B0D11;
-  --bg-sunken: #07090C;
-  --el-1: #191D24;
-  --el-2: #20252D;
-  --el-3: #252A33;
-  --border: rgba(255,255,255,0.09);
-  --border-strong: rgba(255,255,255,0.18);
-  --text: #F4F6FA;
-  --muted: #A6AFBC;
-  --muted2: #C9D0DA;
-  --primary: #D9DEE6;
-  --primary-light: #F4F6FA;
-  --primary-dark: #B3BAC6;
-  --primary-tint-bg: rgba(112,146,214,0.14);
-  --primary-gradient: linear-gradient(180deg, #F4F6FA 0%, #D9DEE6 100%);
-  --accent-blue: #7092D6;
-  --accent-pink: #7092D6;
-  --accent-pink-tint: rgba(112,146,214,0.12);
-  --info-tint: rgba(112,146,214,0.12);
+  --bg: #0B0C0E;            /* near-black */
+  --bg-sunken: #07080A;
+  --el-1: #15171A;           /* charcoal card */
+  --el-2: #1C1E22;
+  --el-3: #24262B;
+  --border: rgba(255,255,255,0.10);
+  --border-strong: rgba(255,255,255,0.20);
+  --text: #F4F5F6;          /* white */
+  --muted: #A9AEB4;          /* silver-gray */
+  --muted2: #CDCED1;
+  --primary: #F4F5F6;        /* white on near-black */
+  --primary-light: #FFFFFF;
+  --primary-dark: #C6C8CC;   /* silver */
+  --primary-tint-bg: rgba(255,255,255,0.07);
+  --primary-gradient: linear-gradient(180deg, #FFFFFF 0%, #C9CBCF 100%);
+  --accent-blue: #C9CBCF;    /* silver — links, icons, focus */
+  --accent-pink: #C9CBCF;
+  --accent-pink-tint: rgba(255,255,255,0.08);
+  --info-tint: rgba(255,255,255,0.07);
+  --success: #57C283;  --success-tint: rgba(87,194,131,0.12);
+  --warning: #E8B45A;  --warning-tint: rgba(232,180,90,0.10);
+  --danger: #F26D7D;   --danger-tint: rgba(242,109,125,0.12);
+  --purple: #9BA0A8;   --purple-tint: rgba(255,255,255,0.07);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.45);
+  --shadow-lg: 0 20px 56px rgba(0,0,0,0.55);
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #F6F7F9;
-  --bg-sunken: #ECEEF2;
+  --bg: #FAFAF9;             /* warm white */
+  --bg-sunken: #F0F0EF;
   --el-1: #FFFFFF;
-  --el-2: #F1F3F6;
-  --el-3: #E3E6EB;
-  --border: rgba(17,21,27,0.10);
-  --border-strong: rgba(17,21,27,0.22);
-  --text: #11151B;
-  --muted: #5B6573;
-  --muted2: #3A424E;
-  --primary: #11151B;
-  --primary-light: #2A303A;
+  --el-2: #F3F3F2;
+  --el-3: #E9E9E7;
+  --border: rgba(16,17,19,0.10);
+  --border-strong: rgba(16,17,19,0.22);
+  --text: #101113;           /* ink */
+  --muted: #6A6E73;
+  --muted2: #3D4045;
+  --primary: #101113;        /* near-black */
+  --primary-light: #2A2C30;
   --primary-dark: #000000;
-  --primary-tint-bg: rgba(63,99,181,0.10);
-  --primary-gradient: linear-gradient(180deg, #2A303A 0%, #11151B 100%);
-  --accent-blue: #3F63B5;
-  --accent-pink: #3F63B5;
-  --accent-pink-tint: rgba(63,99,181,0.10);
-  --info-tint: rgba(63,99,181,0.10);
+  --primary-tint-bg: rgba(16,17,19,0.05);
+  --primary-gradient: linear-gradient(180deg, #2A2C30 0%, #101113 100%);
+  --accent-blue: #3D4045;    /* slate ink — links, icons, focus */
+  --accent-pink: #3D4045;
+  --accent-pink-tint: rgba(16,17,19,0.06);
+  --info-tint: rgba(16,17,19,0.05);
   --success: #1B7F46;  --success-tint: rgba(27,127,70,0.10);
   --warning: #8A5A00;  --warning-tint: rgba(138,90,0,0.10);
-  --danger: #C02A3B;   --danger-tint: rgba(192,42,59,0.10);
-  --purple: #6A45C4;   --purple-tint: rgba(106,69,196,0.10);
-  --shadow-sm: 0 1px 2px rgba(17,21,27,0.08);
-  --shadow-md: 0 8px 24px rgba(17,21,27,0.10);
-  --shadow-lg: 0 20px 56px rgba(17,21,27,0.14);
+  --danger: #C02A3B;   --danger-tint: rgba(192,42,59,0.08);
+  --purple: #6A6E73;   --purple-tint: rgba(16,17,19,0.05);
+  --shadow-sm: 0 1px 2px rgba(16,17,19,0.06);
+  --shadow-md: 0 8px 24px rgba(16,17,19,0.09);
+  --shadow-lg: 0 20px 56px rgba(16,17,19,0.14);
 }
+
+/* Buttons: solid ink / white with a sensible radius (not pills, not squares) */
+:root[data-theme="dark"] .btn.primary { color: #0B0C0E; }
 :root[data-theme="light"] .btn.primary { color: #FFFFFF; }
-:root[data-theme="light"] .btn:hover { border-color: rgba(17,21,27,0.35); }
+:root[data-theme="light"] .btn:hover { border-color: rgba(16,17,19,0.35); }
+.btn { border-radius: 10px; }
+.btn.info { color: var(--text); }
+
+/* Logo chip: ink mark on silver */
+.logo-mark { color: #101113; }
+:root[data-theme="dark"] .logo-mark { color: #0B0C0E; }
+
+/* Auth split panels: theme-aware surfaces (they sit over the canvas in dark
+   mode; plain elevated surfaces in light mode). */
+:root[data-theme="light"] .auth-brand-panel { background: var(--bg-sunken); -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-theme="light"] .auth-form-panel { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-theme="dark"] .auth-brand-panel { background: linear-gradient(145deg, rgba(11,12,14,0.5), rgba(11,12,14,0.24)); }
+:root[data-theme="dark"] .auth-form-panel { background: rgba(7,8,10,0.8); }
+
+/* Ambient art: the night canvas is desaturated to a monochrome mist in dark
+   mode; hidden entirely in light mode (which is the default presentation). */
+:root[data-theme="dark"] #mort-sky { filter: grayscale(1); opacity: 0.55; }
 :root[data-theme="light"] #mort-sky,
 :root[data-theme="light"] .mort-vignette { display: none; }
 
-:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; }
+/* Focus: strong, high-contrast, never color-only */
+:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
@@ -70,16 +104,16 @@
 .theme-toggle { min-width: 40px; padding-left: 0; padding-right: 0; }
 .appearance-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
 .appearance-seg { display: flex; gap: 8px; flex-wrap: wrap; }
-.appearance-seg button[aria-pressed="true"] { background: var(--primary-gradient); color: #0B0D11; border-color: transparent; }
-:root[data-theme="light"] .appearance-seg button[aria-pressed="true"] { color: #FFFFFF; }
+.appearance-seg button[aria-pressed="true"] { background: var(--primary-gradient); color: #FFFFFF; border-color: transparent; }
+:root[data-theme="dark"] .appearance-seg button[aria-pressed="true"] { color: #0B0C0E; }
 
-/* Pet companion */
+/* Pet companion — monochrome (silver body, ink features) */
 #mort-pet { position: fixed; left: 0; top: 0; width: 48px; height: 38px; pointer-events: none; z-index: 50; will-change: transform; }
 #mort-pet.perch { pointer-events: auto; cursor: pointer; }
 #mort-pet[hidden], #mort-pet-bub[hidden] { display: none; }
 #mort-pet-flip { width: 48px; height: 38px; }
-#mort-pet svg { width: 48px; height: 38px; overflow: visible; transform-origin: 50% 100%; --pf: #D9DEE6; --pe: #A6AFBC; --ps: #5B6573; --ink: #0B0D11; --bl: #7092D6; --cardc: #191D24; }
-:root[data-theme="light"] #mort-pet svg { --pf: #E3E6EB; --pe: #C5CBD4; --ink: #11151B; --bl: #3F63B5; --cardc: #FFFFFF; }
+#mort-pet svg { width: 48px; height: 38px; overflow: visible; transform-origin: 50% 100%; --pf: #D9DEE6; --pe: #A6AFBC; --ps: #5B6573; --ink: #0B0C0E; --bl: #C9CBCF; --cardc: #15171A; }
+:root[data-theme="light"] #mort-pet svg { --pf: #E3E6EB; --pe: #C5CBD4; --ink: #101113; --bl: #9BA0A8; --cardc: #FFFFFF; }
 #mort-pet .tail { transform-origin: 12px 30px; animation: mp-wag 2.2s ease-in-out infinite; }
 #mort-pet .leg { transform-box: fill-box; transform-origin: 50% 0; }
 #mort-pet .ear { transform-box: fill-box; transform-origin: 50% 100%; animation: mp-twitch 6s infinite; }

@@ -1,5 +1,5 @@
-// MORT — a calm night with light in it. The voyage atmosphere sits behind every
-// route (restrained inside /app); everything else inherits the design-system tokens.
+// MORT — monochrome editorial site. Light is the default presentation; the
+// voyage atmosphere stays behind routes in dark mode (restrained inside /app).
 import './globals.css'
 import './mort-2-theme.css'
 import { MortAtmosphere } from '@/components/mort-atmosphere'
@@ -15,7 +15,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="dark" suppressHydrationWarning>
+    <html lang="en" data-theme="light" suppressHydrationWarning>
       <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
       <body>
         <MortAtmosphere />

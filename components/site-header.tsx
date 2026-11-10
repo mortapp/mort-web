@@ -1,6 +1,7 @@
 'use client'
 
-// Calibrated Liquid Glass: navigation has a stable opaque backdrop and a deliberate mobile drawer rather than disappearing links.
+// Monochrome public header: sticky, blurred backdrop, hairline border, and a
+// deliberate mobile drawer rather than disappearing links.
 import Link from 'next/link'
 import { useState } from 'react'
 import { Logomark } from '@/components/logomark'
@@ -26,7 +27,7 @@ export function SiteHeader({ isSignedIn = false }: SiteHeaderProps) {
         </button>
         <nav id="public-navigation" className={open ? 'open' : undefined} aria-label="Public navigation">
           <Link href="/#how" onClick={close}>How it works</Link>
-          <Link href="/#roles" onClick={close}>Roles</Link>
+          <Link href="/#work" onClick={close}>Work</Link>
           <Link href="/safety" onClick={close}>Safety</Link>
           <Link href="/legal/terms" onClick={close}>Legal</Link>
           <ThemeToggle />
