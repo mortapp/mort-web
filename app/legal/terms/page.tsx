@@ -4,7 +4,7 @@ import documents from '@/content/legal-documents.json'
 
 export const metadata: Metadata = {
   title: 'Master Terms of Service | MORT',
-  description: 'Published MORT Master Terms of Service, version MORT-LEGAL-2026-V3.',
+  description: 'Published MORT Master Terms of Service, version MORT-LEGAL-2026-V4.',
 }
 
 export default function TermsPage() {
