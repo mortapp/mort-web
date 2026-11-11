@@ -74,13 +74,17 @@ export async function login(formData: FormData) {
   const next = safeNext(String(formData.get('next') || ''), '/app')
   const safeLoginPath = `/login?next=${encodeURIComponent(next)}`
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) msg(safeLoginPath, error.message)
-  if (!data.user?.email_confirmed_at) {
+  // Supabase rejects unconfirmed emails with "Email not confirmed". Catch that
+  // specific case and auto-send a fresh verification link instead of a dead end.
+  const unconfirmed = error?.message?.toLowerCase().includes('email not confirmed') ||
+    (!error && !data.user?.email_confirmed_at)
+  if (unconfirmed) {
+    if (!error) await supabase.auth.signOut()
     await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: `${await getSiteUrlFromHeaders()}/auth/callback?next=${encodeURIComponent(next)}` } }).catch(() => {})
-    await supabase.auth.signOut()
     revalidatePath('/', 'layout')
-    msg(safeLoginPath, 'Your email is not verified yet. Check your inbox for a fresh verification link from MORT.')
+    msg(safeLoginPath, 'Your email is not verified yet. Check your inbox — a fresh verification link from MORT is on its way.')
   }
+  if (error) msg(safeLoginPath, error.message)
   revalidatePath('/', 'layout')
   redirect(next)
 }
