@@ -16,6 +16,37 @@ alter table public.profiles
 -- Audit columns (paused_at / paused_by) intentionally receive no grant.
 grant select (guardian_paused) on public.profiles to authenticated;
 
+-- Guardians must be able to read the profile rows of teens linked to
+-- them (display name, city, verification status, and the pause flag),
+-- otherwise the guardian dashboard cannot render the teen cards or
+-- the pause state. RLS on profiles is otherwise self-or-staff only.
+-- The link must be active and fully consented (teen + guardian), and
+-- the readable column set stays limited by the per-column grants on
+-- profiles for the authenticated role.
+-- SECURITY DEFINER helper: reads guardian_links as the table owner so
+-- the profiles policy does not recurse into the guardian_links policy
+-- (which itself reads profiles -> infinite recursion).
+create or replace function private.is_fully_consented_guardian(p_teen_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $fn$
+  select exists (
+    select 1 from public.guardian_links gl
+    where gl.guardian_user_id = (select auth.uid())
+      and gl.teen_user_id = p_teen_id
+      and gl.status = 'active'
+      and gl.teen_consent_at is not null
+      and gl.guardian_consent_at is not null
+  );
+$fn$;
+
+create policy guardian_reads_linked_teen_profiles on public.profiles
+  for select to authenticated
+  using (private.is_fully_consented_guardian(profiles.id));
+
 create or replace function private.is_guardian_paused(p_user_id uuid)
 returns boolean
 language sql
