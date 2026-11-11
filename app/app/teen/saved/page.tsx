@@ -5,8 +5,13 @@ export const dynamic = 'force-dynamic'
 
 export default async function Saved() {
   const { supabase, user } = await requireUser()
-  const { data: folders } = await supabase.from('user_saved_job_folders').select('*, saved_job_folder_items(*, jobs(*))').eq('user_id', user.id)
-  const items = (folders || []).flatMap((f: any) => f.saved_job_folder_items || [])
+  // Production model: saved_jobs (user_id, job_id) joined to jobs.
+  const { data: saved } = await supabase
+    .from('saved_jobs')
+    .select('job_id, jobs(*)')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+  const items = (saved || []).map((s: any) => ({ job_id: s.job_id, jobs: s.jobs }))
 
   return (
     <>

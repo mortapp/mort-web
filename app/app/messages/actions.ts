@@ -2,65 +2,108 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { requireUser } from '@/lib/auth'
-import { scanMessage } from '@/lib/mort'
 
 function v(fd: FormData, k: string) { const x = fd.get(k); return x == null ? null : String(x).trim() }
 
+// Production conversation model:
+// - conversations (job_id, assignment_id, conversation_type, status)
+// - conversation_members (conversation_id, user_id)
+// - messages (conversation_id, sender_id, body, moderation_status)
+// Job conversations are created by mort_accept_job_application when an
+// application is accepted; this action finds the right existing conversation.
 export async function startThreadFromApplication(formData: FormData) {
-  const { supabase, user, profile } = await requireUser()
+  const { supabase, user } = await requireUser()
   const application_id = v(formData, 'application_id')
   if (!application_id) redirect('/app/messages?message=' + encodeURIComponent('Missing application.'))
 
+  // Only participants of the application's assignment (or staff) may open the thread.
+  const { data: assignment } = await supabase
+    .from('job_assignments')
+    .select('id, teen_user_id, adult_user_id')
+    .eq('application_id', application_id)
+    .maybeSingle()
+
   const { data: application } = await supabase
-    .from('applications')
-    .select('id, teen_id, job_id, status, jobs(poster_id, title)')
+    .from('job_applications')
+    .select('id, applicant_id, job_id, status, jobs!inner(poster_id, title)')
     .eq('id', application_id)
     .maybeSingle()
+
   if (!application) redirect('/app/messages?message=' + encodeURIComponent('Application not found.'))
   const adultId = (application as any).jobs?.poster_id
-  const teenId = application.teen_id
-  const isParticipant = user.id === teenId || user.id === adultId || profile?.role === 'admin'
+  const teenId = application.applicant_id
+  const isParticipant =
+    user.id === teenId || user.id === adultId || (assignment && [assignment.teen_user_id, assignment.adult_user_id].includes(user.id))
   if (!isParticipant) redirect('/app/messages?message=' + encodeURIComponent('You are not part of this application.'))
-  if (profile?.role !== 'admin' && (application.status === 'guardian_pending' || application.status === 'guardian_rejected')) {
-    redirect('/app/messages?message=' + encodeURIComponent('This application is waiting on guardian review — messaging opens once that clears.'))
+
+  // Only accepted applications have open conversations.
+  if (application.status !== 'accepted') {
+    redirect('/app/messages?message=' + encodeURIComponent('Messaging opens once the application is accepted.'))
   }
 
   if (user.id === teenId) {
-    const { data: teenProfile } = await supabase.from('teen_profiles').select('paused_by_guardian').eq('user_id', user.id).maybeSingle()
-    if (teenProfile?.paused_by_guardian) redirect('/app/messages?message=' + encodeURIComponent('Your guardian has paused your account. Ask them to resume it before messaging.'))
+    const { data: teenProfile } = await supabase.from('profiles').select('guardian_paused').eq('id', user.id).maybeSingle()
+    if (teenProfile?.guardian_paused) redirect('/app/messages?message=' + encodeURIComponent('Your guardian has paused your account. Ask them to resume it before messaging.'))
   }
-  const { data: existing } = await supabase.from('message_threads').select('id').eq('application_id', application_id).maybeSingle()
-  if (existing) redirect(`/app/messages/${existing.id}`)
 
-  const { data: thread, error } = await supabase
-    .from('message_threads')
-    .insert({ job_id: application.job_id, application_id, teen_id: teenId, adult_id: adultId || null })
-    .select('id')
-    .single()
-  if (error) redirect('/app/messages?message=' + encodeURIComponent(error.message))
+  // Find the conversation for this application's assignment (job conversations
+  // are created on acceptance). Fall back to any active job conversation on
+  // the job where the user is a member.
+  let conversationId: string | null = null
+  if (assignment) {
+    const { data: conv } = await supabase
+      .from('conversations')
+      .select('id')
+      .eq('assignment_id', assignment.id)
+      .maybeSingle()
+    conversationId = conv?.id ?? null
+  }
+  if (!conversationId) {
+    const { data: conv } = await supabase
+      .from('conversations')
+      .select('id, conversation_members!inner(user_id)')
+      .eq('job_id', application.job_id)
+      .eq('conversation_members.user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    conversationId = conv?.id ?? null
+  }
+  if (!conversationId) {
+    redirect('/app/messages?message=' + encodeURIComponent('The conversation for this job is not open yet.'))
+  }
+
   revalidatePath('/app/messages')
-  redirect(`/app/messages/${thread!.id}`)
+  redirect(`/app/messages/${conversationId}`)
 }
 
 export async function sendMessage(formData: FormData) {
   const { supabase, user, profile } = await requireUser()
-  const thread_id = v(formData, 'thread_id')
+  const conversation_id = v(formData, 'conversation_id')
   const body = v(formData, 'body')
-  if (!thread_id || !body) redirect(`/app/messages/${thread_id}?message=${encodeURIComponent('Message cannot be empty.')}`)
+  if (!conversation_id || !body) redirect(`/app/messages/${conversation_id}?message=${encodeURIComponent('Message cannot be empty.')}`)
 
-  const { data: thread } = await supabase.from('message_threads').select('id, teen_id, adult_id, guardian_id').eq('id', thread_id).maybeSingle()
-  if (!thread) redirect('/app/messages?message=' + encodeURIComponent('Thread not found.'))
-  const isParticipant = [thread.teen_id, thread.adult_id, thread.guardian_id].includes(user.id) || profile?.role === 'admin'
-  if (!isParticipant) redirect('/app/messages?message=' + encodeURIComponent('You are not part of this conversation.'))
+  const { data: membership } = await supabase
+    .from('conversation_members')
+    .select('conversation_id')
+    .eq('conversation_id', conversation_id)
+    .eq('user_id', user.id)
+    .maybeSingle()
+  const isParticipant = !!membership || profile?.role === 'admin'
+  if (!isParticipant) redirect(`/app/messages?message=${encodeURIComponent('You are not part of this conversation.')}`)
 
-  const scanner_status = scanMessage(body!)
-  const { error } = await supabase.rpc('send_safe_message_v2', {
-    p_thread_id: thread_id,
+  if (profile?.role === 'teen' || !profile?.role) {
+    const { data: teenProfile } = await supabase.from('profiles').select('guardian_paused').eq('id', user.id).maybeSingle()
+    if (teenProfile?.guardian_paused) redirect(`/app/messages?message=${encodeURIComponent('Your guardian has paused your account. Ask them to resume it before messaging.')}`)
+  }
+
+  const { data, error } = await supabase.rpc('mort_send_message', {
+    p_conversation_id: conversation_id,
     p_body: body,
-    p_client_request_id: crypto.randomUUID(),
   })
-  if (error) redirect(`/app/messages/${thread_id}?message=${encodeURIComponent(error.message)}`)
-  revalidatePath(`/app/messages/${thread_id}`)
-  revalidatePath('/app/messages')
-  redirect(`/app/messages/${thread_id}${scanner_status === 'flagged' ? '?message=' + encodeURIComponent('Message sent — it was flagged for review because it looked like it might share contact info or push activity off MORT.') : ''}`)
+  if (error) redirect(`/app/messages/${conversation_id}?message=${encodeURIComponent(error.message)}`)
+  if (data && data.ok === false) redirect(`/app/messages/${conversation_id}?message=${encodeURIComponent(data.message || data.code || 'Message was not sent.')}`)
+
+  revalidatePath(`/app/messages/${conversation_id}`)
+  redirect(`/app/messages/${conversation_id}`)
 }
