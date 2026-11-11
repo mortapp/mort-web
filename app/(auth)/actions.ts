@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getSiteUrlFromHeaders, safeNext } from '@/lib/site-url'
 import { ensureProfile, sanitizeRole } from '@/lib/auth'
+import { isLeakedPassword, LEAKED_PASSWORD_MESSAGE } from '@/lib/leaked-password'
 
 function msg(path: string, message: string): never { redirect(`${path}${path.includes('?') ? '&' : '?'}message=${encodeURIComponent(message)}`) }
 
@@ -43,6 +44,9 @@ export async function signUp(formData: FormData) {
   const next = safeNext(String(formData.get('next') || ''), '/app/teen/jobs')
   const safeSignupPath = `/signup?next=${encodeURIComponent(next)}`
   if (!email || password.length < 6) msg(safeSignupPath, 'Use an email and password with at least 6 characters.')
+  // Leaked-password protection (HaveIBeenPwned k-anonymity, checked before
+  // the password is ever sent to Supabase Auth).
+  if (await isLeakedPassword(password)) msg(safeSignupPath, LEAKED_PASSWORD_MESSAGE)
 
   const onboardingPath = `/app/onboarding?next=${encodeURIComponent(next)}`
   const redirectTo = `${await getSiteUrlFromHeaders()}/auth/callback?next=${encodeURIComponent(onboardingPath)}`
@@ -145,6 +149,7 @@ export async function updatePassword(formData: FormData) {
   const supabase = await createClient()
   const password = String(formData.get('password') || '')
   if (password.length < 6) msg('/update-password', 'Password must be at least 6 characters.')
+  if (await isLeakedPassword(password)) msg('/update-password', LEAKED_PASSWORD_MESSAGE)
   const { error } = await supabase.auth.updateUser({ password })
   if (error) msg('/update-password', error.message)
   msg('/app/profile', 'Password updated.')
