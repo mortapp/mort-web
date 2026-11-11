@@ -52,12 +52,15 @@ export async function GET(request: NextRequest) {
 
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('onboarding_completed_at,account_status,date_of_birth')
+          .select('role,onboarding_completed_at,account_status,date_of_birth')
           .eq('id', user.id)
           .maybeSingle()
 
         if (profileError) {
           return NextResponse.redirect(new URL('/auth/auth-code-error', requestUrl.origin))
+        }
+        if (profile?.role === 'admin') {
+          return NextResponse.redirect(new URL(next.startsWith('/app/admin') ? next : '/app/admin', requestUrl.origin))
         }
         if (!profile?.date_of_birth) {
           if (isSignup) {
