@@ -1,5 +1,7 @@
 # MORT Web — Schema/RPC Compatibility Report
 
+> **Historical / not production evidence:** This snapshot was generated against a deleted Supabase project. Its policy, table, and RPC observations are not verified for the current production project and must not be used to configure or test production. The only approved production project is `jxbnrkasktbhtiujkhay`; current backend access and schema verification remain blocked.
+
 **Prepared:** August 16, 2026
 **Scope:** `mort-web-liquid-glass-handoff-final.zip` source code checked against the live `Mort` Supabase project (`rakjydmgwwgtdislanbt`), read-only.
 

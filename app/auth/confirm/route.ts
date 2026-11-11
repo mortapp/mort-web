@@ -1,7 +1,7 @@
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { safeNext } from '@/lib/site-url'
+import { safeNext } from '@/lib/site-url.mjs'
 import { ensureProfile } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
