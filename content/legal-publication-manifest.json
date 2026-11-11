@@ -1,14 +1,14 @@
 {
  "sourceProjectRef": "jxbnrkasktbhtiujkhay",
- "verifiedAt": "2026-11-10T15:30:00Z",
+ "verifiedAt": "2026-11-11T01:57:00Z",
  "documents": {
   "terms": {
    "documentKey": "master_terms_of_service",
-   "version": "MORT-LEGAL-2026-V4",
+   "version": "MORT-LEGAL-2026-V5",
    "status": "published",
-   "effectiveAt": "2026-11-10T15:30:00Z",
-   "publishedAt": "2026-11-10T15:30:00Z",
-   "contentSha256": "6cbffd5d1cd5abd4db3788393053122f4c2d37722beee54d0daf84588d21b9d1"
+   "effectiveAt": "2026-11-11T01:57:00Z",
+   "publishedAt": "2026-11-11T01:57:00Z",
+   "contentSha256": "097770e3130b5d22d4327a10351a3a7d6781da4daf3a72ffc8c17f58fc08a599"
   },
   "privacy": {
    "documentKey": "privacy_policy",

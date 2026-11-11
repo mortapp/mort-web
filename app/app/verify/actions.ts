@@ -2,13 +2,20 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { requireUser } from '@/lib/auth'
+
 function v(fd: FormData, k: string) { const raw = fd.get(k); return raw == null ? null : String(raw).trim() }
 function rpcText(data: any, fallback = 'The backend rejected this request.') { return data?.message || data?.code || fallback }
-function roleUpdateIfUnset(currentRole: string | null | undefined, desiredRole: 'teen' | 'adult' | 'guardian') { return currentRole ? {} : { role: desiredRole } }
+
+const ALLOWED_TYPES: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/heic': 'heic',
+  'application/pdf': 'pdf',
+}
+const MAX_BYTES = 10 * 1024 * 1024
 
 export async function createGuardianInvite(formData?: FormData) {
-  const { supabase, user, profile } = await requireUser()
-  await supabase.from('profiles').update({ ...roleUpdateIfUnset(profile?.role, 'teen'), updated_at: new Date().toISOString() }).eq('id', user.id)
+  const { supabase, user } = await requireUser()
   const inviteEmail = formData ? v(formData, 'invite_email') : null
   const { data, error } = await supabase.rpc('create_guardian_invite_v2', { p_invite_email: inviteEmail || null })
   if (error) redirect(`/app/verify?message=${encodeURIComponent(error.message)}`)
@@ -18,9 +25,7 @@ export async function createGuardianInvite(formData?: FormData) {
 }
 
 export async function acceptGuardianInvite(formData: FormData) {
-  const { supabase, user, profile } = await requireUser()
-  await supabase.from('profiles').update({ ...roleUpdateIfUnset(profile?.role, 'guardian'), onboarding_completed: true, updated_at: new Date().toISOString() }).eq('id', user.id)
-  await supabase.from('guardian_profiles').upsert({ user_id: user.id })
+  const { supabase } = await requireUser()
   const invite_code = String(formData.get('invite_code') || '').trim().toUpperCase()
   if (!invite_code) redirect('/app/verify?message=' + encodeURIComponent('Enter the guardian invite code.'))
   const { error } = await supabase.rpc('accept_guardian_invite', { p_invite_code: invite_code })
@@ -29,37 +34,43 @@ export async function acceptGuardianInvite(formData: FormData) {
   redirect('/app/guardian?message=Guardian connection accepted')
 }
 
-export async function saveTeenVerification(formData: FormData) {
-  const { supabase, user, profile } = await requireUser()
-  await supabase.from('profiles').update({ ...roleUpdateIfUnset(profile?.role, 'teen'), verification_status: 'pending', updated_at: new Date().toISOString() }).eq('id', user.id)
+export async function uploadVerificationEvidence(formData: FormData) {
+  const { supabase, user } = await requireUser()
+  const file = formData.get('evidence')
+  const evidenceType = String(formData.get('verification_type') || '')
 
-  // Same rule as app/app/actions.ts saveOnboarding: this form can be
-  // resubmitted any time to update bio/skills, so guardian_approval_required
-  // and paused_by_guardian are only ever defaulted when the teen_profiles
-  // row doesn't exist yet — never reset on a later save, or a teen could
-  // clear their own guardian's pause just by resubmitting this form.
-  const { data: existingTeenProfile } = await supabase.from('teen_profiles').select('user_id').eq('user_id', user.id).maybeSingle()
-  const teenPatch: Record<string, unknown> = { user_id: user.id, bio: v(formData,'bio'), skills: String(formData.get('skills') || '').split(',').map(s=>s.trim()).filter(Boolean), school_year: v(formData,'school_year') }
-  if (!existingTeenProfile) {
-    teenPatch.guardian_approval_required = formData.get('guardian_approval_required') === 'on'
-    teenPatch.paused_by_guardian = false
+  if (!(file instanceof File) || file.size === 0) {
+    redirect('/app/verify?message=' + encodeURIComponent('Choose a file to upload.'))
   }
-  await supabase.from('teen_profiles').upsert(teenPatch)
-  redirect('/app/verify?message=Teen verification profile submitted for review')
-}
+  if (!(evidenceType in { school_id: 1, identity: 1 })) {
+    redirect('/app/verify?message=' + encodeURIComponent('Invalid evidence type.'))
+  }
+  const ext = ALLOWED_TYPES[file.type]
+  if (!ext) {
+    redirect('/app/verify?message=' + encodeURIComponent('Upload a JPG, PNG, HEIC image or a PDF.'))
+  }
+  if (file.size > MAX_BYTES) {
+    redirect('/app/verify?message=' + encodeURIComponent('Files must be 10 MB or smaller.'))
+  }
 
-export async function submitBusinessVerification(formData: FormData) {
-  const { supabase, user, profile } = await requireUser()
-  await supabase.from('profiles').update({ ...roleUpdateIfUnset(profile?.role, 'adult'), verification_status: 'pending', updated_at: new Date().toISOString() }).eq('id', user.id)
-  await supabase.from('adult_profiles').upsert({ user_id: user.id, business_name: v(formData,'business_name'), business_type: v(formData,'business_type'), verification_notes: v(formData,'notes') })
-  const { data, error } = await supabase.rpc('submit_business_verification', {
-    p_verification_id: crypto.randomUUID(),
-    p_storage_path: '',
-    p_business_name: v(formData,'business_name') || 'Adult customer',
-    p_business_type: v(formData,'business_type') || 'individual',
-    p_notes: v(formData,'notes') || null,
+  const path = `${user.id}/${crypto.randomUUID()}.${ext}`
+  const { error: uploadError } = await supabase.storage
+    .from('verification-evidence')
+    .upload(path, file, { contentType: file.type })
+  if (uploadError) {
+    redirect(`/app/verify?message=${encodeURIComponent(uploadError.message)}`)
+  }
+
+  const { data, error } = await supabase.rpc('submit_my_verification_evidence_v1', {
+    p_verification_type: evidenceType,
+    p_evidence_path: path,
   })
-  if (error) redirect(`/app/verify?message=${encodeURIComponent(error.message)}`)
-  if (!data?.ok) redirect(`/app/verify?message=${encodeURIComponent(rpcText(data, 'Business verification is not available yet.'))}`)
-  redirect('/app/verify?message=Business/adult verification request submitted')
+  if (error) {
+    redirect(`/app/verify?message=${encodeURIComponent(error.message)}`)
+  }
+  if (!data?.ok) {
+    redirect(`/app/verify?message=${encodeURIComponent(rpcText(data))}`)
+  }
+  revalidatePath('/app/verify')
+  redirect('/app/verify?message=' + encodeURIComponent('Evidence submitted. MORT staff will review it and update your status.'))
 }

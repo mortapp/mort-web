@@ -1,6 +1,6 @@
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, Status } from '@/components/ui'
-import { acceptGuardianInvite, createGuardianInvite, saveTeenVerification, submitBusinessVerification } from './actions'
+import { acceptGuardianInvite, createGuardianInvite, uploadVerificationEvidence } from './actions'
 import { Toast } from '@/components/toast'
 import { SubmitButton } from '@/components/submit-button'
 export const dynamic = 'force-dynamic'
@@ -8,10 +8,14 @@ export const dynamic = 'force-dynamic'
 export default async function Verify({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const { supabase, user, profile } = await requireUser()
   const sp = await searchParams
-  const [{ data: invites }, { data: biz }] = await Promise.all([
-    supabase.from('guardian_connections').select('*').or(`teen_id.eq.${user.id},guardian_id.eq.${user.id}`).order('created_at', { ascending: false }),
-    supabase.from('business_verifications').select('*').eq('adult_id', user.id).order('created_at', { ascending: false }),
+  const [{ data: verification }, { data: cases }] = await Promise.all([
+    supabase.rpc('get_my_verification_requirements_v1'),
+    supabase.rpc('list_my_verification_cases_v1'),
   ])
+
+  const isTeen = profile?.role === 'teen'
+  const evidenceType = isTeen ? 'school_id' : 'identity'
+  const hasPendingCase = Array.isArray(cases) && cases.some((c: any) => ['pending', 'needs_review'].includes(c?.status))
 
   return (
     <>
@@ -21,47 +25,54 @@ export default async function Verify({ searchParams }: { searchParams?: Promise<
       <Toast message={sp?.message} />
 
       <div className="grid two">
-        <form action={saveTeenVerification} className="card form">
-          <div className="card-icon-tile">🔥</div>
-          <h3>Teen verification</h3>
-          <p style={{fontSize:13,marginBottom:4}}>Use this for 13–17 teen worker setup. No SSN. Keep sensitive docs out of this starter.</p>
-          <label>Bio<textarea name="bio" placeholder="What kind of work can you do?" /></label>
-          <label>Skills<input name="skills" placeholder="dog walking, trash, tutoring" /></label>
-          <label>School year<input name="school_year" placeholder="9th grade" /></label>
-          <label style={{flexDirection:'row',alignItems:'center',gap:8}}>
-            <input type="checkbox" name="guardian_approval_required" style={{width:'auto'}} /> Guardian approval required
-          </label>
-          <SubmitButton pendingLabel="Submitting…">Submit teen profile</SubmitButton>
+        <form action={uploadVerificationEvidence} className="card form">
+          <div className="card-icon-tile">{isTeen ? '🎓' : '💼'}</div>
+          <h3>{isTeen ? 'Teen identity evidence' : 'Adult identity evidence'}</h3>
+          <p style={{fontSize:13,marginBottom:4}}>
+            {isTeen
+              ? 'Upload a current school-issued photo ID, or official enrollment confirmation if your school has no photo ID. MORT staff review every submission.'
+              : 'Upload a valid, unexpired government-issued photo ID (driver license, state ID, or passport). MORT staff review every submission.'}
+          </p>
+          <input type="hidden" name="verification_type" value={evidenceType} />
+          <label>Document (JPG, PNG, HEIC, or PDF, max 10 MB)<input name="evidence" type="file" accept=".jpg,.jpeg,.png,.heic,.pdf,image/jpeg,image/png,image/heic,application/pdf" required /></label>
+          {hasPendingCase ? (
+            <p className="muted">You already have a submission under review. You can submit again after it is decided.</p>
+          ) : null}
+          <SubmitButton pendingLabel="Uploading…">Submit for review</SubmitButton>
+          <p className="muted">Do not email identity documents to MORT support. Uploads go to a private bucket only you and MORT reviewers can access.</p>
         </form>
 
-        <form action={submitBusinessVerification} className="card form">
-          <div className="card-icon-tile blue">💼</div>
-          <h3>Adult / business verification</h3>
-          <p style={{fontSize:13,marginBottom:4}}>Adults should be approved before posting jobs.</p>
-          <label>Business / display name<input name="business_name" required /></label>
-          <label>Business type<input name="business_type" placeholder="homeowner, local shop, lawn care" required /></label>
-          <label>Notes<textarea name="notes" placeholder="Explain who you are and what jobs you plan to post." /></label>
-          <SubmitButton pendingLabel="Submitting…">Submit adult verification</SubmitButton>
-        </form>
+        <div className="card">
+          <div className="card-icon-tile blue">📄</div>
+          <h3>Your verification history</h3>
+          {!!(Array.isArray(cases) && cases.length) ? (
+            <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:12}}>
+              {cases.map((c: any) => (
+                <div key={c.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,padding:'10px 14px',border:'1px solid var(--border)',borderRadius:12,background:'var(--bg-sunken)'}}>
+                  <span style={{fontSize:13,color:'var(--muted2)'}}>
+                    {c.verification_type === 'school_id' ? 'School ID' : c.verification_type === 'identity' ? 'Government ID' : c.verification_type}
+                    {c.submitted_at ? ` · submitted ${new Date(c.submitted_at).toLocaleDateString()}` : ''}
+                  </span>
+                  <Status value={c.status} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="muted" style={{marginTop:8}}>No verification submissions yet.</p>
+          )}
+          {verification?.ok === true && (
+            <p className="muted" style={{marginTop:12}}>{verification.identity_evidence_rule}</p>
+          )}
+        </div>
 
         <div className="card">
           <div className="card-icon-tile">🛡️</div>
           <h3>Guardian invite code</h3>
-          <p style={{fontSize:13,marginBottom:12}}>Teen creates a one-time code. Copy it from the success message right after creation — the live backend stores only a hashed version after that.</p>
+          <p style={{fontSize:13,marginBottom:12}}>Teens: create a one-time code for your parent or guardian. Copy it from the success message right after creation — the live backend stores only a hashed version after that.</p>
           <form action={createGuardianInvite} className="form">
             <label>Guardian email (optional)<input name="invite_email" type="email" placeholder="guardian@example.com" /></label>
             <SubmitButton pendingLabel="Creating…">Create invite code</SubmitButton>
           </form>
-          {!!invites?.length && (
-            <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:16}}>
-              {invites.map((i: any) => (
-                <div key={i.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,padding:'10px 14px',border:'1px solid var(--border)',borderRadius:12,background:'var(--bg-sunken)'}}>
-                  <span style={{fontSize:13,color:'var(--muted2)'}}>Invite created {i.invite_expires_at ? `· expires ${new Date(i.invite_expires_at).toLocaleDateString()}` : ''}</span>
-                  <Status value={i.status} />
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         <form action={acceptGuardianInvite} className="card form">
@@ -71,28 +82,6 @@ export default async function Verify({ searchParams }: { searchParams?: Promise<
           <SubmitButton pendingLabel="Connecting…">Connect as guardian</SubmitButton>
         </form>
       </div>
-
-      {!!biz?.length && (
-        <section className="section">
-          <h2>Business verification history</h2>
-          <div className="card">
-            <div className="table-wrap">
-              <table className="table">
-                <thead><tr><th>Business</th><th>Type</th><th>Status</th></tr></thead>
-                <tbody>
-                  {biz.map((b: any) => (
-                    <tr key={b.id}>
-                      <td style={{fontWeight:600,color:'var(--text)'}}>{b.business_name}</td>
-                      <td>{b.business_type}</td>
-                      <td><Status value={b.status} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-      )}
     </>
   )
 }
