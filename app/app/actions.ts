@@ -23,6 +23,8 @@ function fail(path: string, code: string) {
     onboarding_work_preferences_invalid: 'Review your work preferences and try again.',
     onboarding_work_preferences_required: 'Choose at least one work category and one way to travel.',
     guardian_invite_required_or_skip: 'Choose Skip for now or complete the Guardian invite first.',
+    school_email_required: 'Teen accounts require an email on an approved school domain. Sign up with your school email.',
+    school_email_verification_required: 'Verify your email before continuing.',
     onboarding_revision_conflict: 'Your setup changed in another session. Reload and try again.',
     published_legal_acceptance_required: 'Review and accept every required current MORT document.',
     electronic_signature_text_required: 'Type your name to sign the required document.',
@@ -80,7 +82,7 @@ export async function saveOnboardingAccount(formData: FormData) {
 }
 
 export async function saveOnboardingWork(formData: FormData) {
-  const { supabase, profile } = await requireUser()
+  const { supabase, profile } = await requireAuthenticatedUser()
   if (profile?.onboarding_completed_at) redirect('/app/onboarding?message=Your setup is already complete.')
 
   const role = profile?.role
@@ -106,7 +108,7 @@ export async function saveOnboardingWork(formData: FormData) {
 }
 
 export async function saveOnboardingSafety(formData: FormData) {
-  const { supabase, profile } = await requireUser()
+  const { supabase, profile } = await requireAuthenticatedUser()
   if (profile?.onboarding_completed_at) redirect('/app/onboarding?message=Your setup is already complete.')
 
   const notification = val(formData, 'notification_intent') || 'ask_later'
@@ -125,7 +127,7 @@ export async function saveOnboardingSafety(formData: FormData) {
 }
 
 export async function completeOnboarding(formData: FormData) {
-  const { supabase, profile } = await requireUser()
+  const { supabase, profile } = await requireAuthenticatedUser()
   if (profile?.role === 'admin') redirect('/app/admin')
   if (profile?.onboarding_completed_at) redirect('/app/onboarding?message=Your setup is already complete.')
 
