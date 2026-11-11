@@ -78,5 +78,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL(next, requestUrl.origin))
     }
   }
-  return NextResponse.redirect(new URL('/auth/auth-code-error', requestUrl.origin))
+  // The code was rejected (link already used, or opened in a different browser
+  // than the one that started signup). If the visitor already has a valid
+  // session, continue to the app instead of dead-ending.
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user) return NextResponse.redirect(new URL(next, requestUrl.origin))
+  const loginUrl = new URL('/login', requestUrl.origin)
+  loginUrl.searchParams.set('message', 'That verification link was already used or has expired. Try signing in — if your email is not verified yet, we will send you a fresh link.')
+  return NextResponse.redirect(loginUrl)
 }

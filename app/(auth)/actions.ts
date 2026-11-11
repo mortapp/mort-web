@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { getSiteUrl, safeNext } from '@/lib/site-url'
+import { getSiteUrlFromHeaders, safeNext } from '@/lib/site-url'
 import { ensureProfile, sanitizeRole } from '@/lib/auth'
 
 function msg(path: string, message: string): never { redirect(`${path}${path.includes('?') ? '&' : '?'}message=${encodeURIComponent(message)}`) }
@@ -45,7 +45,7 @@ export async function signUp(formData: FormData) {
   if (!email || password.length < 6) msg(safeSignupPath, 'Use an email and password with at least 6 characters.')
 
   const onboardingPath = `/app/onboarding?next=${encodeURIComponent(next)}`
-  const redirectTo = `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(onboardingPath)}`
+  const redirectTo = `${await getSiteUrlFromHeaders()}/auth/callback?next=${encodeURIComponent(onboardingPath)}`
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -64,7 +64,7 @@ export async function signUp(formData: FormData) {
     revalidatePath('/', 'layout')
     redirect(onboardingPath)
   }
-  msg('/login', 'Check your email to verify your account. The link should go to your Vercel site, not localhost.')
+  msg('/login', 'Check your email and click the verification link to activate your MORT account.')
 }
 
 export async function login(formData: FormData) {
@@ -72,8 +72,15 @@ export async function login(formData: FormData) {
   const email = String(formData.get('email') || '').trim().toLowerCase()
   const password = String(formData.get('password') || '')
   const next = safeNext(String(formData.get('next') || ''), '/app')
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) msg('/login', error.message)
+  const safeLoginPath = `/login?next=${encodeURIComponent(next)}`
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) msg(safeLoginPath, error.message)
+  if (!data.user?.email_confirmed_at) {
+    await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: `${await getSiteUrlFromHeaders()}/auth/callback?next=${encodeURIComponent(next)}` } }).catch(() => {})
+    await supabase.auth.signOut()
+    revalidatePath('/', 'layout')
+    msg(safeLoginPath, 'Your email is not verified yet. Check your inbox for a fresh verification link from MORT.')
+  }
   revalidatePath('/', 'layout')
   redirect(next)
 }
@@ -92,7 +99,7 @@ export async function signInWithGoogle(formData: FormData) {
     role = signupRole(formData, checked.age)
   }
 
-  const callbackUrl = new URL(`${getSiteUrl()}/auth/callback`)
+  const callbackUrl = new URL(`${await getSiteUrlFromHeaders()}/auth/callback`)
   callbackUrl.searchParams.set('next', next)
   if (source === 'signup') {
     callbackUrl.searchParams.set('source', 'signup')
@@ -125,7 +132,7 @@ export async function logout() {
 export async function sendPasswordReset(formData: FormData) {
   const supabase = await createClient()
   const email = String(formData.get('email') || '').trim().toLowerCase()
-  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${getSiteUrl()}/auth/callback?next=/update-password` })
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${await getSiteUrlFromHeaders()}/auth/callback?next=/update-password` })
   if (error) msg('/reset-password', error.message)
   msg('/login', 'Password reset email sent.')
 }
