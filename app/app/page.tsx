@@ -15,7 +15,9 @@ function getLevelInfo(xp: number) {
 
 export default async function Dashboard() {
   const { supabase, user, profile } = await requireUser()
-  if (profile?.role !== 'admin' && (!profile?.onboarding_completed_at || profile?.account_status !== 'active')) {
+  // Admins land straight on Admin HQ — the member dashboard is not their view.
+  if (profile?.role === 'admin') redirect('/app/admin')
+  if (!profile?.onboarding_completed_at || profile?.account_status !== 'active') {
     redirect('/app/onboarding?message=' + encodeURIComponent('Complete onboarding and wait for account approval before opening the dashboard.'))
   }
   const [
