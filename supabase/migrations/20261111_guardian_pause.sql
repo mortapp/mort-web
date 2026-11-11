@@ -39,7 +39,14 @@ declare
   v_user uuid := auth.uid();
   v_target_role public.mort_role;
 begin
-  if v_user is null or not private.is_active_user() then
+  -- Note: private.is_active_user() deliberately excludes the 'guardian'
+  -- role (it guards teen/adult marketplace actions). Guardians must be
+  -- able to call this RPC, so the active-account check here is explicit
+  -- and role-agnostic.
+  if v_user is null or not exists (
+    select 1 from public.profiles
+    where id = v_user and account_status = 'active'
+  ) then
     return jsonb_build_object('ok', false, 'code', 'active_account_required');
   end if;
 
