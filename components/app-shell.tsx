@@ -38,6 +38,7 @@ interface Props {
   displayName?: string
   xp?: number
   verificationStatus?: string
+  adminPendingCount?: number
 }
 
 function getLevelInfo(xp: number) {
@@ -48,7 +49,7 @@ function getLevelInfo(xp: number) {
   return { level: 5, name: 'MORT Elite', next: 1000 }
 }
 
-export function AppShell({ children, role = 'none', displayName, xp = 0, verificationStatus }: Props) {
+export function AppShell({ children, role = 'none', displayName, xp = 0, verificationStatus, adminPendingCount }: Props) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const lvl = getLevelInfo(xp)
@@ -104,7 +105,10 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
                   >
                     <span className="sidebar-link-icon"><Icon name={item.icon} /></span>
                     <span>{item.label}</span>
-                    {item.badge ? <span className="sidebar-link-badge">{item.badge}</span> : null}
+                    {(() => {
+                      const badge = item.href === '/app/admin' ? adminPendingCount : item.badge
+                      return badge ? <span className="sidebar-link-badge">{badge}</span> : null
+                    })()}
                   </Link>
                 )
               })}
