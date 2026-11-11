@@ -103,8 +103,8 @@ test('website renders the hybrid identity policy without collecting raw ID docum
   assert.match(onboarding, /school-issued photo ID/)
   assert.match(onboarding, /official enrollment confirmation/)
   assert.match(onboarding, /government-issued photo ID/)
-  assert.match(onboarding, /document submission is currently disabled/)
-  assert.match(onboarding, /Do not email or upload identity documents/)
+  assert.match(onboarding, /MORT staff review each submission/)
+  assert.match(onboarding, /Do not email identity documents/)
 })
 
 test('only the DOB-saving onboarding action bypasses the initial DOB gate', () => {

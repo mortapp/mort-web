@@ -11,29 +11,35 @@ function fail(message: string) {
   redirect(`/app/admin?message=${encodeURIComponent(message)}`)
 }
 
-const VERIFICATION_STATUSES = new Set(['approved', 'rejected'])
+const VERIFICATION_OUTCOMES: Record<string, string> = {
+  verified: 'Verification approved.',
+  rejected: 'Verification rejected.',
+  needs_review: 'Marked as needs more review.',
+}
 const REPORT_STATUSES = new Set(['open', 'reviewing', 'resolved', 'dismissed'])
 const ACCOUNT_STATUSES = new Set(['active', 'suspended'])
 
-export async function reviewBusinessVerification(formData: FormData) {
+export async function reviewVerificationCase(formData: FormData) {
   const { supabase } = await requireRole(['admin'])
-  const adultId = v(formData, 'adult_id')
-  const status = v(formData, 'status') || 'pending'
+  const caseId = v(formData, 'case_id')
+  const status = v(formData, 'status') || ''
+  const note = v(formData, 'note')
 
-  if (!adultId) fail('Missing adult profile id.')
-  if (!VERIFICATION_STATUSES.has(status)) fail('Invalid verification status.')
+  if (!caseId) fail('Missing verification case id.')
+  if (!(status in VERIFICATION_OUTCOMES)) fail('Invalid verification outcome.')
 
-  // Live Supabase has no business_verifications UPDATE policy and no simple
-  // admin-review RPC for this legacy table. For closed web testing, mark the
-  // adult profile verification_status so job-post gating can be exercised.
-  // Do not treat this as production business verification.
-  const { error } = await supabase
-    .from('profiles')
-    .update({ verification_status: status, updated_at: new Date().toISOString() })
-    .eq('id', adultId)
+  // Staff decisions go through the guarded database function, which checks the
+  // reviewer role, enforces the minimum-age rule, updates the profile status,
+  // and writes the audit log. Clients can no longer write verification_status.
+  const { error } = await supabase.rpc('mort_review_verification_case', {
+    p_case_id: caseId,
+    p_status: status,
+    p_note: note || null,
+    p_expires_at: null,
+  })
 
-  if (error) fail(`Verification profile update failed: ${error.message}`)
-  redirect('/app/admin?message=Adult profile verification updated for closed testing')
+  if (error) fail(`Verification review failed: ${error.message}`)
+  redirect('/app/admin?message=' + encodeURIComponent(VERIFICATION_OUTCOMES[status]))
 }
 
 export async function updateReportStatus(formData: FormData) {

@@ -8,7 +8,11 @@ export function AppearanceCard() {
   const [theme, setTheme] = useTheme()
   const [pet, setPet] = useState<Pet>('off')
   useEffect(() => {
-    try { const v = localStorage.getItem('mort-pet'); if (v === 'cat' || v === 'dog') setPet(v) } catch {}
+    // Read the saved companion after paint so server and client markup match.
+    const frame = requestAnimationFrame(() => {
+      try { const v = localStorage.getItem('mort-pet'); if (v === 'cat' || v === 'dog') setPet(v) } catch {}
+    })
+    return () => cancelAnimationFrame(frame)
   }, [])
   function choose(v: Pet) {
     setPet(v)

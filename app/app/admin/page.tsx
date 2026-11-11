@@ -2,7 +2,7 @@ import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, Status, MetricCard, AdminReviewCard } from '@/components/ui'
 import { CountUp } from '@/components/count-up'
 import { LocalTabs } from '@/components/local-tabs'
-import { reviewBusinessVerification, updateReportStatus, updateUserStatus } from './actions'
+import { reviewVerificationCase, updateReportStatus, updateUserStatus } from './actions'
 import { updateSupportTicketStatus } from '../support/actions'
 import { SubmitButton } from '@/components/submit-button'
 import { PROOF_BUCKET } from '@/lib/mort'
@@ -22,7 +22,7 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
     { data: proofUploads, error: proofError },
     { data: tickets, error: ticketsError },
   ] = await Promise.all([
-    supabase.from('business_verifications').select('*').order('created_at', { ascending: false }).limit(50),
+    supabase.from('verification_cases').select('id,user_id,verification_type,status,evidence_path,submitted_at,reviewed_at,reviewer_note').order('created_at', { ascending: false }).limit(50),
     supabase.from('reports').select('*').order('created_at', { ascending: false }).limit(50),
     supabase.from('profiles').select('*').order('created_at', { ascending: false }).limit(50),
     supabase.from('jobs').select('id', { count: 'exact', head: true }),
@@ -48,17 +48,30 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
   const openReports = (reports || []).filter((r: any) => r.status === 'open').length
   const openTickets = (tickets || []).filter((t: any) => t.status === 'open').length
 
+  const evidenceUrls: Record<string, string> = {}
+  for (const c of verifications || []) {
+    if (!c.evidence_path) continue
+    const { data } = await supabase.storage.from('verification-evidence').createSignedUrl(c.evidence_path, 300)
+    if (data?.signedUrl) evidenceUrls[c.id] = data.signedUrl
+  }
+
   const verificationsContent = (
     <div className="grid two">
-      {!verifications?.length && <p style={{ fontSize: 13 }}>Nothing pending review.</p>}
-      {(verifications || []).map((b: any) => (
-        <AdminReviewCard key={b.id} icon="✅" iconColor="blue" title={b.business_name || 'Business'} subtitle={b.business_type} meta={b.notes} status={b.status}>
-          <form action={reviewBusinessVerification} className="row-actions" style={{ marginTop: 12 }}>
-            <input type="hidden" name="id" value={b.id} />
-            <input type="hidden" name="adult_id" value={b.adult_id} />
-            <SubmitButton name="status" value="approved" size="sm" pendingLabel="Approving…">Approve</SubmitButton>
-            <SubmitButton name="status" value="rejected" variant="danger" size="sm" pendingLabel="Rejecting…">Reject</SubmitButton>
-          </form>
+      {!verifications?.length && <p style={{ fontSize: 13 }}>No verification submissions yet.</p>}
+      {(verifications || []).map((c: any) => (
+        <AdminReviewCard key={c.id} icon="✅" iconColor="blue" title={c.verification_type === 'school_id' ? 'Teen school ID' : 'Adult government ID'} subtitle={`user ${(c.user_id || '').slice(0, 8)}…`} meta={c.submitted_at ? `submitted ${new Date(c.submitted_at).toLocaleString()}` : undefined} status={c.status}>
+          {evidenceUrls[c.id] && (
+            <p style={{ marginTop: 8, fontSize: 13 }}><a href={evidenceUrls[c.id]} target="_blank" rel="noreferrer noopener">Open evidence (link expires in 5 minutes)</a></p>
+          )}
+          {['pending', 'needs_review'].includes(c.status) && (
+            <form action={reviewVerificationCase} className="row-actions" style={{ marginTop: 12 }}>
+              <input type="hidden" name="case_id" value={c.id} />
+              <input name="note" placeholder="Reviewer note (optional)" maxLength={500} style={{ marginBottom: 8 }} />
+              <SubmitButton name="status" value="verified" size="sm" pendingLabel="Approving…">Approve</SubmitButton>
+              <SubmitButton name="status" value="needs_review" variant="ghost" size="sm" pendingLabel="…">Needs review</SubmitButton>
+              <SubmitButton name="status" value="rejected" variant="danger" size="sm" pendingLabel="Rejecting…">Reject</SubmitButton>
+            </form>
+          )}
         </AdminReviewCard>
       ))}
     </div>

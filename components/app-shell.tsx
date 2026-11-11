@@ -17,7 +17,7 @@ const navItems: NavItem[] = [
   { href: '/app/teen/saved', icon: 'bookmark', label: 'Saved jobs', roles: ['teen','admin'] },
   { href: '/app/teen/earnings', icon: 'wallet', label: 'Earnings', roles: ['teen','admin'] },
   { href: '/app/challenges', icon: 'trophy', label: 'Challenges', roles: ['teen','admin'] },
-  { href: '/app/team-hustles', icon: 'users', label: 'Team hustles', roles: ['teen','admin'] },
+  { href: '/app/team-hustles', icon: 'users', label: 'Team hustles', roles: ['teen','adult','admin'] },
   { href: '/app/adult', icon: 'briefcase', label: 'Adult home', roles: ['adult','admin'] },
   { href: '/app/adult/post-job', icon: 'plus', label: 'Post a job', roles: ['adult','admin'] },
   { href: '/app/adult/jobs', icon: 'folder', label: 'My jobs', roles: ['adult','admin'] },
@@ -57,7 +57,7 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
   const visibleItems = navItems.filter(item => !item.roles || item.roles.includes(role))
 
   const sections: { label: string; items: NavItem[] }[] = [
-    { label: 'Main', items: visibleItems.filter(i => ['Dashboard','Browse jobs','Applications','Active jobs','Saved jobs','Earnings','Challenges','Team hustles'].includes(i.label)) },
+    { label: 'Main', items: visibleItems.filter(i => ['Dashboard','Browse jobs','Applications','Active jobs','Saved jobs','Earnings','Challenges','Team hustles','Adult home','Post a job','My jobs','Applicants'].includes(i.label)) },
     { label: 'Adult', items: visibleItems.filter(i => ['Adult home','Post a job','My jobs','Applicants'].includes(i.label)) },
     { label: 'Guardian', items: visibleItems.filter(i => ['Guardian'].includes(i.label)) },
     { label: 'Account', items: visibleItems.filter(i => ['Messages','Safety center','Payment prefs','Profile','Support','Report issue'].includes(i.label)) },
