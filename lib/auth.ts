@@ -53,6 +53,10 @@ export async function getSessionProfile() {
 export async function requireAuthenticatedUser() {
   const ctx = await getSessionProfile()
   if (!ctx.user) redirect('/login?message=Sign in first')
+  if (!ctx.user.email_confirmed_at) {
+    await ctx.supabase.auth.signOut()
+    redirect('/login?message=' + encodeURIComponent('Verify your email before using MORT. Check your inbox for the verification link.'))
+  }
   if (ctx.profile?.account_status === 'suspended') {
     await ctx.supabase.auth.signOut()
     redirect('/login?message=' + encodeURIComponent('This account has been suspended. Contact MORT support if you think this is a mistake.'))
@@ -62,8 +66,12 @@ export async function requireAuthenticatedUser() {
 
 export async function requireUser() {
   const ctx = await requireAuthenticatedUser()
-  if (ctx.profile?.role !== 'admin' && !ctx.profile?.date_of_birth) {
-    redirect('/app/onboarding?message=' + encodeURIComponent('Enter your date of birth to confirm you meet MORT\'s minimum age of 13.'))
+  // Onboarding cannot be skipped: without a completed setup record (or with a
+  // pending role), every app surface bounces back to the onboarding flow.
+  // Admin accounts are managed separately and are exempt.
+  if (ctx.profile?.role === 'admin') return ctx
+  if (!ctx.profile?.date_of_birth || ctx.profile?.role === 'pending' || !ctx.profile?.onboarding_completed_at) {
+    redirect('/app/onboarding?message=' + encodeURIComponent('Finish setting up your MORT account to continue.'))
   }
   return ctx
 }
