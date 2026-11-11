@@ -211,10 +211,18 @@ export function EmptyState({ icon = '📭', title, text, href, action }: EmptySt
 // CATEGORY PILL
 // =====================================================================
 export const categoryColors: Record<string, string> = {
+  // Database vocabulary (jobs.category check constraint)
+  pet_care: 'rose',
+  yard_work: 'rose',
+  tutoring: 'blue',
+  household_help: 'blue',
+  moving_help: 'yellow',
+  tech_help: 'blue',
+  other: 'muted',
+  // Legacy display names kept for older rows/links
   'dog walking': 'rose',
   'lawn care': 'rose',
   'cleaning': 'blue',
-  'tutoring': 'blue',
   'errands': 'yellow',
   'trash help': 'yellow',
   'car washing': 'blue',
@@ -224,10 +232,18 @@ export const categoryColors: Record<string, string> = {
 }
 
 export const categoryIcons: Record<string, string> = {
+  // Database vocabulary
+  pet_care: '🐕',
+  yard_work: '🌿',
+  tutoring: '📚',
+  household_help: '🧹',
+  moving_help: '📦',
+  tech_help: '💻',
+  other: '⚡',
+  // Legacy display names kept for older rows/links
   'dog walking': '🐕',
   'lawn care': '🌿',
   'cleaning': '🧹',
-  'tutoring': '📚',
   'errands': '🛒',
   'trash help': '🗑️',
   'car washing': '🚗',
