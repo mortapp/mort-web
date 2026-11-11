@@ -7,19 +7,25 @@ export const dynamic = 'force-dynamic'
 export default async function Messages({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
   const { supabase, user } = await requireUser()
-  const { data: threads } = await supabase
-    .from('message_threads')
-    .select('*, jobs(title), messages(body, created_at, scanner_status)')
-    .or(`teen_id.eq.${user.id},adult_id.eq.${user.id},guardian_id.eq.${user.id}`)
+  // Production conversation model: conversations + conversation_members.
+  const { data: conversations } = await supabase
+    .from('conversations')
+    .select('*, jobs(title), conversation_members(user_id), messages(conversation_id, body, created_at, moderation_status)')
+    .eq('status', 'active')
     .order('updated_at', { ascending: false })
     .limit(50)
+
+  // Keep only conversations this user is a member of.
+  const mine = (conversations || []).filter((c: any) =>
+    (c.conversation_members || []).some((m: any) => m.user_id === user.id)
+  )
 
   return (
     <>
       <PageHeaderWithActions
         title="Messages"
         eyebrow="Moderated, job-based chat"
-        description="Conversations only open once there's a job application between you and the other person. Keep all job talk inside MORT."
+        description="Conversations only open once there's an accepted job application between you and the other person. Keep all job talk inside MORT."
       />
       <Toast message={sp?.message} />
 
@@ -29,14 +35,16 @@ export default async function Messages({ searchParams }: { searchParams?: Promis
         </p>
       </div>
 
-      {!threads?.length ? (
-        <EmptyState icon="💬" title="No conversations yet" text="Threads open automatically once you're connected through a job application." />
+      {!mine.length ? (
+        <EmptyState icon="💬" title="No conversations yet" text="Threads open automatically once an application is accepted." />
       ) : (
         <div className="grid two">
-          {threads.map((t: any) => {
-            const msgs = (t.messages || []).sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+          {mine.map((t: any) => {
+            const msgs = (t.messages || [])
+              .filter((m: any) => !m.deleted_at)
+              .sort((a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
             const last = msgs[msgs.length - 1]
-            const flaggedRecently = msgs.some((m: any) => m.scanner_status === 'flagged')
+            const flaggedRecently = msgs.some((m: any) => m.moderation_status === 'flagged')
             return (
               <MessageThreadCard
                 key={t.id}

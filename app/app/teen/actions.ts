@@ -26,11 +26,14 @@ export async function applyToJob(formData: FormData) {
 }
 
 export async function saveJob(formData: FormData) {
-  const { supabase, user } = await requireRole(['teen'])
+  const { supabase } = await requireRole(['teen'])
   const job_id = v(formData,'job_id')
-  let { data: folder } = await supabase.from('user_saved_job_folders').select('*').eq('user_id', user.id).eq('name','Saved').maybeSingle()
-  if (!folder) { const res = await supabase.from('user_saved_job_folders').insert({ user_id: user.id, name: 'Saved' }).select('*').single(); folder = res.data }
-  if (folder) await supabase.from('saved_job_folder_items').insert({ folder_id: folder.id, job_id })
+  if (!job_id) redirectTo('/app/teen/jobs', 'Missing job.')
+  // Production model: saved_jobs is a simple (user_id, job_id) table and
+  // saving goes through the guarded RPC (idempotent).
+  const { data, error } = await supabase.rpc('save_my_job_v1', { p_job_id: job_id })
+  if (error) redirectTo(`/app/teen/jobs/${job_id}`, error.message)
+  if (data && data.ok === false) redirectTo(`/app/teen/jobs/${job_id}`, data.message || data.code || 'Could not save the job.')
   redirectTo(`/app/teen/jobs/${job_id}`, 'Saved job')
 }
 

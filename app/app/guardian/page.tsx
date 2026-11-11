@@ -1,40 +1,45 @@
 import Link from 'next/link'
 import { requireRole } from '@/lib/auth'
-import { PageHeaderWithActions, Status, ApplicationCard } from '@/components/ui'
-import { approveApplication, rejectApplication, setTeenPaused } from './actions'
+import { PageHeaderWithActions, Status } from '@/components/ui'
+import { setTeenPaused } from './actions'
 import { SubmitButton } from '@/components/submit-button'
 import { Toast } from '@/components/toast'
 export const dynamic = 'force-dynamic'
 
-export default async function Guardian({ searchParams }: { searchParams?: Promise<Record<string, string>> }) {
+// Guardian dashboard, aligned with the production schema:
+// - connections: guardian_links (guardian_user_id) joined to teen profiles
+// - teen applications: job_applications (applicant_id = connected teens)
+// - safety pings: safety_pings (teen_id = connected teens)
+// Guardian approval of jobs is standing consent through the active link;
+// the adult's acceptance enforces it (mort_accept_job_application).
+export default async function Guardian({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
   const { supabase, user } = await requireRole(['guardian','admin'])
+
   const { data: connections } = await supabase
-    .from('guardian_connections')
-    .select('*, profiles!guardian_connections_teen_id_fkey(display_name, username, city, state, xp_points, verification_status)')
-    .eq('guardian_id', user.id)
+    .from('guardian_links')
+    .select('*, profiles!guardian_links_teen_user_id_fkey(display_name, username, city, region, verification_status, account_status, guardian_paused)')
+    .eq('guardian_user_id', user.id)
+    .order('created_at', { ascending: false })
 
-  const teenIds = (connections || []).map((c: any) => c.teen_id)
+  const teenIds = (connections || []).map((c: any) => c.teen_user_id)
 
-  const { data: teenProfiles } = teenIds.length
-    ? await supabase.from('teen_profiles').select('user_id, paused_by_guardian').in('user_id', teenIds)
-    : { data: [] }
-  const pausedByTeenId: Record<string, boolean> = {}
-  for (const tp of teenProfiles || []) pausedByTeenId[tp.user_id] = !!tp.paused_by_guardian
-
-  const { data: pendingApps } = teenIds.length
-    ? await supabase.from('applications').select('*, jobs(title, category, city, state, pay_label), profiles(display_name)').in('teen_id', teenIds).eq('status', 'guardian_pending').order('created_at', { ascending: false })
+  const { data: apps } = teenIds.length
+    ? await supabase.from('job_applications')
+        .select('*, jobs(title, category, city, region, pay_label, requires_guardian_approval), profiles!job_applications_applicant_id_fkey(display_name)')
+        .in('applicant_id', teenIds)
+        .order('created_at', { ascending: false })
+        .limit(20)
     : { data: [] }
 
   const { data: pings } = teenIds.length
-    ? await supabase.from('safety_pings').select('*').in('teen_id', teenIds).order('created_at', {ascending:false}).limit(30)
-    : { data: [] }
-
-  const { data: apps } = teenIds.length
-    ? await supabase.from('applications').select('*, jobs(title, category, city, state, pay_label)').in('teen_id', teenIds).order('created_at', {ascending:false}).limit(20)
+    ? await supabase.from('safety_pings').select('*').in('teen_id', teenIds).order('created_at',{ascending:false}).limit(30)
     : { data: [] }
 
   const needsHelp = (pings || []).filter((p: any) => p.status === 'needs_help')
+  const guardianPendingApps = (apps || []).filter(
+    (a: any) => a.jobs?.requires_guardian_approval && ['submitted', 'shortlisted'].includes(a.status)
+  )
 
   return (
     <>
@@ -50,7 +55,7 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
 
       {needsHelp.length > 0 && (
         <div className="sos-card" style={{ marginBottom: 24, textAlign: 'left' }}>
-          <h3 style={{ color: 'var(--red)', marginBottom: 10 }}>🚨 Recent &quot;needs help&quot; pings</h3>
+          <h3 style={{ color: 'var(--red)', marginBottom: 10 }}>🚨 Recent &ldquo;needs help&rdquo; pings</h3>
           {needsHelp.slice(0, 5).map((p: any) => (
             <div key={p.id} style={{ fontSize: 13, marginBottom: 6 }}>
               {new Date(p.created_at).toLocaleString()} {p.note ? `— ${p.note}` : ''}
@@ -60,29 +65,26 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
         </div>
       )}
 
-      {/* Pending approvals */}
+      {/* Applications on jobs that require guardian approval — informational.
+          Guardian approval is standing consent through the active link. */}
       <div style={{ marginBottom: 24 }}>
-        <h3 style={{ marginBottom: 16 }}>⏳ Pending approvals ({pendingApps?.length || 0})</h3>
-        {!pendingApps?.length ? (
+        <h3 style={{ marginBottom: 16 }}>⏳ Applications needing guardian approval ({guardianPendingApps.length})</h3>
+        {!guardianPendingApps.length ? (
           <div className="card">
-            <p style={{ fontSize: 13 }}>No applications are waiting on your approval right now.</p>
+            <p style={{ fontSize: 13 }}>
+              No applications on guardian-approval jobs right now. Your active link is the standing approval the adult&rsquo;s acceptance checks.
+            </p>
           </div>
         ) : (
           <div className="grid two">
-            {pendingApps.map((a: any) => (
-              <ApplicationCard
-                key={a.id}
-                title={a.jobs?.title || 'Job'}
-                subtitle={`${a.profiles?.display_name || 'Your teen'} · ${[a.jobs?.city, a.jobs?.state].filter(Boolean).join(', ')} · ${a.jobs?.pay_label || ''}`}
-                note={a.note}
-                status={a.status}
-              >
-                <form className="row-actions" style={{ marginTop: 4 }}>
-                  <input type="hidden" name="application_id" value={a.id} />
-                  <SubmitButton formAction={approveApplication} size="sm" pendingLabel="Approving…">Approve</SubmitButton>
-                  <SubmitButton formAction={rejectApplication} variant="danger" size="sm" pendingLabel="Rejecting…">Reject</SubmitButton>
-                </form>
-              </ApplicationCard>
+            {guardianPendingApps.map((a: any) => (
+              <div className="card" key={a.id}>
+                <h4 style={{fontSize:15,marginBottom:6}}>{a.jobs?.title || 'Job'}</h4>
+                <p style={{fontSize:12,color:'var(--muted)',marginBottom:8}}>
+                  {a.profiles?.display_name || 'Your teen'} · {[a.jobs?.city, a.jobs?.region].filter(Boolean).join(', ')} · {a.jobs?.pay_label || ''}
+                </p>
+                <Status value={a.status} />
+              </div>
             ))}
           </div>
         )}
@@ -101,28 +103,26 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
         ) : (
           <div className="grid three">
             {connections.map((c: any) => {
-              const paused = pausedByTeenId[c.teen_id]
+              const teenProfile = c.profiles || {}
+              const paused = !!teenProfile.guardian_paused
               return (
                 <div className="person-card" key={c.id} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
                   <div style={{ display: 'flex', gap: 12 }}>
-                    <div className="avatar-tile">{(c.profiles?.display_name || '?').charAt(0).toUpperCase()}</div>
+                    <div className="avatar-tile">{(teenProfile.display_name || '?').charAt(0).toUpperCase()}</div>
                     <div className="person-card-body">
                       <div className="person-card-top-row">
-                        <h3 style={{fontSize:15}}>{c.profiles?.display_name || 'Connected teen'}</h3>
+                        <h3 style={{fontSize:15}}>{teenProfile.display_name || 'Connected teen'}</h3>
                       </div>
-                      <p style={{fontSize:12,color:'var(--muted)'}}>{[c.profiles?.city, c.profiles?.state].filter(Boolean).join(', ')}</p>
+                      <p style={{fontSize:12,color:'var(--muted)'}}>{[teenProfile.city, teenProfile.region].filter(Boolean).join(', ')}</p>
                       <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:6}}>
                         <Status value={c.status} />
-                        <Status value={c.profiles?.verification_status} />
+                        <Status value={teenProfile.verification_status} />
                         {paused && <span className="status red">Paused</span>}
                       </div>
-                      {c.profiles?.xp_points !== undefined && (
-                        <div style={{fontSize:11,color:'var(--muted)',marginTop:4}}>⚡ {c.profiles.xp_points} XP earned</div>
-                      )}
                     </div>
                   </div>
                   <form style={{ marginTop: 12 }}>
-                    <input type="hidden" name="teen_id" value={c.teen_id} />
+                    <input type="hidden" name="teen_id" value={c.teen_user_id} />
                     <input type="hidden" name="paused" value={paused ? 'false' : 'true'} />
                     <SubmitButton
                       formAction={setTeenPaused}
@@ -161,7 +161,7 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
                   <tr key={a.id}>
                     <td style={{fontWeight:600}}>{a.jobs?.title}</td>
                     <td>{a.jobs?.category}</td>
-                    <td style={{color:'var(--muted2)',fontSize:13}}>{a.jobs?.city}, {a.jobs?.state}</td>
+                    <td style={{color:'var(--muted2)',fontSize:13}}>{a.jobs?.city}, {a.jobs?.region}</td>
                     <td style={{color:'var(--rose-gold)',fontWeight:700}}>{a.jobs?.pay_label}</td>
                     <td><Status value={a.status} /></td>
                   </tr>
@@ -189,7 +189,6 @@ export default async function Guardian({ searchParams }: { searchParams?: Promis
                   <div className={`timeline-dot ${dotCls}`} />
                   <div className="timeline-content">
                     <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
-                      <span style={{fontSize:12,color:'var(--muted)',fontFamily:'monospace'}}>{p.teen_id.slice(0,8)}...</span>
                       <Status value={p.status} />
                       {p.note && <span style={{fontSize:13,color:'var(--muted2)'}}>{p.note}</span>}
                     </div>

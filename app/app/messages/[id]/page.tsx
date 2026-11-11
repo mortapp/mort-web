@@ -7,35 +7,35 @@ import { Toast } from '@/components/toast'
 
 export const dynamic = 'force-dynamic'
 
-export default async function ThreadDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams?: Promise<Record<string, string>> }) {
+export default async function ThreadDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams?: Promise<Record<string,string>> }) {
   const { id } = await params
   const sp = await searchParams
   const { supabase, user, profile } = await requireUser()
 
-  const { data: thread } = await supabase
-    .from('message_threads')
-    .select('*, jobs(title, poster_id)')
+  const { data: conversation } = await supabase
+    .from('conversations')
+    .select('*, jobs(title, poster_id), conversation_members(user_id)')
     .eq('id', id)
     .maybeSingle()
 
-  if (!thread) {
+  if (!conversation) {
     return <div className="error">Conversation not found.</div>
   }
 
-  const isParticipant = [thread.teen_id, thread.adult_id, thread.guardian_id].includes(user.id) || profile?.role === 'admin'
+  const isParticipant = (conversation.conversation_members || []).some((m: any) => m.user_id === user.id) || profile?.role === 'admin'
   if (!isParticipant) {
-    return <div className="error">You don&apos;t have access to this conversation.</div>
+    return <div className="error">You don&rsquo;t have access to this conversation.</div>
   }
 
   const { data: messages } = await supabase
     .from('messages')
     .select('*')
-    .eq('thread_id', id)
+    .eq('conversation_id', id)
     .order('created_at', { ascending: true })
 
   return (
     <>
-      <PageHeaderWithActions title={thread.jobs?.title || 'Conversation'} eyebrow="Messages">
+      <PageHeaderWithActions title={conversation.jobs?.title || 'Conversation'} eyebrow="Messages">
         <Link href="/app/messages" className="btn ghost sm">← All threads</Link>
         <Link href={`/app/reports/new?target_message_id=&reason=${encodeURIComponent('Off-platform pressure')}&details=${encodeURIComponent('Reporting a concern from thread ' + id)}`} className="btn danger sm">🚩 Report</Link>
       </PageHeaderWithActions>
@@ -52,7 +52,7 @@ export default async function ThreadDetail({ params, searchParams }: { params: P
               </div>
               <div className="message-meta" style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 {new Date(m.created_at).toLocaleString()}
-                {m.scanner_status && m.scanner_status !== 'clean' && <Status value={m.scanner_status} />}
+                {m.moderation_status && m.moderation_status !== 'clean' && <Status value={m.moderation_status} />}
               </div>
             </div>
           ))}
@@ -60,7 +60,7 @@ export default async function ThreadDetail({ params, searchParams }: { params: P
       </div>
 
       <form action={sendMessage} className="card form">
-        <input type="hidden" name="thread_id" value={id} />
+        <input type="hidden" name="conversation_id" value={id} />
         <label>
           Reply
           <textarea name="body" required placeholder="Keep it about the job. Never share passwords, home address, or ask to move off MORT." />

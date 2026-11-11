@@ -14,8 +14,10 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
   const category = normalizeJobCategory(rawCategory)
   const q = sp?.q
 
-  const { data: teenProfile } = await supabase.from('teen_profiles').select('paused_by_guardian').eq('user_id', user.id).maybeSingle()
-  const isPaused = !!teenProfile?.paused_by_guardian
+  // Guardian pause state lives on the profile (guardian_paused), maintained by
+  // the guarded mort_set_guardian_pause_v1 RPC.
+  const { data: myProfile } = await supabase.from('profiles').select('guardian_paused').eq('id', user.id).maybeSingle()
+  const isPaused = !!myProfile?.guardian_paused
 
   // Live counts per category so the tiles aren't guessing.
   const { data: openJobsForCounts } = await supabase.from('jobs').select('category').eq('status', 'open')
