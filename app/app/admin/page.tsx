@@ -24,7 +24,9 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
   ] = await Promise.all([
     supabase.from('verification_cases').select('id,user_id,verification_type,status,evidence_path,submitted_at,reviewed_at,reviewer_note').order('created_at', { ascending: false }).limit(50),
     supabase.from('reports').select('*').order('created_at', { ascending: false }).limit(50),
-    supabase.from('profiles').select('*').order('created_at', { ascending: false }).limit(50),
+    // Emails live in auth.users (not client-readable); the admin-gated
+    // RPC returns profiles joined with their account email.
+    supabase.rpc('mort_admin_list_users_v1'),
     supabase.from('jobs').select('id', { count: 'exact', head: true }),
     supabase.from('safety_pings').select('*').eq('status', 'needs_help').order('created_at', { ascending: false }).limit(10),
     supabase.from('proof_uploads').select('*').order('created_at', { ascending: false }).limit(20),
@@ -47,6 +49,7 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
 
   const openReports = (reports || []).filter((r: any) => r.status === 'open').length
   const openTickets = (tickets || []).filter((t: any) => t.status === 'open').length
+  const pendingVerifications = (verifications || []).filter((c: any) => ['pending', 'needs_review'].includes(c.status)).length
 
   const evidenceUrls: Record<string, string> = {}
   for (const c of verifications || []) {
@@ -152,18 +155,29 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
     </>
   )
 
+  const userList = Array.isArray(users) ? users : []
   const usersContent = (
     <div className="table-wrap">
+      {!Array.isArray(users) && (
+        <div className="warning-box" style={{ marginBottom: 16 }}>
+          <strong>⚠️ User directory unavailable</strong>
+          <p style={{ marginTop: 6, fontSize: 13 }}>
+            {users?.code === 'admin_required'
+              ? 'Your account does not have the admin role required to view the user directory.'
+              : 'The admin user directory could not be loaded.'}
+          </p>
+        </div>
+      )}
       <table className="table">
         <tbody>
-          {(users || []).map((u: any) => (
+          {userList.map((u: any) => (
             <tr key={u.id}>
               <td>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div className="avatar-tile sm muted">{(u.display_name || '?').charAt(0).toUpperCase()}</div>
                   <div>
                     <div style={{ fontWeight: 600, color: 'var(--text)' }}>{u.display_name}</div>
-                    <p className="small" style={{ fontFamily: 'monospace', textTransform: 'none', letterSpacing: 0 }}>{u.id}</p>
+                    <p className="small" style={{ fontFamily: 'monospace', textTransform: 'none', letterSpacing: 0 }}>{u.email || u.id}</p>
                   </div>
                 </div>
               </td>
@@ -202,7 +216,7 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
       )}
 
       <div className="stats">
-        <MetricCard icon="✅" label="Verifications" value={<CountUp value={verifications?.length || 0} />} />
+        <MetricCard icon="✅" label="Pending verifications" value={<CountUp value={pendingVerifications} />} color={pendingVerifications ? 'var(--warning)' : undefined} />
         <MetricCard icon="⚠️" label="Open reports" value={<CountUp value={openReports} />} color={openReports ? 'var(--danger)' : undefined} />
         <MetricCard icon="🎧" label="Open tickets" value={<CountUp value={openTickets} />} color={openTickets ? 'var(--warning)' : undefined} />
         <MetricCard icon="💼" label="Jobs" value={<CountUp value={jobsCount || 0} />} />
@@ -210,7 +224,7 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
 
       <LocalTabs
         tabs={[
-          { key: 'verifications', label: 'Verifications', icon: '✅', badge: verifications?.length, content: verificationsContent },
+          { key: 'verifications', label: 'Verifications', icon: '✅', badge: pendingVerifications, content: verificationsContent },
           { key: 'reports', label: 'Reports', icon: '⚠️', badge: openReports, content: reportsContent },
           { key: 'proof', label: 'Proof review', icon: '📸', content: proofContent },
           { key: 'tickets', label: 'Support', icon: '🎧', badge: openTickets, content: ticketsContent },
