@@ -18,7 +18,7 @@ export default async function Adult() {
       : Promise.resolve({ count: 0 }),
   ])
 
-  const isApproved = profile?.role === 'admin' || profile?.verification_status === 'approved'
+  const isApproved = profile?.role === 'admin' || profile?.verification_status === 'approved' || profile?.verification_status === 'verified'
 
   return (
     <>

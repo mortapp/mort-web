@@ -65,7 +65,9 @@ test('pending and incomplete accounts cannot reach role dashboards', () => {
   for (const role of ['teen', 'adult', 'guardian', 'admin']) {
     const layout = read(`../app/app/${role}/layout.tsx`)
     assert.match(layout, /requireRole/)
-    assert.match(layout, new RegExp(`\\['${role}'\\]`))
+    // The adult layout also admits admins, matching its pages, which the
+    // admin app shell links to (adult home, post a job, my jobs).
+    assert.match(layout, new RegExp(`\\['${role}`))
   }
   const dashboard = read('../app/app/page.tsx')
   assert.match(dashboard, /account_status !== 'active'/)

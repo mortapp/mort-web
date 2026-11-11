@@ -2,14 +2,16 @@ import Link from 'next/link'
 import { requireUser } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
 import { PageHeaderWithActions, EmptyState, JobCard, CategoryTile } from '@/components/ui'
+import { normalizeJobCategory, jobCategoryLabel, JOB_CATEGORIES } from '@/lib/categories'
 export const dynamic = 'force-dynamic'
 
-const FEATURED_CATEGORIES = ['dog walking', 'lawn care', 'tutoring', 'cleaning', 'errands', 'babysitting', 'car washing', 'trash help']
+const FEATURED_CATEGORIES = JOB_CATEGORIES.map((c) => c.value)
 
 export default async function Jobs({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const { supabase, user } = await requireUser()
   const sp = await searchParams
-  const category = sp?.category
+  const rawCategory = sp?.category
+  const category = normalizeJobCategory(rawCategory)
   const q = sp?.q
 
   const { data: teenProfile } = await supabase.from('teen_profiles').select('paused_by_guardian').eq('user_id', user.id).maybeSingle()
@@ -24,7 +26,7 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
   }
 
   let query = supabase.from('jobs').select('*').eq('status','open').order('created_at',{ascending:false}).limit(60)
-  if (category) query = query.ilike('category', `%${category}%`)
+  if (category) query = query.eq('category', category)
   if (q) query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`)
   const { data: jobs, error } = await query
 
@@ -67,7 +69,7 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
               key={c}
               category={c}
               count={counts[c] || 0}
-              active={category?.toLowerCase() === c}
+              active={category === c}
               href={`/app/teen/jobs?category=${encodeURIComponent(c)}`}
             />
           ))}
@@ -77,7 +79,7 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
       {error && <div className="error" style={{marginBottom:16}}>{error.message}</div>}
 
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
-        <h4 style={{margin:0}}>{category ? `${category}` : 'All open jobs'}</h4>
+        <h4 style={{margin:0}}>{category ? jobCategoryLabel(category) : 'All open jobs'}</h4>
         <span style={{fontSize:13,color:'var(--muted)'}}>{jobs?.length || 0} job{jobs?.length !== 1 ? 's' : ''} found</span>
       </div>
 

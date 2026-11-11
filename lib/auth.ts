@@ -95,5 +95,7 @@ export async function requireRole(roles: Role[]) {
 }
 
 export function isVerifiedEnough(profile: any) {
-  return profile?.verification_status === 'approved'
+  // The backend staff-review RPC (mort_review_verification_case) records
+  // 'verified'; the older web vocabulary used 'approved'. Accept both.
+  return profile?.verification_status === 'approved' || profile?.verification_status === 'verified'
 }

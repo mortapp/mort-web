@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 export default async function PostJob({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const { profile } = await requireRole(['adult','admin'])
   const sp = await searchParams
-  const isApproved = profile?.role === 'admin' || profile?.verification_status === 'approved'
+  const isApproved = profile?.role === 'admin' || profile?.verification_status === 'approved' || profile?.verification_status === 'verified'
 
   return (
     <>
