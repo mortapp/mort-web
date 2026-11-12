@@ -28,6 +28,19 @@ export async function reviewVerificationCase(formData: FormData) {
   if (!caseId) fail('Missing verification case id.')
   if (!(status in VERIFICATION_OUTCOMES)) fail('Invalid verification outcome.')
 
+  // Positive approvals require an explicit, case-bound document-review
+  // attestation (issue #50): the reviewer confirms they examined the uploaded
+  // evidence document. The attestation is recorded first; the gated review
+  // RPC below then consumes it — staff approval alone cannot verify.
+  if (status === 'verified') {
+    const { data: attestation, error: attestationError } = await supabase.rpc(
+      'mort_record_staff_document_review',
+      { p_case_id: caseId, p_decision: 'verified', p_note: note || null },
+    )
+    if (attestationError) fail(`Document review failed: ${attestationError.message}`)
+    if (!attestation?.ok) fail(`Document review failed: ${attestation?.code || 'rejected by backend.'}`)
+  }
+
   // Staff decisions go through the guarded database function, which checks the
   // reviewer role, enforces the minimum-age rule, updates the profile status,
   // and writes the audit log. Clients can no longer write verification_status.
