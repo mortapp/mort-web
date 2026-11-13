@@ -19,7 +19,10 @@ export async function isLeakedPassword(password: string): Promise<boolean> {
   const suffix = sha1.slice(5)
   try {
     const res = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, {
-      headers: { 'Add-Padding': 'true' },
+      headers: {
+        'Add-Padding': 'true',
+        'User-Agent': 'MORT-Web-Leaked-Password-Check/1.0',
+      },
       cache: 'no-store',
       signal: AbortSignal.timeout(4000),
     })
