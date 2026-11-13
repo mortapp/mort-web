@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { parseHibpRangeResponse } from './leaked-password-response.mjs'
 
 /**
  * Leaked-password protection via HaveIBeenPwned's k-anonymity range API.
@@ -24,9 +25,7 @@ export async function isLeakedPassword(password: string): Promise<boolean> {
     })
     if (!res.ok) return false
     const body = await res.text()
-    return body
-      .split('\n')
-      .some((line) => line.trim().split(':')[0] === suffix)
+    return parseHibpRangeResponse(body, suffix) === true
   } catch {
     return false
   }
