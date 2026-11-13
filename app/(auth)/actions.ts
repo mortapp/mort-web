@@ -8,6 +8,10 @@ import { isLeakedPassword, LEAKED_PASSWORD_MESSAGE } from '@/lib/leaked-password
 import { cookies } from 'next/headers'
 import { createGoogleSignupState, GOOGLE_SIGNUP_COOKIE, GOOGLE_SIGNUP_COOKIE_PATH } from '@/lib/google-signup-state.mjs'
 
+const GENERIC_SIGNIN_FAILURE = 'Sign-in could not be completed. Check your email and password. If verification is required, check your inbox for a link.'
+const GENERIC_SIGNUP_FAILURE = 'We could not create this account. Check your details or sign in if you already have an account.'
+const GENERIC_PASSWORD_RESET_MESSAGE = 'If an account matches that email, a password reset link will be sent. Check your inbox shortly.'
+
 function msg(path: string, message: string): never { redirect(`${path}${path.includes('?') ? '&' : '?'}message=${encodeURIComponent(message)}`) }
 
 function ageFromDateOfBirth(value: unknown): number | null {
@@ -63,7 +67,7 @@ export async function signUp(formData: FormData) {
   if (error) {
     if (error.message.includes('MORT_DOB_REQUIRED')) msg(safeSignupPath, 'Enter your date of birth to create a MORT account.')
     if (error.message.includes('MORT_MINIMUM_AGE_REQUIRED')) msg(safeSignupPath, 'MORT is only available to people age 13 or older.')
-    msg(safeSignupPath, error.message)
+    msg(safeSignupPath, GENERIC_SIGNUP_FAILURE)
   }
   if (data.user && data.session) {
     await ensureProfile(supabase, data.user, role)
@@ -87,10 +91,8 @@ export async function login(formData: FormData) {
   if (unconfirmed) {
     if (!error) await supabase.auth.signOut()
     await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: `${await getSiteUrlFromHeaders()}/auth/callback?next=${encodeURIComponent(next)}` } }).catch(() => {})
-    revalidatePath('/', 'layout')
-    msg(safeLoginPath, 'Your email is not verified yet. Check your inbox — a fresh verification link from MORT is on its way.')
   }
-  if (error) msg(safeLoginPath, error.message)
+  if (error || unconfirmed) msg(safeLoginPath, GENERIC_SIGNIN_FAILURE)
   revalidatePath('/', 'layout')
   redirect(next)
 }
@@ -147,9 +149,8 @@ export async function logout() {
 export async function sendPasswordReset(formData: FormData) {
   const supabase = await createClient()
   const email = String(formData.get('email') || '').trim().toLowerCase()
-  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${await getSiteUrlFromHeaders()}/auth/callback?next=/update-password` })
-  if (error) msg('/reset-password', error.message)
-  msg('/login', 'Password reset email sent.')
+  await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${await getSiteUrlFromHeaders()}/auth/callback?next=/update-password` }).catch(() => {})
+  msg('/login', GENERIC_PASSWORD_RESET_MESSAGE)
 }
 
 export async function updatePassword(formData: FormData) {
