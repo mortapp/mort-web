@@ -91,6 +91,7 @@ export async function login(formData: FormData) {
   if (unconfirmed) {
     if (!error) await supabase.auth.signOut()
     await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: `${await getSiteUrlFromHeaders()}/auth/callback?next=${encodeURIComponent(next)}` } }).catch(() => {})
+    revalidatePath('/', 'layout')
   }
   if (error || unconfirmed) msg(safeLoginPath, GENERIC_SIGNIN_FAILURE)
   revalidatePath('/', 'layout')
