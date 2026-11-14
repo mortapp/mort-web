@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import Link from 'next/link'
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, Status } from '@/components/ui'
@@ -61,6 +62,7 @@ export default async function ThreadDetail({ params, searchParams }: { params: P
 
       <form action={sendMessage} className="card form">
         <input type="hidden" name="conversation_id" value={id} />
+        <input type="hidden" name="client_request_id" value={randomUUID()} />
         <label>
           Reply
           <textarea name="body" required placeholder="Keep it about the job. Never share passwords, home address, or ask to move off MORT." />
