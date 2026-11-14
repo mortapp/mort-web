@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:production-config": "node --test scripts/csp-origin.test.mjs scripts/google-signup-state.test.mjs scripts/legal-publication.test.mjs scripts/onboarding-v2-contract.test.mjs scripts/site-url.test.mjs",
+    "test:production-config": "node --test scripts/csp-origin.test.mjs scripts/google-signup-state.test.mjs scripts/legal-publication.test.mjs scripts/onboarding-v2-contract.test.mjs scripts/site-url.test.mjs scripts/leaked-password.test.mjs",
     "verify:legal": "node scripts/verify-legal-publication.mjs"
   },
   "dependencies": {
