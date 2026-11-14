@@ -38,7 +38,6 @@ export default async function ThreadDetail({ params, searchParams }: { params: P
     <>
       <PageHeaderWithActions title={conversation.jobs?.title || 'Conversation'} eyebrow="Messages">
         <Link href="/app/messages" className="btn ghost sm">← All threads</Link>
-        <Link href={`/app/reports/new?target_message_id=&reason=${encodeURIComponent('Off-platform pressure')}&details=${encodeURIComponent('Reporting a concern from thread ' + id)}`} className="btn danger sm">🚩 Report</Link>
       </PageHeaderWithActions>
 
       <Toast message={sp?.message} />
@@ -53,7 +52,15 @@ export default async function ThreadDetail({ params, searchParams }: { params: P
               </div>
               <div className="message-meta" style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                 {new Date(m.created_at).toLocaleString()}
-                {m.moderation_status && m.moderation_status !== 'clean' && <Status value={m.moderation_status} />}
+                {m.moderation_status && m.moderation_status !== 'approved' && <Status value={m.moderation_status} />}
+                {m.sender_id !== user.id && (
+                  <Link
+                    href={'/app/reports/new?target_message_id=' + encodeURIComponent(m.id) + '&target_user_id=' + encodeURIComponent(m.sender_id) + '&reason=' + encodeURIComponent('Harassment or bullying') + '&details=' + encodeURIComponent('Reporting a message in conversation ' + id)}
+                    className="btn danger sm"
+                  >
+                    Report message
+                  </Link>
+                )}
               </div>
             </div>
           ))}
