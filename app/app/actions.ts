@@ -244,6 +244,7 @@ export async function createReport(formData: FormData) {
   const targetMessageId = val(formData, 'target_message_id')
   const details = val(formData, 'details') || ''
   const reason = val(formData, 'reason') || 'Other'
+  const immediateDanger = val(formData, 'immediate_danger') === 'on'
   const categories: Record<string, string> = {
     'Unsafe job': 'other',
     'Harassment or bullying': 'harassment',
@@ -263,8 +264,8 @@ export async function createReport(formData: FormData) {
     p_target_review_id: null,
     p_application_id: null,
     p_category: categories[reason] || 'other',
-    p_severity: 'normal',
-    p_immediate_danger: false,
+    p_severity: immediateDanger ? 'critical' : 'normal',
+    p_immediate_danger: immediateDanger,
     p_details: details,
     p_occurred_at: null,
     p_location_type: null,
