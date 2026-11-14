@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { createReport } from '@/app/app/actions'
 import { PageHeaderWithActions } from '@/components/ui'
 import { SubmitButton } from '@/components/submit-button'
@@ -13,6 +14,7 @@ export default async function NewReport({ searchParams }: { searchParams?: Promi
         description="Reports go straight to MORT admins for review. If you're in immediate danger, call emergency services first."
       />
       <form action={createReport} className="card form" style={{ maxWidth: 560 }}>
+        <input type="hidden" name="client_request_id" value={randomUUID()} />
         <label>
           Reason
           <select name="reason" defaultValue={sp.reason || 'Unsafe job'}>
