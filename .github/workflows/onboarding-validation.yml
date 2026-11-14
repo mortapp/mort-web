@@ -11,6 +11,7 @@ on:
       - "app/app/adult/**"
       - "app/app/guardian/**"
       - "app/app/admin/**"
+      - "app/app/messages/**"
       - "app/auth/callback/**"
       - "components/onboarding-form.tsx"
       - "lib/auth.ts"
@@ -39,7 +40,7 @@ jobs:
       - run: npm ci
       - run: npm run test:production-config
       - run: npm run typecheck
-      - run: npx eslint app/app/actions.ts app/app/onboarding/page.tsx app/app/page.tsx app/app/teen/actions.ts app/app/teen/layout.tsx app/app/adult/layout.tsx app/app/guardian/layout.tsx app/app/admin/layout.tsx app/auth/callback/route.ts components/onboarding-form.tsx lib/auth.ts
+      - run: npx eslint app/app/actions.ts app/app/onboarding/page.tsx app/app/page.tsx app/app/teen/actions.ts app/app/teen/layout.tsx app/app/adult/layout.tsx app/app/guardian/layout.tsx app/app/admin/layout.tsx app/auth/callback/route.ts components/onboarding-form.tsx lib/auth.ts app/app/messages/actions.ts app/app/messages/page.tsx 'app/app/messages/[id]/page.tsx'
       - name: Build Next.js production bundle
         run: npm run build
         env:

@@ -1,4 +1,5 @@
 'use server'
+import { randomUUID } from 'node:crypto'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { requireUser } from '@/lib/auth'
@@ -81,6 +82,7 @@ export async function sendMessage(formData: FormData) {
   const { supabase, user, profile } = await requireUser()
   const conversation_id = v(formData, 'conversation_id')
   const body = v(formData, 'body')
+  const client_request_id = v(formData, 'client_request_id') || randomUUID()
   if (!conversation_id || !body) redirect(`/app/messages/${conversation_id}?message=${encodeURIComponent('Message cannot be empty.')}`)
 
   const { data: membership } = await supabase
@@ -97,9 +99,10 @@ export async function sendMessage(formData: FormData) {
     if (teenProfile?.guardian_paused) redirect(`/app/messages?message=${encodeURIComponent('Your guardian has paused your account. Ask them to resume it before messaging.')}`)
   }
 
-  const { data, error } = await supabase.rpc('mort_send_message', {
-    p_conversation_id: conversation_id,
+  const { data, error } = await supabase.rpc('send_safe_message_v2', {
+    p_thread_id: conversation_id,
     p_body: body,
+    p_client_request_id: client_request_id,
   })
   if (error) redirect(`/app/messages/${conversation_id}?message=${encodeURIComponent(error.message)}`)
   if (data && data.ok === false) redirect(`/app/messages/${conversation_id}?message=${encodeURIComponent(data.message || data.code || 'Message was not sent.')}`)
