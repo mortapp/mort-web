@@ -238,16 +238,43 @@ export async function savePaymentPreference() {
 }
 
 export async function createReport(formData: FormData) {
-  const { supabase, user } = await requireUser()
-  const { error } = await supabase.from('reports').insert({
-    reporter_id: user.id,
-    target_user_id: val(formData, 'target_user_id') || null,
-    target_job_id: val(formData, 'target_job_id') || null,
-    target_message_id: val(formData, 'target_message_id') || null,
-    reason: val(formData, 'reason') || 'Safety concern',
-    details: val(formData, 'details'),
-    status: 'open',
+  const { supabase } = await requireUser()
+  const targetUserId = val(formData, 'target_user_id')
+  const targetJobId = val(formData, 'target_job_id')
+  const targetMessageId = val(formData, 'target_message_id')
+  const details = val(formData, 'details') || ''
+  const reason = val(formData, 'reason') || 'Other'
+  const categories: Record<string, string> = {
+    'Unsafe job': 'other',
+    'Harassment or bullying': 'harassment',
+    'Scam/fake job': 'scam',
+    'Off-platform pressure': 'privacy',
+    'Private information request': 'privacy',
+    'Other': 'other',
+  }
+  if (details.length < 10 || details.length > 4000) {
+    redirect('/app/reports/new?message=' + encodeURIComponent('Add between 10 and 4,000 characters describing what happened.'))
+  }
+
+  const { data, error } = await supabase.rpc('submit_safety_report_v2', {
+    p_target_user_id: targetUserId,
+    p_target_job_id: targetJobId,
+    p_target_message_id: targetMessageId,
+    p_target_review_id: null,
+    p_application_id: null,
+    p_category: categories[reason] || 'other',
+    p_severity: 'normal',
+    p_immediate_danger: false,
+    p_details: details,
+    p_occurred_at: null,
+    p_location_type: null,
+    p_desired_outcome: null,
+    p_confidential_safety_feedback: false,
+    p_client_request_id: val(formData, 'client_request_id') || randomUUID(),
   })
-  if (error) redirect(`/app/reports/new?message=${encodeURIComponent(error.message)}`)
+  if (error) redirect('/app/reports/new?message=' + encodeURIComponent(error.message))
+  if (data?.ok !== true) {
+    redirect('/app/reports/new?message=' + encodeURIComponent(data?.code || 'MORT could not submit this report.'))
+  }
   redirect('/app/safety?message=Report submitted')
 }
