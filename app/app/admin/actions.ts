@@ -16,7 +16,6 @@ const VERIFICATION_OUTCOMES: Record<string, string> = {
   rejected: 'Verification rejected.',
   needs_review: 'Marked as needs more review.',
 }
-const ACCOUNT_STATUSES = new Set(['active'])
 
 export async function reviewVerificationCase(formData: FormData) {
   const { supabase } = await requireRole(['admin'])
@@ -62,32 +61,39 @@ export async function updateReportStatus(formData: FormData) {
   fail('Report status changes are unavailable: the production backend does not expose a staff report-review RPC yet.')
 }
 
-export async function updateUserStatus(formData: FormData) {
+export async function reviewRoleRequest(formData: FormData) {
   const { supabase } = await requireRole(['admin'])
-  const userId = v(formData, 'user_id')
-  const status = v(formData, 'account_status') || ''
+  const requestId = v(formData, 'request_id') || ''
+  const decision = v(formData, 'decision') || ''
+  const reason = v(formData, 'review_note')
 
-  if (!userId) fail('Missing user id.')
-  if (!ACCOUNT_STATUSES.has(status)) {
-    fail('Direct suspension and restoration are not supported here. Only eligible pending activation requests can be approved.')
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requestId)) {
+    fail('Invalid activation request. Refresh the admin queue and try again.')
+  }
+  if (decision !== 'approve' && decision !== 'reject') {
+    fail('Choose approve or reject for this activation request.')
+  }
+  if (reason && reason.length > 500) fail('Review note must be 500 characters or fewer.')
+  if (decision === 'reject' && (!reason || reason.length < 3)) {
+    fail('Enter a rejection reason of at least 3 characters.')
   }
 
-  const { data, error } = await supabase.rpc('admin_set_account_status_v2', {
-    p_user_id: userId,
-    p_status: status,
-    p_reason_code: 'web_admin_activation',
-    p_reason: 'Activation approved from MORT web admin.',
-    p_expires_at: null,
+  const { data, error } = await supabase.rpc('mort_review_role_request', {
+    p_request_id: requestId,
+    p_approve: decision === 'approve',
+    p_reason: reason || null,
   })
 
-  if (error) fail(`User status update failed: ${error.message}`)
-  if (data?.ok !== true) {
-    const message = data?.code === 'activation_request_required'
-      ? 'No pending activation request exists for this account. Confirm onboarding and required verification are complete, then refresh the admin queue.'
-      : data?.code === 'account_status_request_invalid'
-        ? 'This action only approves eligible pending activation requests; it cannot suspend or restore accounts.'
-        : data?.message || data?.code || 'User status update rejected by backend.'
-    fail(message)
+  if (error) {
+    if (error.message.toLowerCase().includes('pending role request not found')) {
+      fail('This activation request is no longer pending. Refresh the admin queue and try again.')
+    }
+    fail(`Activation request review failed: ${error.message}`)
   }
-  redirect('/app/admin?message=User status updated')
+  if (String(data).toLowerCase() !== requestId.toLowerCase()) {
+    fail('Activation request review returned an unexpected result. Refresh the admin queue.')
+  }
+
+  const outcome = decision === 'approve' ? 'approved' : 'rejected'
+  redirect(`/app/admin?message=${encodeURIComponent(`Activation request ${outcome}.`)}`)
 }

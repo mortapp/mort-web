@@ -2,7 +2,7 @@ import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, Status, MetricCard, AdminReviewCard } from '@/components/ui'
 import { CountUp } from '@/components/count-up'
 import { LocalTabs } from '@/components/local-tabs'
-import { reviewVerificationCase, updateUserStatus } from './actions'
+import { reviewRoleRequest, reviewVerificationCase } from './actions'
 import { SubmitButton } from '@/components/submit-button'
 import { PROOF_BUCKET } from '@/lib/mort'
 import { Toast } from '@/components/toast'
@@ -16,6 +16,7 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
     { data: verifications, error: verificationsError },
     { data: reports, error: reportsError },
     { data: users, error: usersError },
+    { data: roleRequests, error: roleRequestsError },
     { count: jobsCount, error: jobsError },
     { data: needsHelpPings, error: safetyPingsError },
     { data: proofUploads, error: proofError },
@@ -26,6 +27,7 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
     // Emails live in auth.users (not client-readable); the admin-gated
     // RPC returns profiles joined with their account email.
     supabase.rpc('mort_admin_list_users_v1'),
+    supabase.from('role_requests').select('id,user_id,requested_role,status,submitted_at').eq('status', 'pending').order('submitted_at', { ascending: false }).limit(100),
     supabase.from('jobs').select('id', { count: 'exact', head: true }),
     supabase.from('safety_pings').select('*').eq('status', 'needs_help').order('created_at', { ascending: false }).limit(10),
     supabase.from('proof_uploads').select('*').order('created_at', { ascending: false }).limit(20),
@@ -148,6 +150,11 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
   )
 
   const userList = Array.isArray(users) ? users : []
+  const pendingRoleRequests = roleRequests || []
+  const requestsByUser = new Map<string, any>()
+  for (const request of pendingRoleRequests) {
+    if (!requestsByUser.has(request.user_id)) requestsByUser.set(request.user_id, request)
+  }
   const usersContent = (
     <div className="table-wrap">
       {!Array.isArray(users) && (
@@ -160,31 +167,50 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
           </p>
         </div>
       )}
+      {roleRequestsError && (
+        <div className="warning-box" role="alert" style={{ marginBottom: 16 }}>
+          Pending activation requests could not be loaded. Refresh and try again; no approval or rejection actions are available until the queue loads.
+        </div>
+      )}
       <table className="table">
+        <thead>
+          <tr><th>User</th><th>Role</th><th>Account status</th><th>Activation request</th></tr>
+        </thead>
         <tbody>
-          {userList.map((u: any) => (
-            <tr key={u.id}>
-              <td>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div className="avatar-tile sm muted">{(u.display_name || '?').charAt(0).toUpperCase()}</div>
-                  <div>
-                    <div style={{ fontWeight: 600, color: 'var(--text)' }}>{u.display_name}</div>
-                    <p className="small" style={{ fontFamily: 'monospace', textTransform: 'none', letterSpacing: 0 }}>{u.email || u.id}</p>
+          {userList.map((user: any) => {
+            const request = requestsByUser.get(user.id)
+            return (
+              <tr key={user.id}>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div className="avatar-tile sm muted">{(user?.display_name || '?').charAt(0).toUpperCase()}</div>
+                    <div>
+                      <div style={{ fontWeight: 600, color: 'var(--text)' }}>{user?.display_name || 'Unnamed account'}</div>
+                      <p className="small" style={{ fontFamily: 'monospace', textTransform: 'none', letterSpacing: 0 }}>{user?.email || user.id}</p>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td>{u.role}</td>
-              <td><Status value={u.account_status} /></td>
-              <td>
-                {u.account_status === 'pending' ? (
-                  <form action={updateUserStatus} className="row-actions">
-                    <input type="hidden" name="user_id" value={u.id} />
-                    <SubmitButton name="account_status" value="active" variant="ghost" size="sm" pendingLabel="…">Approve activation</SubmitButton>
-                  </form>
-                ) : u.account_status === 'active' ? <span className="muted">No action</span> : <span className="muted">Status changes unavailable</span>}
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td>{user.role}</td>
+                <td><Status value={user.account_status} /></td>
+                <td>
+                  {roleRequestsError ? <span className="muted">Request queue unavailable</span> : request ? (
+                    <div>
+                      <p className="small" style={{ marginBottom: 6 }}>Requested role: {request.requested_role} · submitted {request.submitted_at ? new Date(request.submitted_at).toLocaleString() : 'time unavailable'}</p>
+                      <form action={reviewRoleRequest} className="row-actions">
+                        <input type="hidden" name="request_id" value={request.id} />
+                        <input name="review_note" placeholder="Rejection reason (required for reject)" maxLength={500} aria-label={`Review note for ${user?.display_name || user.id}`} />
+                        <SubmitButton name="decision" value="approve" variant="ghost" size="sm" pendingLabel="Approving…">Approve</SubmitButton>
+                        <SubmitButton name="decision" value="reject" variant="danger" size="sm" pendingLabel="Rejecting…">Reject</SubmitButton>
+                      </form>
+                    </div>
+                  ) : user.account_status === 'pending' ? <span className="muted">No pending activation request</span> : <span className="muted">No action</span>}
+                </td>
+              </tr>
+            )
+          })}
+          {!usersError && userList.length === 0 && (
+            <tr><td colSpan={4}>No users to display.</td></tr>
+          )}
         </tbody>
       </table>
     </div>
@@ -222,7 +248,7 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
           { key: 'reports', label: 'Reports', icon: '⚠️', badge: openReports, content: reportsContent },
           { key: 'proof', label: 'Proof review', icon: '📸', content: proofContent },
           { key: 'tickets', label: 'Support', icon: '🎧', badge: openTickets, content: ticketsContent },
-          { key: 'users', label: 'Users', icon: '👤', content: usersContent },
+          { key: 'users', label: 'Users', icon: '👤', badge: pendingRoleRequests.length, content: usersContent },
         ]}
       />
     </>
