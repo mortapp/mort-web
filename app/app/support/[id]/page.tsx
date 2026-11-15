@@ -16,7 +16,7 @@ export default async function TicketDetail({ params, searchParams }: { params: P
   const isOwnerOrAdmin = ticket.requester_id === user.id || profile?.role === 'admin'
   if (!isOwnerOrAdmin) return <div className="error">You don&apos;t have access to this ticket.</div>
 
-  const { data: msgs } = await supabase.from('support_ticket_messages').select('*').eq('ticket_id', id).order('created_at', { ascending: true })
+  const { data: msgs, error: messagesError } = await supabase.from('support_ticket_messages').select('*').eq('ticket_id', id).order('created_at', { ascending: true })
 
   return (
     <>
@@ -32,7 +32,11 @@ export default async function TicketDetail({ params, searchParams }: { params: P
 
       <div className="card" style={{ marginBottom: 16 }}>
         <div className="message-list">
-          {!msgs?.length && <p style={{ fontSize: 13 }}>No replies yet.</p>}
+          {messagesError ? (
+            <div className="warning-box" role="alert">
+              Replies could not be loaded. Refresh the page and try again.
+            </div>
+          ) : !msgs?.length ? <p style={{ fontSize: 13 }}>No replies yet.</p> : null}
           {(msgs || []).map((m: any) => (
             <div key={m.id} style={{ display: 'flex', flexDirection: 'column', alignItems: m.sender_id === user.id ? 'flex-end' : 'flex-start' }}>
               <div className={`message-bubble ${m.sender_id === user.id ? 'mine' : 'theirs'}`}>{m.body}</div>

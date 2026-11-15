@@ -8,21 +8,28 @@ export const dynamic = 'force-dynamic'
 export default async function Verify({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const { supabase, user, profile } = await requireUser()
   const sp = await searchParams
-  const [{ data: verification }, { data: cases }] = await Promise.all([
+  const [{ data: verification, error: verificationError }, { data: cases, error: casesError }] = await Promise.all([
     supabase.rpc('get_my_verification_requirements_v1'),
     supabase.rpc('list_my_verification_cases_v1'),
   ])
 
   const isTeen = profile?.role === 'teen'
   const evidenceType = isTeen ? 'school_id' : 'identity'
-  const hasPendingCase = Array.isArray(cases) && cases.some((c: any) => ['pending', 'needs_review'].includes(c?.status))
+  const casesLoaded = !casesError && Array.isArray(cases)
+  const hasPendingCase = !casesError && Array.isArray(cases) && cases.some((c: any) => ['pending', 'needs_review'].includes(c?.status))
+  const canSubmitEvidence = !verificationError && verification?.ok === true && casesLoaded && !hasPendingCase
 
   return (
     <>
       <PageHeaderWithActions title="Verify MORT account" eyebrow="Trust gate">
         <p>Current role: <span style={{textTransform:'capitalize',fontWeight:600}}>{profile?.role || 'none'}</span> · status <Status value={profile?.verification_status} /></p>
       </PageHeaderWithActions>
-      <Toast message={sp?.message} />
+      <Toast message={sp?.error || sp?.message} variant={sp?.error ? 'error' : 'default'} />
+      {(verificationError || casesError || verification?.ok !== true || !casesLoaded) && (
+        <div className="warning-box" role="alert" style={{ marginBottom: 16 }}>
+          Verification status could not be loaded. Refresh before submitting evidence.
+        </div>
+      )}
 
       <div className="grid two">
         <form action={uploadVerificationEvidence} className="card form">
@@ -38,7 +45,9 @@ export default async function Verify({ searchParams }: { searchParams?: Promise<
           {hasPendingCase ? (
             <p className="muted">You already have a submission under review. You can submit again after it is decided.</p>
           ) : null}
-          <SubmitButton pendingLabel="Uploading…">Submit for review</SubmitButton>
+          {canSubmitEvidence ? (
+            <SubmitButton pendingLabel="Uploading…">Submit for review</SubmitButton>
+          ) : null}
           <p className="muted">Do not email identity documents to MORT support. Uploads go to a private bucket only you and MORT reviewers can access.</p>
         </form>
 

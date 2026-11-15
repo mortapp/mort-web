@@ -1,8 +1,9 @@
+import Link from 'next/link'
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, EmptyState } from '@/components/ui'
 import { Toast } from '@/components/toast'
 import { SubmitButton } from '@/components/submit-button'
-import { createTeamHustle, joinTeamHustle, leaveTeamHustle, closeTeamHustle } from './actions'
+import { createTeamHustle, joinTeamHustle, leaveTeamHustle, closeTeamHustle, reviewTeamHustle } from './actions'
 export const dynamic = 'force-dynamic'
 
 export default async function TeamHustles({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
@@ -10,16 +11,27 @@ export default async function TeamHustles({ searchParams }: { searchParams?: Pro
   const sp = await searchParams
   const { data: hustles, error: hustlesError } = await supabase.rpc('list_team_hustles_v1')
   const list = !hustlesError && Array.isArray(hustles) ? hustles : []
+  const isAdmin = profile?.role === 'admin'
   const isAdult = profile?.role === 'adult' || profile?.role === 'admin'
+  const canPost = profile?.role === 'admin' || (
+    profile?.role === 'adult' &&
+    ['approved', 'verified'].includes(profile.verification_status || '')
+  )
 
   return (
     <>
       <PageHeaderWithActions title="Team hustles" eyebrow="Groups">
-        <p>Jobs built for crews. An adult posts the hustle, teens join the team, and everyone stays inside MORT safety controls.</p>
+        <p>Jobs built for crews. Verified adults can post; MORT staff review each new hustle before teens can see or join it.</p>
       </PageHeaderWithActions>
-      <Toast message={sp?.message} />
+      <Toast message={sp?.error || sp?.message} variant={sp?.error ? 'error' : 'default'} />
 
-      {isAdult && (
+      {isAdult && !canPost && (
+        <div className="warning-box" role="status" style={{ marginBottom: 24 }}>
+          Adult identity verification must be approved before posting a team hustle. <Link href="/app/verify">Review verification status</Link>.
+        </div>
+      )}
+
+      {canPost && (
         <form action={createTeamHustle} className="card form" style={{marginBottom:24}}>
           <h3>Post a team hustle</h3>
           <label>Title<input name="title" required placeholder="Fall leaf cleanup crew" /></label>
@@ -43,7 +55,7 @@ export default async function TeamHustles({ searchParams }: { searchParams?: Pro
           </div>
           <label>Location notes<input name="location_notes" placeholder="Meet at the park entrance; exact address after approval" /></label>
           <SubmitButton pendingLabel="Posting…">Post team hustle</SubmitButton>
-          <p className="muted">MORT staff review new hustles for safety. Payments are arranged between you and the team — MORT does not process task payments yet.</p>
+          <p className="muted">New posts stay hidden until staff approval. Payments are arranged between you and the team — MORT does not process task payments yet.</p>
         </form>
       )}
 
@@ -76,7 +88,24 @@ export default async function TeamHustles({ searchParams }: { searchParams?: Pro
               {h.poster_display_name && (
                 <p style={{fontSize:13,color:'var(--muted)'}}>Posted by {h.poster_display_name}</p>
               )}
-              {h.status !== 'open' ? (
+              {h.review_status === 'pending' ? (
+                isAdmin && !h.i_am_poster ? (
+                  <form action={reviewTeamHustle} className="form" style={{ marginTop: 12 }}>
+                    <input type="hidden" name="hustle_id" value={h.id} />
+                    <label>Review note<input name="reason" maxLength={1000} placeholder="Required when rejecting" /></label>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <SubmitButton name="decision" value="approve" variant="safe" size="sm">Approve</SubmitButton>
+                      <SubmitButton name="decision" value="reject" variant="danger" size="sm">Reject</SubmitButton>
+                    </div>
+                  </form>
+                ) : (
+                  <p className="muted" role="status">{isAdmin && h.i_am_poster ? 'A different administrator must review this post.' : 'Awaiting MORT staff review. Teens cannot see or join this hustle until it is approved.'}</p>
+                )
+              ) : h.review_status === 'rejected' ? (
+                <p className="warning-box" role="status">Not approved{h.review_note ? `: ${h.review_note}` : '.'}</p>
+              ) : h.review_status !== 'approved' ? (
+                <p className="warning-box" role="alert">Review status is unavailable. This hustle cannot be joined.</p>
+              ) : h.status !== 'open' ? (
                 <p className="muted">This hustle is closed.</p>
               ) : h.my_membership ? (
                 <form action={leaveTeamHustle} style={{marginTop:12}}>

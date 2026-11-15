@@ -65,11 +65,20 @@ export async function uploadVerificationEvidence(formData: FormData) {
     p_verification_type: evidenceType,
     p_evidence_path: path,
   })
-  if (error) {
-    redirect(`/app/verify?message=${encodeURIComponent(error.message)}`)
-  }
-  if (!data?.ok) {
-    redirect(`/app/verify?message=${encodeURIComponent(rpcText(data))}`)
+  if (error || !data?.ok) {
+    let cleanedUp = false
+    try {
+      const { error: cleanupError } = await supabase.storage
+        .from('verification-evidence')
+        .remove([path])
+      cleanedUp = !cleanupError
+    } catch {
+      cleanedUp = false
+    }
+    const failureMessage = cleanedUp
+      ? error?.message || rpcText(data)
+      : 'Evidence submission could not be confirmed. Check your verification status; if no case appears, contact support for secure cleanup.'
+    redirect(`/app/verify?error=${encodeURIComponent(failureMessage)}`)
   }
   revalidatePath('/app/verify')
   redirect('/app/verify?message=' + encodeURIComponent('Evidence submitted. MORT staff will review it and update your status.'))
