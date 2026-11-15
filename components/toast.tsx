@@ -37,8 +37,9 @@ function ToastInner({ message, variant = 'default' }: Props) {
     setTimeout(() => {
       setHidden(true)
       const params = new URLSearchParams(searchParams?.toString())
-      if (params.has('message')) {
+      if (params.has('message') || params.has('error')) {
         params.delete('message')
+        params.delete('error')
         const qs = params.toString()
         router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
       }
@@ -47,11 +48,11 @@ function ToastInner({ message, variant = 'default' }: Props) {
 
   if (hidden || !message) return null
 
-  const isError = variant === 'error' || /fail|error|denied|blocked|not found|cannot|can't/i.test(message)
+  const isError = variant === 'error' || /\b(?:fail(?:ed|ure)?|error|denied|blocked|not found|not allowed|cannot|can't|could not|unable to|unavailable|invalid|rejected|required|conflict|expired)\b/i.test(message) || /(?:^|_)(?:failed|failure|error|denied|blocked|not_found|not_allowed|invalid|unavailable|required|rejected|conflict|expired)(?:$|_)/i.test(message) || /^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$/i.test(message.trim())
 
   return (
     <div className="toast-stack">
-      <div className={`toast ${isError ? 'error-toast' : ''} ${leaving ? 'leaving' : ''}`} role="status">
+      <div className={`toast ${isError ? 'error-toast' : ''} ${leaving ? 'leaving' : ''}`} role={isError ? 'alert' : 'status'} aria-live={isError ? 'assertive' : 'polite'}>
         <span style={{ fontSize: 15, lineHeight: 1 }}>{isError ? '⚠️' : '✅'}</span>
         <span style={{ flex: 1 }}>{message}</span>
         <button className="toast-close" onClick={dismiss} aria-label="Dismiss">✕</button>

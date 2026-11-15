@@ -8,8 +8,8 @@ export const dynamic = 'force-dynamic'
 export default async function TeamHustles({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const { supabase, profile } = await requireUser()
   const sp = await searchParams
-  const { data: hustles } = await supabase.rpc('list_team_hustles_v1')
-  const list = Array.isArray(hustles) ? hustles : []
+  const { data: hustles, error: hustlesError } = await supabase.rpc('list_team_hustles_v1')
+  const list = !hustlesError && Array.isArray(hustles) ? hustles : []
   const isAdult = profile?.role === 'adult' || profile?.role === 'admin'
 
   return (
@@ -47,7 +47,12 @@ export default async function TeamHustles({ searchParams }: { searchParams?: Pro
         </form>
       )}
 
-      {list.length === 0 ? (
+      {hustlesError ? (
+        <div className="warning-box" role="alert" style={{ marginBottom: 20 }}>
+          <strong>Team hustles could not be loaded</strong>
+          <p style={{ marginTop: 6, fontSize: 13 }}>Refresh and try again. No team-hustle data was changed.</p>
+        </div>
+      ) : list.length === 0 ? (
         <EmptyState
           icon="🤝"
           title="No open team hustles yet"

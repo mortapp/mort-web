@@ -7,15 +7,16 @@ export const dynamic = 'force-dynamic'
 export default async function Earnings() {
   const { supabase, user } = await requireRole(['teen'])
   const { data: apps } = await supabase
-    .from('applications')
-    .select('*, jobs(pay_amount_cents,pay_label,title,category,city,state)')
-    .eq('teen_id', user.id)
-    .in('status', ['completed','accepted'])
+    .from('job_applications')
+    .select('*, jobs(pay_amount_cents,pay_label,title,category,city,region,status)')
+    .eq('applicant_id', user.id)
+    .eq('status', 'accepted')
     .order('created_at', {ascending:false})
 
-  const total = (apps||[]).reduce((s: number, a: any) => s + (a.jobs?.pay_amount_cents || 0), 0)
-  const completed = (apps||[]).filter((a: any) => a.status === 'completed').length
-  const active = (apps||[]).filter((a: any) => a.status === 'accepted').length
+  const total = (apps||[]).filter((a: any) => a.jobs?.status === 'completed').reduce((s: number, a: any) => s + (a.jobs?.pay_amount_cents || 0), 0)
+  const completed = (apps||[]).filter((a: any) => a.jobs?.status === 'completed').length
+  const active = (apps||[]).filter((a: any) => a.jobs?.status === 'in_progress' || a.jobs?.status === 'filled').length
+  const completedApps = (apps||[]).filter((a: any) => a.jobs?.status === 'completed')
 
   return (
     <>
@@ -34,7 +35,7 @@ export default async function Earnings() {
 
       <div className="card">
         <h3 style={{marginBottom:16}}>Job history</h3>
-        {!apps?.length ? (
+        {!completedApps.length ? (
           <div style={{textAlign:'center',padding:'32px 0',color:'var(--muted)'}}>
             <div style={{fontSize:32,marginBottom:8}}>💰</div>
             <p>No completed jobs yet. Apply to jobs to start earning.</p>
@@ -52,13 +53,13 @@ export default async function Earnings() {
                 </tr>
               </thead>
               <tbody>
-                {apps.map((a: any) => (
+                {completedApps.map((a: any) => (
                   <tr key={a.id}>
                     <td style={{fontWeight:600}}>{a.jobs?.title}</td>
                     <td style={{color:'var(--muted2)',fontSize:13}}>{a.jobs?.category}</td>
-                    <td style={{color:'var(--muted2)',fontSize:13}}>{a.jobs?.city}, {a.jobs?.state}</td>
+                    <td style={{color:'var(--muted2)',fontSize:13}}>{a.jobs?.city}, {a.jobs?.region}</td>
                     <td style={{color:'var(--primary)',fontWeight:700}}>{a.jobs?.pay_label || centsToDollars(a.jobs?.pay_amount_cents)}</td>
-                    <td><Status value={a.status} /></td>
+                    <td><Status value={a.jobs?.status} /></td>
                   </tr>
                 ))}
               </tbody>

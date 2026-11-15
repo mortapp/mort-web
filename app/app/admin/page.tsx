@@ -2,8 +2,7 @@ import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, Status, MetricCard, AdminReviewCard } from '@/components/ui'
 import { CountUp } from '@/components/count-up'
 import { LocalTabs } from '@/components/local-tabs'
-import { reviewVerificationCase, updateReportStatus, updateUserStatus } from './actions'
-import { updateSupportTicketStatus } from '../support/actions'
+import { reviewVerificationCase, updateUserStatus } from './actions'
 import { SubmitButton } from '@/components/submit-button'
 import { PROOF_BUCKET } from '@/lib/mort'
 import { Toast } from '@/components/toast'
@@ -14,11 +13,11 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
   const { supabase } = await requireRole(['admin'])
 
   const [
-    { data: verifications },
-    { data: reports },
-    { data: users },
-    { count: jobsCount },
-    { data: needsHelpPings },
+    { data: verifications, error: verificationsError },
+    { data: reports, error: reportsError },
+    { data: users, error: usersError },
+    { count: jobsCount, error: jobsError },
+    { data: needsHelpPings, error: safetyPingsError },
     { data: proofUploads, error: proofError },
     { data: tickets, error: ticketsError },
   ] = await Promise.all([
@@ -60,7 +59,8 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
 
   const verificationsContent = (
     <div className="grid two">
-      {!verifications?.length && <p style={{ fontSize: 13 }}>No verification submissions yet.</p>}
+      {verificationsError && <div className="warning-box" role="alert">Verification cases could not be loaded. Refresh and try again.</div>}
+      {!verificationsError && !verifications?.length && <p style={{ fontSize: 13 }}>No verification submissions yet.</p>}
       {(verifications || []).map((c: any) => (
         <AdminReviewCard key={c.id} icon="✅" iconColor="blue" title={c.verification_type === 'school_id' ? 'Teen school ID' : 'Adult government ID'} subtitle={`user ${(c.user_id || '').slice(0, 8)}…`} meta={c.submitted_at ? `submitted ${new Date(c.submitted_at).toLocaleString()}` : undefined} status={c.status}>
           {evidenceUrls[c.id] && (
@@ -82,15 +82,12 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
 
   const reportsContent = (
     <div className="grid two">
-      {!reports?.length && <p style={{ fontSize: 13 }}>No reports filed.</p>}
+      {reportsError && <div className="warning-box" role="alert">Reports could not be loaded. Refresh and try again.</div>}
+      {!reportsError && !reports?.length && <p style={{ fontSize: 13 }}>No reports filed.</p>}
+      {!reportsError && !!reports?.length && <div className="warning-box" role="status" style={{ marginBottom: 12 }}>Reports are view-only: production has no staff report-review RPC.</div>}
       {(reports || []).map((r: any) => (
         <AdminReviewCard key={r.id} icon="⚠️" iconColor="yellow" title={r.reason} subtitle={r.details} meta={`reporter ${(r.reporter_id || '').slice(0, 8)}…`} status={r.status}>
-          <form action={updateReportStatus} className="row-actions" style={{ marginTop: 12 }}>
-            <input type="hidden" name="id" value={r.id} />
-            <SubmitButton name="status" value="reviewing" variant="ghost" size="sm" pendingLabel="…">Reviewing</SubmitButton>
-            <SubmitButton name="status" value="resolved" size="sm" pendingLabel="Resolving…">Resolve</SubmitButton>
-            <SubmitButton name="status" value="dismissed" variant="ghost" size="sm" pendingLabel="…">Dismiss</SubmitButton>
-          </form>
+          <p className="muted" style={{ marginTop: 10 }}>Read-only: the production backend does not currently expose a staff report-status RPC.</p>
         </AdminReviewCard>
       ))}
     </div>
@@ -135,18 +132,13 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
           <p style={{ marginTop: 6, fontSize: 13 }}>{ticketsError.message}</p>
         </div>
       )}
-      {!tickets?.length ? (
+      {ticketsError ? null : !tickets?.length ? (
         <p style={{ fontSize: 13 }}>No tickets submitted.</p>
       ) : (
         <div className="grid two">
           {tickets.map((t: any) => (
             <AdminReviewCard key={t.id} icon="🎧" iconColor="rose" title={t.subject} subtitle={new Date(t.created_at).toLocaleString()} meta={`user ${(t.requester_id || '').slice(0, 8)}…`} status={t.status}>
-              <form action={updateSupportTicketStatus} className="row-actions" style={{ marginTop: 12 }}>
-                <input type="hidden" name="ticket_id" value={t.id} />
-                <SubmitButton name="status" value="in_progress" variant="ghost" size="sm" pendingLabel="…">In progress</SubmitButton>
-                <SubmitButton name="status" value="resolved" size="sm" pendingLabel="Resolving…">Resolve</SubmitButton>
-                <SubmitButton name="status" value="closed" variant="ghost" size="sm" pendingLabel="…">Close</SubmitButton>
-              </form>
+              <p className="muted" style={{ marginTop: 10 }}>Status changes are unavailable until the production support-review RPC is deployed.</p>
               <a href={`/app/support/${t.id}`} className="btn ghost sm" style={{ marginTop: 8, display: 'inline-flex' }}>Open thread</a>
             </AdminReviewCard>
           ))}
@@ -162,9 +154,9 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
         <div className="warning-box" style={{ marginBottom: 16 }}>
           <strong>⚠️ User directory unavailable</strong>
           <p style={{ marginTop: 6, fontSize: 13 }}>
-            {users?.code === 'admin_required'
+          {usersError?.message || (users?.code === 'admin_required'
               ? 'Your account does not have the admin role required to view the user directory.'
-              : 'The admin user directory could not be loaded.'}
+              : 'The admin user directory could not be loaded.')}
           </p>
         </div>
       )}
@@ -184,11 +176,12 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
               <td>{u.role}</td>
               <td><Status value={u.account_status} /></td>
               <td>
-                <form action={updateUserStatus} className="row-actions">
-                  <input type="hidden" name="user_id" value={u.id} />
-                  <SubmitButton name="account_status" value="active" variant="ghost" size="sm" pendingLabel="…">Active</SubmitButton>
-                  <SubmitButton name="account_status" value="suspended" variant="danger" size="sm" pendingLabel="…">Suspend</SubmitButton>
-                </form>
+                {u.account_status === 'pending' ? (
+                  <form action={updateUserStatus} className="row-actions">
+                    <input type="hidden" name="user_id" value={u.id} />
+                    <SubmitButton name="account_status" value="active" variant="ghost" size="sm" pendingLabel="…">Approve activation</SubmitButton>
+                  </form>
+                ) : u.account_status === 'active' ? <span className="muted">No action</span> : <span className="muted">Status changes unavailable</span>}
               </td>
             </tr>
           ))}
@@ -200,9 +193,10 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
   return (
     <>
       <PageHeaderWithActions title="Admin HQ" eyebrow="Moderation">
-        <p>Review adults, reports, users, safety pings, proof, and support tickets.</p>
+        <p>Review verifications and activation requests; reports and support items are read-only until staff-write RPCs are available.</p>
       </PageHeaderWithActions>
-      <Toast message={sp?.message} />
+      <Toast message={sp?.error || sp?.message} variant={sp?.error ? 'error' : 'default'} />
+      {safetyPingsError && <div className="warning-box" role="alert" style={{ marginBottom: 16 }}>Safety pings could not be loaded; the dashboard may be incomplete.</div>}
 
       {needsHelpPings && needsHelpPings.length > 0 && (
         <div className="sos-card" style={{ marginBottom: 24, textAlign: 'left' }}>
@@ -216,10 +210,10 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
       )}
 
       <div className="stats">
-        <MetricCard icon="✅" label="Pending verifications" value={<CountUp value={pendingVerifications} />} color={pendingVerifications ? 'var(--warning)' : undefined} />
-        <MetricCard icon="⚠️" label="Open reports" value={<CountUp value={openReports} />} color={openReports ? 'var(--danger)' : undefined} />
-        <MetricCard icon="🎧" label="Open tickets" value={<CountUp value={openTickets} />} color={openTickets ? 'var(--warning)' : undefined} />
-        <MetricCard icon="💼" label="Jobs" value={<CountUp value={jobsCount || 0} />} />
+        <MetricCard icon="✅" label="Pending verifications" value={verificationsError ? '—' : <CountUp value={pendingVerifications} />} color={pendingVerifications ? 'var(--warning)' : undefined} />
+        <MetricCard icon="⚠️" label="Open reports" value={reportsError ? '—' : <CountUp value={openReports} />} color={openReports ? 'var(--danger)' : undefined} />
+        <MetricCard icon="🎧" label="Open tickets" value={ticketsError ? '—' : <CountUp value={openTickets} />} color={openTickets ? 'var(--warning)' : undefined} />
+        <MetricCard icon="💼" label="Jobs" value={jobsError ? '—' : <CountUp value={jobsCount || 0} />} />
       </div>
 
       <LocalTabs

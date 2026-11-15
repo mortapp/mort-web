@@ -5,7 +5,6 @@ import { requireRole } from '@/lib/auth'
 import { dollarsToCents } from '@/lib/money'
 
 function v(fd: FormData,k:string){const x=fd.get(k); return x==null?null:String(x).trim()}
-function requestId(){ return crypto.randomUUID() }
 function rpcText(data: any, fallback = 'The backend rejected this request.') {
   return data?.message || data?.code || fallback
 }
@@ -21,10 +20,10 @@ function getJobPayload(formData: FormData, profile: any) {
       title: v(formData,'title') || 'Local job',
       description: v(formData,'description') || 'No description provided',
       summary: v(formData,'description')?.slice(0, 180) || null,
-      category: v(formData,'category') || 'general',
+      category: v(formData,'category') || 'other',
       location_text: v(formData,'location_text') || 'Approximate location shared after approval',
       city: v(formData,'city') || profile?.city || 'Indianapolis',
-      state: v(formData,'state') || profile?.state || 'IN',
+      state: v(formData,'state') || profile?.region || 'IN',
       adult_job_amount_cents: amount,
       pay_label: v(formData,'pay_label'),
       teen_min_age: teenMinAge,
@@ -52,19 +51,23 @@ function getJobPayload(formData: FormData, profile: any) {
 }
 
 export async function postJob(formData: FormData) {
-  const { supabase, profile } = await requireRole(['adult','admin'])
-  if (profile?.role !== 'admin' && profile?.verification_status !== 'approved' && profile?.verification_status !== 'verified') redirect('/app/verify?message=Adults must be approved before posting jobs.')
+  const { supabase, profile } = await requireRole(['adult'])
+  if (profile?.verification_status !== 'approved' && profile?.verification_status !== 'verified') redirect('/app/verify?error=' + encodeURIComponent('Adults must be approved before posting jobs.'))
   const built = getJobPayload(formData, profile)
   if ('error' in built) redirect('/app/adult/post-job?message=' + encodeURIComponent(built.error!))
+  const client_request_id = v(formData,'client_request_id')
+  if (!client_request_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(client_request_id)) {
+    redirect('/app/adult/post-job?error=' + encodeURIComponent('Refresh the page and try publishing again.'))
+  }
 
   const { data, error } = await supabase.rpc('save_job_draft_or_publish', {
     p_job_id: null,
-    p_client_request_id: requestId(),
+    p_client_request_id: client_request_id,
     p_payload: built.payload,
     p_publish: true,
   })
-  if (error) redirect(`/app/adult/post-job?message=${encodeURIComponent(error.message)}`)
-  if (!data?.ok) redirect(`/app/adult/post-job?message=${encodeURIComponent(rpcText(data, 'Job could not be published.'))}`)
+  if (error) redirect(`/app/adult/post-job?error=${encodeURIComponent(error.message)}`)
+  if (!data?.ok) redirect(`/app/adult/post-job?error=${encodeURIComponent(rpcText(data, 'Job could not be published.'))}`)
   revalidatePath('/app/adult/jobs')
   redirect('/app/adult/jobs?message=Job posted')
 }
@@ -81,19 +84,25 @@ function actionForApplicationStatus(status: string | null) {
 }
 
 export async function setApplicationStatus(formData: FormData) {
-  const { supabase } = await requireRole(['adult','admin'])
+  const { supabase } = await requireRole(['adult'])
   const application_id = v(formData,'application_id')
   const action = actionForApplicationStatus(v(formData,'status'))
+  const client_request_id = v(formData,'client_request_id')
+  const expected_updated_at = v(formData,'expected_updated_at')
   if (!application_id) redirect('/app/adult/applications?message=' + encodeURIComponent('Missing application.'))
   if (!action) redirect('/app/adult/applications?message=' + encodeURIComponent('That application action is not allowed here.'))
+  if (!client_request_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(client_request_id)) {
+    redirect('/app/adult/applications?error=' + encodeURIComponent('Refresh the page and try the application decision again.'))
+  }
 
-  const { data, error } = await supabase.rpc('update_my_job_application_status', {
+  const { data, error } = await supabase.rpc('update_my_job_application_status_v3', {
     p_application_id: application_id,
     p_action: action,
-    p_expected_updated_at: null,
+    p_client_request_id: client_request_id,
+    p_expected_updated_at: expected_updated_at || null,
   })
-  if (error) redirect(`/app/adult/applications?message=${encodeURIComponent(error.message)}`)
-  if (!data?.ok) redirect(`/app/adult/applications?message=${encodeURIComponent(rpcText(data, 'Application was not updated.'))}`)
+  if (error) redirect(`/app/adult/applications?error=${encodeURIComponent(error.message)}`)
+  if (!data?.ok) redirect(`/app/adult/applications?error=${encodeURIComponent(rpcText(data, 'Application was not updated.'))}`)
   revalidatePath('/app/adult/applications')
   revalidatePath('/app/adult/jobs')
   redirect('/app/adult/applications?message=Application updated')
@@ -102,26 +111,30 @@ export async function setApplicationStatus(formData: FormData) {
 function jobActionForStatus(status: string | null) {
   if (status === 'paused') return 'pause'
   if (status === 'open') return 'resume'
-  if (status === 'closed') return 'close_applications'
   return null
 }
 
 export async function setJobStatus(formData: FormData) {
-  const { supabase } = await requireRole(['adult','admin'])
+  const { supabase } = await requireRole(['adult'])
   const job_id = v(formData,'job_id')
   const action = jobActionForStatus(v(formData,'status'))
+  const client_request_id = v(formData,'client_request_id')
+  const expected_updated_at = v(formData,'expected_updated_at')
   if (!job_id) redirect('/app/adult/jobs?message=' + encodeURIComponent('Missing job.'))
   if (!action) redirect('/app/adult/jobs?message=' + encodeURIComponent('That job action is not supported by the live backend.'))
+  if (!client_request_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(client_request_id)) {
+    redirect('/app/adult/jobs?error=' + encodeURIComponent('Refresh the page and try the job action again.'))
+  }
 
   const { data, error } = await supabase.rpc('manage_job_v2', {
     p_job_id: job_id,
     p_action: action,
     p_reason: null,
-    p_client_request_id: requestId(),
-    p_expected_updated_at: null,
+    p_client_request_id: client_request_id,
+    p_expected_updated_at: expected_updated_at || null,
   })
-  if (error) redirect(`/app/adult/jobs?message=${encodeURIComponent(error.message)}`)
-  if (!data?.ok) redirect(`/app/adult/jobs?message=${encodeURIComponent(rpcText(data, 'Job was not updated.'))}`)
+  if (error) redirect(`/app/adult/jobs?error=${encodeURIComponent(error.message)}`)
+  if (!data?.ok) redirect(`/app/adult/jobs?error=${encodeURIComponent(rpcText(data, 'Job was not updated.'))}`)
   revalidatePath('/app/adult/jobs')
   redirect('/app/adult/jobs?message=Job updated')
 }

@@ -1,8 +1,6 @@
 import { requireUser } from '@/lib/auth'
-import { saveProfile } from '@/app/app/actions'
 import { PageHeaderWithActions, Status, XPBar, BadgeRow } from '@/components/ui'
 import { Toast } from '@/components/toast'
-import { SubmitButton } from '@/components/submit-button'
 import { AppearanceCard } from '@/components/appearance-card'
 export const dynamic = 'force-dynamic'
 
@@ -41,40 +39,41 @@ export default async function Profile({ searchParams }: { searchParams?: Promise
         <Status value={profile?.verification_status} />
       </PageHeaderWithActions>
 
-      <Toast message={sp?.message} />
+      <Toast message={sp?.error || sp?.message} variant={sp?.error ? 'error' : 'default'} />
 
       <div className="grid two" style={{gap:24,alignItems:'start'}}>
         {/* Edit form */}
-        <form action={saveProfile} className="card form">
-          <h3 style={{marginBottom:20}}>Edit profile</h3>
+        <div className="card form">
+          <h3 style={{marginBottom:20}}>Profile details</h3>
+          <div className="warning-box" role="status" style={{ marginBottom: 16 }}>Profile editing is temporarily unavailable because production does not expose a profile-update RPC. Your current details are shown read-only.</div>
           <div className="grid two">
             <label>
               Display name
-              <input name="display_name" defaultValue={profile?.display_name || ''} placeholder="Your name" />
+              <input name="display_name" defaultValue={profile?.display_name || ''} placeholder="Your name" readOnly />
             </label>
             <label>
               Username
-              <input name="username" defaultValue={profile?.username || ''} placeholder="@username" />
+              <input name="username" defaultValue={profile?.username || ''} placeholder="@username" readOnly />
             </label>
             <label>
               City
-              <input name="city" defaultValue={profile?.city || ''} placeholder="Indianapolis" />
+              <input name="city" defaultValue={profile?.city || ''} placeholder="Indianapolis" readOnly />
             </label>
             <label>
               State
-              <input name="state" defaultValue={profile?.state || ''} placeholder="IN" />
+              <input name="state" defaultValue={profile?.region || ''} placeholder="IN" readOnly />
             </label>
             <label>
               Date of birth
-              <input type="date" name="dob" defaultValue={profile?.dob || ''} />
+              <input type="date" name="dob" defaultValue={profile?.date_of_birth || ''} readOnly />
             </label>
             <label>
               Role
               <input value={profile?.role || 'not chosen'} disabled style={{opacity:0.5,cursor:'not-allowed'}} />
             </label>
           </div>
-          <SubmitButton full size="lg" pendingLabel="Saving…">Save profile</SubmitButton>
-        </form>
+          <button type="button" className="btn" disabled>Profile editing unavailable</button>
+        </div>
 
         {/* Stats & badges */}
         <div style={{display:'flex',flexDirection:'column',gap:16}}>

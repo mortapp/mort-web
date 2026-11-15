@@ -85,7 +85,7 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
         <span style={{fontSize:13,color:'var(--muted)'}}>{jobs?.length || 0} job{jobs?.length !== 1 ? 's' : ''} found</span>
       </div>
 
-      {!jobs?.length ? (
+      {!error && !jobs?.length ? (
         <EmptyState
           icon="🔍"
           title="No open jobs yet"
@@ -102,7 +102,7 @@ export default async function Jobs({ searchParams }: { searchParams?: Promise<Re
               title={j.title}
               category={j.category}
               city={j.city}
-              state={j.state}
+              state={j.region}
               locationText={j.location_text}
               description={j.description}
               payLabel={j.pay_label || centsToDollars(j.pay_amount_cents)}

@@ -13,12 +13,15 @@ export default async function ThreadDetail({ params, searchParams }: { params: P
   const sp = await searchParams
   const { supabase, user, profile } = await requireUser()
 
-  const { data: conversation } = await supabase
+  const { data: conversation, error: conversationError } = await supabase
     .from('conversations')
     .select('*, jobs(title, poster_id), conversation_members(user_id)')
     .eq('id', id)
     .maybeSingle()
 
+  if (conversationError) {
+    return <div className="error" role="alert">Conversation could not be loaded. Refresh and try again.</div>
+  }
   if (!conversation) {
     return <div className="error">Conversation not found.</div>
   }
@@ -28,7 +31,7 @@ export default async function ThreadDetail({ params, searchParams }: { params: P
     return <div className="error">You don&rsquo;t have access to this conversation.</div>
   }
 
-  const { data: messages } = await supabase
+  const { data: messages, error: messagesError } = await supabase
     .from('messages')
     .select('*')
     .eq('conversation_id', id)
@@ -40,11 +43,12 @@ export default async function ThreadDetail({ params, searchParams }: { params: P
         <Link href="/app/messages" className="btn ghost sm">← All threads</Link>
       </PageHeaderWithActions>
 
-      <Toast message={sp?.message} />
+      <Toast message={sp?.error || sp?.message} variant={sp?.error ? 'error' : 'default'} />
+      {messagesError && <div className="warning-box" role="alert">Messages could not be loaded. Refresh and try again.</div>}
 
       <div className="card" style={{ marginBottom: 16 }}>
         <div className="message-list">
-          {!messages?.length && <p style={{ fontSize: 13 }}>No messages yet — say hello and keep it about the job.</p>}
+          {!messagesError && !messages?.length && <p style={{ fontSize: 13 }}>No messages yet — say hello and keep it about the job.</p>}
           {(messages || []).map((m: any) => (
             <div key={m.id} style={{ display: 'flex', flexDirection: 'column', alignItems: m.sender_id === user.id ? 'flex-end' : 'flex-start' }}>
               <div className={`message-bubble ${m.sender_id === user.id ? 'mine' : 'theirs'}`}>

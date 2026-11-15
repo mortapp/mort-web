@@ -8,7 +8,7 @@ export default async function Messages({ searchParams }: { searchParams?: Promis
   const sp = await searchParams
   const { supabase, user } = await requireUser()
   // Production conversation model: conversations + conversation_members.
-  const { data: conversations } = await supabase
+  const { data: conversations, error: conversationsError } = await supabase
     .from('conversations')
     .select('*, jobs(title), conversation_members(user_id), messages(conversation_id, body, created_at, moderation_status)')
     .eq('status', 'active')
@@ -27,7 +27,8 @@ export default async function Messages({ searchParams }: { searchParams?: Promis
         eyebrow="Moderated, job-based chat"
         description="Conversations only open once there's an accepted job application between you and the other person. Keep all job talk inside MORT."
       />
-      <Toast message={sp?.message} />
+      <Toast message={sp?.error || sp?.message} variant={sp?.error ? 'error' : 'default'} />
+      {conversationsError && <div className="warning-box" role="alert">Your conversations could not be loaded. Refresh and try again.</div>}
 
       <div className="card info-card" style={{ marginBottom: 24 }}>
         <p style={{ fontSize: 13, margin: 0 }}>
@@ -35,7 +36,7 @@ export default async function Messages({ searchParams }: { searchParams?: Promis
         </p>
       </div>
 
-      {!mine.length ? (
+      {!conversationsError && !mine.length ? (
         <EmptyState icon="💬" title="No conversations yet" text="Threads open automatically once an application is accepted." />
       ) : (
         <div className="grid two">

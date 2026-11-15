@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { requireRole } from '@/lib/auth'
 import { PageHeaderWithActions, Status } from '@/components/ui'
 import { postJob } from '../actions'
@@ -9,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export default async function PostJob({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const { profile } = await requireRole(['adult','admin'])
   const sp = await searchParams
-  const isApproved = profile?.role === 'admin' || profile?.verification_status === 'approved' || profile?.verification_status === 'verified'
+  const isApproved = profile?.role === 'adult' && (profile?.verification_status === 'approved' || profile?.verification_status === 'verified')
 
   return (
     <>
@@ -21,7 +22,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
         <Status value={profile?.verification_status} />
       </PageHeaderWithActions>
 
-      <Toast message={sp?.message} />
+      <Toast message={sp?.error || sp?.message} variant={sp?.error ? 'error' : 'default'} />
 
       {!isApproved && (
         <div className="warning-box" style={{marginBottom:20}}>
@@ -32,15 +33,16 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
 
       <div className="grid two" style={{gap:24,alignItems:'start'}}>
         <form action={postJob} className="card form">
+          <input type="hidden" name="client_request_id" value={randomUUID()} />
           <h3 style={{marginBottom:20}}>Job details</h3>
           <div className="grid two">
             <label>
               Job title
-              <input name="title" required placeholder="Dog walking, Lawn mowing..." />
+            <input name="title" required minLength={5} placeholder="Dog walking, Lawn mowing..." />
             </label>
             <label style={{gridColumn:'1 / -1'}}>
               Category
-              <CategoryPicker name="category" defaultValue="dog walking" />
+              <CategoryPicker name="category" defaultValue="pet_care" />
             </label>
             <label>
               Pay amount (dollars)
@@ -56,7 +58,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
             </label>
             <label>
               State
-              <input name="state" defaultValue={profile?.state||''} required />
+              <input name="state" defaultValue={profile?.region||''} required />
             </label>
             <label>
               Approx. location
@@ -77,7 +79,7 @@ export default async function PostJob({ searchParams }: { searchParams?: Promise
           </div>
           <label>
             Job description
-            <textarea name="description" required placeholder="Describe the job, what's needed, how long it takes, any special requirements..." />
+            <textarea name="description" required minLength={20} placeholder="Describe the job, what's needed, how long it takes, any special requirements..." />
           </label>
           <label style={{flexDirection:'row',alignItems:'center',gap:10,cursor:'pointer'}}>
             <input type="checkbox" name="requires_guardian_approval" style={{width:'auto'}} />

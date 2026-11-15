@@ -202,27 +202,9 @@ export async function completeOnboarding(formData: FormData) {
 }
 
 export async function saveProfile(formData: FormData) {
-  const { supabase } = await requireUser()
-  const username = (val(formData, 'username') || '').toLowerCase()
-  if (username && !/^[a-z0-9_]{3,24}$/.test(username)) {
-    redirect('/app/profile?message=' + encodeURIComponent('Use 3–24 lowercase letters, numbers, or underscores.'))
-  }
-
-  const { data, error } = await supabase.rpc('update_my_profile', {
-    p_patch: {
-      display_name: val(formData, 'display_name'),
-      username: username || null,
-      city: val(formData, 'city'),
-      region: (val(formData, 'state') || '').toUpperCase(),
-    },
-    p_expected_updated_at: null,
-    p_client_request_id: randomUUID(),
-  })
-  if (error || data?.ok !== true) {
-    redirect('/app/profile?message=' + encodeURIComponent('Profile could not be saved. Review the fields and try again.'))
-  }
-  revalidatePath('/app', 'layout')
-  redirect('/app/profile?message=Profile saved')
+  await requireUser()
+  void formData
+  redirect('/app/profile?error=' + encodeURIComponent('Profile editing is temporarily unavailable because the production backend does not expose a profile-update RPC.'))
 }
 
 // Compatibility endpoint for the archived pre-v2 onboarding prototype. It

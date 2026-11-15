@@ -1,9 +1,7 @@
 import Link from 'next/link'
 import { requireUser } from '@/lib/auth'
 import { PageHeaderWithActions, Status } from '@/components/ui'
-import { replyToTicket } from '../actions'
 import { Toast } from '@/components/toast'
-import { SubmitButton } from '@/components/submit-button'
 export const dynamic = 'force-dynamic'
 
 export default async function TicketDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams?: Promise<Record<string, string>> }) {
@@ -26,7 +24,7 @@ export default async function TicketDetail({ params, searchParams }: { params: P
         <Link href="/app/support" className="btn ghost sm">← My tickets</Link>
         <Status value={ticket.status} />
       </PageHeaderWithActions>
-      <Toast message={sp?.message} />
+      <Toast message={sp?.error || sp?.message} variant={sp?.error ? 'error' : 'default'} />
 
       <div className="card" style={{ marginBottom: 16 }}>
         <p>{ticket.description || 'Support conversation'}</p>
@@ -44,11 +42,9 @@ export default async function TicketDetail({ params, searchParams }: { params: P
         </div>
       </div>
 
-      <form action={replyToTicket} className="card form">
-        <input type="hidden" name="ticket_id" value={id} />
-        <label>Reply<textarea name="body" required /></label>
-        <SubmitButton pendingLabel="Sending…">Send reply</SubmitButton>
-      </form>
+      <div className="warning-box" role="status">
+        Replies are temporarily unavailable because the production backend has no support-ticket reply endpoint.
+      </div>
     </>
   )
 }

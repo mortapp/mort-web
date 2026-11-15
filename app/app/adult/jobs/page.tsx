@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import Link from 'next/link'
 import { requireRole } from '@/lib/auth'
 import { centsToDollars } from '@/lib/money'
@@ -11,16 +12,17 @@ export default async function MyJobs({ searchParams }: { searchParams?: Promise<
   const { supabase, user, profile } = await requireRole(['adult','admin'])
   let q = supabase.from('jobs').select('*').order('created_at', { ascending: false })
   if (profile?.role !== 'admin') q = q.eq('poster_id', user.id)
-  const { data: jobs } = await q
+  const { data: jobs, error: jobsError } = await q
 
   return (
     <>
       <PageHeaderWithActions title="My posted jobs" eyebrow="Adult" description="Manage the jobs you've posted.">
         <Link href="/app/adult/post-job" className="btn primary">+ Post a job</Link>
       </PageHeaderWithActions>
-      <Toast message={sp?.message} />
+      <Toast message={sp?.error || sp?.message} variant={sp?.error ? 'error' : 'default'} />
+      {jobsError && <div className="warning-box" role="alert">Your jobs could not be loaded. Refresh and try again.</div>}
 
-      {!jobs?.length ? (
+      {!jobsError && !jobs?.length ? (
         <EmptyState icon="📁" title="No jobs yet" text="Post your first job." href="/app/adult/post-job" action="Post job" />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -32,17 +34,21 @@ export default async function MyJobs({ searchParams }: { searchParams?: Promise<
                   <h3 className="job-card-title">{j.title}</h3>
                   <span className="job-card-pay">{j.pay_label || centsToDollars(j.pay_amount_cents)}</span>
                 </div>
-                <div className="job-card-meta">{j.category} · {j.city}, {j.state}</div>
+                <div className="job-card-meta">{j.category} · {j.city}, {j.region}</div>
                 <div className="job-card-badges">
                   <Status value={j.status} />
                 </div>
                 <div className="row-actions" style={{ marginTop: 10 }}>
                   <Link className="btn sm" href={`/app/adult/jobs/${j.id}`}>Open applicants</Link>
-                  <form action={setJobStatus}>
-                    <input type="hidden" name="job_id" value={j.id} />
-                    <input type="hidden" name="status" value={j.status === 'open' ? 'paused' : 'open'} />
-                    <button className="btn ghost sm">{j.status === 'open' ? 'Pause' : 'Reopen'}</button>
-                  </form>
+                  {profile?.role === 'adult' && ['open', 'paused'].includes(j.status) && (
+                    <form action={setJobStatus}>
+                      <input type="hidden" name="job_id" value={j.id} />
+                      <input type="hidden" name="status" value={j.status === 'open' ? 'paused' : 'open'} />
+                      <input type="hidden" name="client_request_id" value={randomUUID()} />
+                      <input type="hidden" name="expected_updated_at" value={j.updated_at} />
+                      <button className="btn ghost sm">{j.status === 'open' ? 'Pause' : 'Resume'}</button>
+                    </form>
+                  )}
                 </div>
               </div>
             </div>

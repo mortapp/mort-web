@@ -27,7 +27,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
       <PageHeaderWithActions
         title={job.title}
         eyebrow="Job detail"
-        description={`${job.city}, ${job.state} · ${job.location_text}`}
+        description={`${job.city}, ${job.region} · ${job.location_text}`}
       >
         <Link href="/app/teen/jobs" className="btn ghost">← Back to jobs</Link>
       </PageHeaderWithActions>
@@ -61,7 +61,7 @@ export default async function JobDetail({ params, searchParams }: { params: Prom
             <div className="grid two" style={{gap:16}}>
               <div>
                 <h4 style={{marginBottom:4}}>Location</h4>
-                <p style={{fontSize:14}}>{job.city}, {job.state}</p>
+                <p style={{fontSize:14}}>{job.city}, {job.region}</p>
                 <p style={{fontSize:13,color:'var(--muted)'}}>{job.location_text}</p>
               </div>
               <div>

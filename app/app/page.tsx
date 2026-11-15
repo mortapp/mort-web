@@ -27,8 +27,8 @@ export default async function Dashboard() {
     { count: reportsCount }
   ] = await Promise.all([
     supabase.from('jobs').select('id', { count: 'exact', head: true }).eq('status','open'),
-    supabase.from('applications').select('id', { count: 'exact', head: true }).or(`teen_id.eq.${user.id}`),
-    supabase.from('applications').select('id', { count: 'exact', head: true }).eq('teen_id', user.id).eq('status','accepted'),
+    supabase.from('job_applications').select('id', { count: 'exact', head: true }).eq('applicant_id', user.id),
+    supabase.from('job_applications').select('id', { count: 'exact', head: true }).eq('applicant_id', user.id).eq('status','accepted'),
     supabase.from('reports').select('id', { count: 'exact', head: true }).eq('reporter_id', user.id),
   ])
 

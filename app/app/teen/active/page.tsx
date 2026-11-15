@@ -9,10 +9,10 @@ export default async function Active({ searchParams }: { searchParams?: Promise<
   const sp = await searchParams
   const { supabase, user } = await requireRole(['teen'])
   const { data: apps } = await supabase
-    .from('applications')
+    .from('job_applications')
     .select('*, jobs(*)')
-    .eq('teen_id', user.id)
-    .in('status', ['accepted','in_progress','proof_submitted','completion_pending_release','completed','disputed'])
+    .eq('applicant_id', user.id)
+    .eq('status', 'accepted')
     .order('updated_at', { ascending: false })
 
   const appIds = (apps || []).map((a: any) => a.id)
@@ -90,7 +90,7 @@ export default async function Active({ searchParams }: { searchParams?: Promise<
                 )}
               </div>
 
-              {a.status === 'in_progress' ? <ProofUpload applicationId={a.id} /> : <p style={{ fontSize: 12.5, marginTop: 12, color: 'var(--muted2)' }}>Proof upload opens once the job is marked in progress.</p>}
+              {a.jobs?.status === 'in_progress' ? <ProofUpload applicationId={a.id} /> : <p style={{ fontSize: 12.5, marginTop: 12, color: 'var(--muted2)' }}>Proof upload opens once the job is marked in progress.</p>}
             </div>
           ))}
         </div>
