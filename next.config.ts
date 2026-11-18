@@ -1,8 +1,9 @@
 import type { NextConfig } from 'next'
 import { getSupabaseOrigin } from './lib/supabase/csp-origin.mjs'
 
-// This app makes network connections to the MORT Supabase project and to
-// Google Fonts (app/globals.css imports Plus Jakarta Sans from
+// This app makes network connections to the MORT Supabase project, Google
+// Fonts, and Stripe.js for the test-only Payment Element flow. Google Fonts
+// (app/globals.css imports Plus Jakarta Sans from
 // fonts.googleapis.com, whose stylesheet points at fonts.gstatic.com) --
 // verified by grepping lib/, components/, and app/ for external URLs
 // before writing this policy. No CDN, no next/image remote domains, no
@@ -19,13 +20,15 @@ const SUPABASE_ORIGIN = getSupabaseOrigin(
 )
 const GOOGLE_FONTS_STYLESHEET_ORIGIN = 'https://fonts.googleapis.com'
 const GOOGLE_FONTS_FILE_ORIGIN = 'https://fonts.gstatic.com'
+const STRIPE_API_ORIGIN = 'https://api.stripe.com'
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' https://*.js.stripe.com https://js.stripe.com",
   `style-src 'self' 'unsafe-inline' ${GOOGLE_FONTS_STYLESHEET_ORIGIN}`,
   "img-src 'self' data: blob:",
   `font-src 'self' data: ${GOOGLE_FONTS_FILE_ORIGIN}`,
-  `connect-src 'self' ${SUPABASE_ORIGIN}`,
+  `connect-src 'self' ${SUPABASE_ORIGIN} ${STRIPE_API_ORIGIN}`,
+  "frame-src 'self' https://*.js.stripe.com https://js.stripe.com https://hooks.stripe.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
