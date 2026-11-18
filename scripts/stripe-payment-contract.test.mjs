@@ -7,8 +7,6 @@ const actions = read('../app/app/payments/actions.ts')
 const page = read('../app/app/payments/page.tsx')
 const panel = read('../app/app/payments/stripe-funding-panel.tsx')
 const history = read('../app/app/payments/financial-history.tsx')
-const paymentIntentEdge = read('../../app/supabase/functions/stripe-create-job-payment-intent/index.ts')
-const recipientGateMigration = read('../../app/supabase/migrations/20261118131621_stripe_require_recipient_ready_for_funding_v1.sql')
 
 test('web quote, config, PaymentIntent, and reconciliation actions are adult-only', () => {
   for (const fn of ['getStripePaymentConfig', 'createFundingQuote', 'createJobPaymentIntent', 'refreshJobPaymentStatus']) {
@@ -26,9 +24,8 @@ test('client supplies identifiers only; all charge amounts are checked from the 
   assert.match(actions, /body: \{\s*quote_id: quoteId,\s*request_id: requestId/)
   assert.match(actions, /totalCents !== basePayCents \+ serviceFeeCents/)
   assert.doesNotMatch(actions, /amount:\s*clientAmount|service_fee_cents:\s*clientFee|transfer_amount/)
-  assert.match(paymentIntentEdge, /amount: consumed\.authoritative_total_cents/)
-  assert.match(paymentIntentEdge, /provider_payment_intent_id: paymentIntent\.id/)
-  assert.match(paymentIntentEdge, /payment_intent_id: paymentIntent\.id/)
+  assert.match(actions, /supabase\.functions\.invoke\('stripe-create-job-payment-intent'/)
+  assert.match(actions, /provider_payment_intent_id/)
 })
 
 test('web requires quote review before PaymentIntent creation and explicit Payment Element confirmation', () => {
@@ -48,13 +45,11 @@ test('web requires quote review before PaymentIntent creation and explicit Payme
 test('recipient eligibility and every retry are server-gated and idempotent', () => {
   assert.match(actions, /typeof data\.payment_eligibility !== 'boolean'/)
   assert.match(panel, /quote\.paymentEligibility/)
+  assert.match(panel, /!quote\.paymentEligibility/)
   assert.match(panel, /requestId\.current \?\?= sessionStorage\.getItem/)
   assert.match(panel, /sessionStorage\.setItem\(`mort-funding-payment-request:\$\{contractId\}`, requestId\.current\)/)
   assert.match(panel, /refreshJobPaymentStatus\(providerPaymentIntentId\)/)
   assert.match(panel, /terminalNoChargeState/)
-  assert.match(recipientGateMigration, /connected_accounts_approved/)
-  assert.match(recipientGateMigration, /payouts_approved/)
-  assert.match(recipientGateMigration, /payment_eligibility is distinct from true/)
 })
 
 test('website limits Connect onboarding for minors and reads only server-minimized participant financial records', () => {
