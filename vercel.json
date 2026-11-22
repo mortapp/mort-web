@@ -1,0 +1,7 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "hardening/public-account-deletion-20261122": false
+    }
+  }
+}

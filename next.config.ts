@@ -47,7 +47,13 @@ const nextConfig: NextConfig = {
   turbopack: { root: process.cwd() },
   outputFileTracingRoot: process.cwd(),
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }]
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      { source: '/account-deletion/:path*', headers: [
+        { key: 'Cache-Control', value: 'private, no-store' },
+        { key: 'Referrer-Policy', value: 'no-referrer' },
+      ] },
+    ]
   },
 }
 

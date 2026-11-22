@@ -4,6 +4,12 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - "app/account-deletion/**"
+      - "lib/account-deletion.mjs"
+      - "scripts/account-deletion.test.mjs"
+      - "scripts/account-deletion-http-smoke.mjs"
+      - "components/mort-public-home.tsx"
+      - "next.config.ts"
       - "app/app/actions.ts"
       - "app/app/onboarding/**"
       - "app/app/page.tsx"
@@ -42,10 +48,14 @@ jobs:
       - run: npm ci
       - run: npm run test:production-config
       - run: npm run typecheck
+      - run: npx eslint app/account-deletion lib/account-deletion.mjs scripts/account-deletion.test.mjs components/mort-public-home.tsx next.config.ts
       - run: npx eslint app/app/actions.ts app/app/onboarding/page.tsx app/app/page.tsx app/app/teen/actions.ts app/app/teen/layout.tsx app/app/adult/layout.tsx app/app/guardian/layout.tsx app/app/admin/layout.tsx app/auth/callback/route.ts components/onboarding-form.tsx lib/auth.ts app/app/messages/actions.ts app/app/messages/page.tsx 'app/app/messages/[id]/page.tsx' app/app/actions.ts app/app/reports/new/page.tsx
-      - name: Build Next.js production bundle
+      - name: Build production-mode Next.js bundle for isolated HTTP verification
         run: npm run build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: https://jxbnrkasktbhtiujkhay.supabase.co
+          VERCEL_ENV: preview
+          NEXT_PUBLIC_SUPABASE_URL: https://account-deletion-ci-placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_build_placeholder
-          NEXT_PUBLIC_SITE_URL: https://mortapp.org
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3317
+      - name: Check account-deletion routes on an isolated Next.js server
+        run: node scripts/account-deletion-http-smoke.mjs

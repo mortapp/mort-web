@@ -113,7 +113,7 @@ export function MortPublicHome({ isSignedIn = false }: { isSignedIn?: boolean })
           <div className="mp-footer-main">
             <Link href="/" className="mp-brand"><Logomark size={28} /><span>MORT</span></Link>
             <p>Local opportunity, with a little more thought behind it.</p>
-            <div className="mp-footer-links"><Link href="#how">How it works</Link><Link href="/safety">Safety</Link><Link href="/legal/terms">Terms</Link><Link href="/legal/privacy">Privacy</Link><Link href="/login">Sign in</Link></div>
+            <div className="mp-footer-links"><Link href="#how">How it works</Link><Link href="/safety">Safety</Link><Link href="/legal/terms">Terms</Link><Link href="/legal/privacy">Privacy</Link><Link href="/account-deletion">Delete account</Link><Link href="/login">Sign in</Link></div>
           </div>
           <div className="mp-footer-bottom"><span>© 2026 MORT. All rights reserved.</span><span>Availability and features may vary by location and account status.</span></div>
         </div>
