@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:production-config": "node --test scripts/admin-role-requests.test.mjs scripts/csp-origin.test.mjs scripts/google-signup-state.test.mjs scripts/legal-publication.test.mjs scripts/onboarding-v2-contract.test.mjs scripts/site-url.test.mjs scripts/support-message-read-error.test.mjs scripts/team-hustle-safety-contract.test.mjs scripts/verification-upload-cleanup.test.mjs",
+    "test:production-config": "node --test scripts/account-deletion.test.mjs scripts/admin-role-requests.test.mjs scripts/csp-origin.test.mjs scripts/google-signup-state.test.mjs scripts/legal-publication.test.mjs scripts/onboarding-v2-contract.test.mjs scripts/site-url.test.mjs scripts/support-message-read-error.test.mjs scripts/team-hustle-safety-contract.test.mjs scripts/verification-upload-cleanup.test.mjs",
     "verify:legal": "node scripts/verify-legal-publication.mjs"
   },
   "dependencies": {
