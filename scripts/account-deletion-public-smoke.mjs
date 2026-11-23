@@ -25,14 +25,15 @@ try {
   const deletion = await fetch(`${base}/account-deletion`, { redirect: 'manual' })
   assert.equal(deletion.status, 200)
   const page = await deletion.text()
-  assert.match(page, /<h1[^>]*>Delete your MORT account<\/h1>/)
-  assert.match(page, /href="mailto:mortapp\.help@gmail\.com\?subject=MORT%20account%20deletion%20request"/)
-  assert.match(page, /href="\/legal\/privacy"/)
-  assert.doesNotMatch(page, /<form\b|<input\b/)
+  assert.match(page, /<h1[^>]*>Delete your MORT account<\\/h1>/)
+  assert.match(page, /href="mailto:privacy@mortapp\\.org\\?subject=MORT%20account%20deletion%20request"/)
+  assert.doesNotMatch(page, /mortapp\\.help@gmail\\.com/)
+  assert.match(page, /href="\\/legal\\/privacy"/)
+  assert.doesNotMatch(page, /<form\\b|<input\\b/)
 
   const home = await fetch(base)
   assert.equal(home.status, 200)
-  assert.match(await home.text(), /<a[^>]+href="\/account-deletion"[^>]*>Delete account<\/a>/)
+  assert.match(await home.text(), /<a[^>]+href="\\/account-deletion"[^>]*>Delete account<\\/a>/)
 
   for (const path of ['/login', '/signup', '/safety', '/legal/privacy']) {
     assert.equal((await fetch(`${base}${path}`, { redirect: 'manual' })).status, 200, `${path} must still load`)
