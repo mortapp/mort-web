@@ -72,3 +72,10 @@ Verified: `npm run build` compiles all routes and `next start` renders home, /lo
   "don't fake a trust score"); the mature "local opportunity infrastructure" framing leads instead.
 - New styles live in the identity block at the bottom of `app/globals.css` (`.mort-hero-section`,
   `.mort-crossing`, `.mort-steps`, `mortSail` keyframe).
+
+
+## Terms page reading-layout pass
+- `/legal/terms` uses a Terms-only monochrome editorial layout informed by the supplied MORT UI/UX specification and public-site redesign: light-first reading surface, black/white/silver/gray palette, clear section hierarchy, desktop contents rail, and a native mobile contents disclosure.
+- The existing MORT header, legal-document links, route, and V5 document body/version/effective date are preserved. V5 content remains sourced from `content/legal-documents.json` and guarded by `content/legal-publication-manifest.json`; no legal wording was edited.
+- Dark theme, keyboard focus, reduced-motion, narrow-screen, and print presentation are supported. Privacy, safety, and community legal routes retain their previous shared layout.
+- The Terms page metadata now correctly identifies V5 instead of the stale V4 description. This is a Preview-branch change only; no Production deployment or legal-domain routing was changed.

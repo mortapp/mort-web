@@ -155,3 +155,87 @@ export function LegalDocumentPage({ document }: { document: LegalDocument }) {
   )
 }
 
+
+
+function termsSectionId(title: string, index: number) {
+  const slug = title
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'section'
+  return `terms-section-${index + 1}-${slug}`
+}
+
+function termsSections(markdown: string) {
+  let index = 0
+  return markdown.split('\n').flatMap((line) => {
+    const heading = line.match(/^##\s+(.+)$/)
+    if (!heading) return []
+    const section = { title: heading[1], id: termsSectionId(heading[1], index) }
+    index++
+    return [section]
+  })
+}
+
+function termsMarkdownToHtml(markdown: string) {
+  const sections = termsSections(markdown)
+  let index = 0
+  return markdownToHtml(markdown).replace(/<h2>([\s\S]*?)<\/h2>/g, (heading, content: string) => {
+    const section = sections[index++]
+    return section ? `<h2 id="${section.id}" tabindex="-1">${content}</h2>` : heading
+  })
+}
+
+export function TermsDocumentPage({ document }: { document: LegalDocument }) {
+  const body = document.content.replace(/^# [^\n]*\n/, '')
+  const sections = termsSections(body)
+  const articleHtml = termsMarkdownToHtml(body)
+  const sectionLinks = (
+    <ol>
+      {sections.map((section) => (
+        <li key={section.id}><a href={`#${section.id}`}>{section.title}</a></li>
+      ))}
+    </ol>
+  )
+
+  return (
+    <>
+      <SiteHeader />
+      <main className="terms-page-shell">
+        <div className="terms-page-container">
+          <div className="terms-heading">
+            <div className="terms-kicker">Legal · Published</div>
+            <h1>{document.title}</h1>
+            <p className="terms-meta">Version {document.version} · Effective date {document.effectiveDate}</p>
+            <nav className="legal-document-nav" aria-label="Legal documents">
+              {documentLinks.map((item) => (
+                <Link key={item.href} href={item.href} aria-current={item.key === document.documentKey ? 'page' : undefined}>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div className="terms-mobile-index">
+            <details>
+              <summary><span>On this page</span><span>{sections.length} sections</span></summary>
+              <nav aria-label="Terms sections">{sectionLinks}</nav>
+            </details>
+          </div>
+
+          <div className="terms-layout">
+            <aside className="terms-aside">
+              <p className="terms-aside-title">On this page</p>
+              <nav aria-label="Terms sections">{sectionLinks}</nav>
+            </aside>
+            <article className="legal-document terms-article" aria-label={document.title} dangerouslySetInnerHTML={{ __html: articleHtml }} />
+          </div>
+
+          <p className="legal-page-footnote terms-footnote">This page displays the published MORT legal document version identified above. If you have questions about a specific agreement or your rights, contact MORT through its support channel.</p>
+        </div>
+      </main>
+    </>
+  )
+}
