@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: 'Request deletion of your MORT account and associated personal information without reinstalling the app.',
 }
 
-const privacyEmail = 'mortapp.help@gmail.com'
+const privacyEmail = 'privacy@mortapp.org'
 
 export default function AccountDeletionPage() {
   return (
