@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - "app/account-deletion/**"
+      - "components/mort-public-home.tsx"
+      - "scripts/account-deletion-public-smoke.mjs"
       - "app/app/actions.ts"
       - "app/app/onboarding/**"
       - "app/app/page.tsx"
@@ -49,3 +52,8 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://jxbnrkasktbhtiujkhay.supabase.co
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_build_placeholder
           NEXT_PUBLIC_SITE_URL: https://mortapp.org
+      - name: Check the public deletion route without using production credentials
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://jxbnrkasktbhtiujkhay.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_build_placeholder
+        run: node scripts/account-deletion-public-smoke.mjs
