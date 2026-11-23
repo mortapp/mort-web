@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MORT — Earn nearby. Move smart.</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="MORT is a safer way for teens 13–17 to find age-appropriate local work, and for neighbors to hire them.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--fg:#000;--muted:#5b5e63;--line:#d9dadd;--surface:#f2f2f3;--btn:#000;--btn-fg:#fff;--band:#1c1d1f;--band-fg:#fff;--band-muted:#a9acb1;--ok:#1f6b3a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--fg:#fff;--muted:#a3a6ab;--line:#2f3133;--surface:#17181a;--btn:#fff;--btn-fg:#000;--band:#17181a;--ok:#7fd49b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#000;--fg:#fff;--muted:#a3a6ab;--line:#2f3133;--surface:#17181a;--btn:#fff;--btn-fg:#000;--band:#17181a;--ok:#7fd49b;color-scheme:dark}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px);scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 17px/1.55 "Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--fg);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.logo{font-weight:800;font-size:22px;letter-spacing:-.03em;text-decoration:none;margin-right:auto}
+nav{display:flex;gap:26px;font-size:15px}
+nav a{text-decoration:none;color:var(--muted);font-weight:500}
+nav a:hover{color:var(--fg)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 22px;border-radius:12px;font-weight:700;font-size:15px;line-height:1;font-family:inherit;text-decoration:none;border:1.5px solid var(--btn);background:var(--btn);color:var(--btn-fg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn.sm{min-height:38px;padding:0 16px;font-size:14px}
+.signin{font-size:15px;font-weight:500;text-decoration:none;color:var(--muted)}
+h1,h2,h3{margin:0;letter-spacing:-.035em;line-height:1.02;font-weight:800}
+h1{font-size:clamp(46px,8.2vw,104px)}
+h2{font-size:clamp(32px,4.6vw,56px);max-width:16ch}
+h3{font-size:21px;letter-spacing:-.02em;line-height:1.2}
+p{margin:0}
+.lede{font-size:clamp(18px,2vw,21px);color:var(--muted);max-width:44ch}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;padding:72px 0 96px}
+.hero .lede{margin:28px 0 36px}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.hint{margin-top:22px;font-size:14px;color:var(--muted)}
+/* phone */
+.stage{display:flex;flex-direction:column;align-items:center;gap:14px}
+.phone{width:min(310px,100%);border:1.5px solid var(--line);border-radius:38px;background:var(--bg);padding:16px 14px 0;box-shadow:0 30px 60px -30px rgba(0,0,0,.35);overflow:hidden}
+.phone h4{margin:6px 6px 10px;font-size:15px;font-weight:700;letter-spacing:-.01em}
+.rail{display:flex;gap:8px;overflow:hidden;margin-bottom:14px}
+.chip{flex:0 0 auto;border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-size:13px;line-height:1.25;background:var(--surface)}
+.chip b{display:block;font-weight:700}
+.chip span{color:var(--muted)}
+.job{border-top:1px solid var(--line);padding:14px 6px}
+.job .top{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted)}
+.job .dist{font-weight:800;font-size:17px;color:var(--fg);letter-spacing:-.02em}
+.job .t{font-weight:700;font-size:16px;margin:6px 0 2px;letter-spacing:-.01em}
+.job .m{font-size:13px;color:var(--muted)}
+.job .foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.job .pay{font-weight:800;font-size:18px}
+.apply{min-width:128px;min-height:40px;border-radius:11px;border:1.5px solid var(--btn);background:var(--btn);color:var(--btn-fg);font-weight:700;font-size:14px;line-height:1;font-family:inherit;cursor:pointer;transition:background .25s,color .25s,border-color .25s,transform .12s}
+.apply:active{transform:scale(.97)}
+.apply[data-s="applying"]{background:var(--surface);color:var(--muted);border-color:var(--line);cursor:default}
+.apply[data-s="applied"]{background:transparent;color:var(--ok);border-color:var(--ok)}
+.apply[data-s="view"]{background:transparent;color:var(--fg);border-color:var(--line)}
+.dots::after{content:"";animation:d 1s steps(4) infinite}
+@keyframes d{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.tabs{display:flex;justify-content:space-around;border-top:1px solid var(--line);margin:6px -14px 0;padding:12px 4px 14px;font-size:11.5px;color:var(--muted);font-weight:500}
+.tabs .on{color:var(--fg);font-weight:700}
+.tabs .plus{width:30px;height:30px;margin-top:-6px;border-radius:10px;background:var(--btn);color:var(--btn-fg);display:grid;place-items:center;font-size:20px;font-weight:500}
+.replay{background:none;border:0;color:var(--muted);font-weight:500;font-size:14px;line-height:normal;font-family:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+section{padding:96px 0}
+.split{display:grid;grid-template-columns:1fr 1.2fr;gap:64px}
+.steps{display:grid;gap:0}
+.steps div{padding:26px 0;border-top:1px solid var(--line)}
+.steps p,.cat p{color:var(--muted);margin-top:6px}
+.cats{display:grid;grid-template-columns:repeat(2,1fr);column-gap:48px;margin-top:48px}
+.cat{padding:22px 0;border-top:1px solid var(--line)}
+.cat p{margin-top:2px;font-size:16px}
+.roles{margin-top:40px}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:14px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;color:var(--muted);font-weight:700;font-size:15px;line-height:normal;font-family:inherit;min-height:40px;padding:0 20px;border-radius:10px;cursor:pointer}
+.seg button[aria-selected="true"]{background:var(--btn);color:var(--btn-fg)}
+.rolebody{display:grid;grid-template-columns:1fr 1fr;gap:56px;margin-top:36px;align-items:start}
+.rolebody p{color:var(--muted);margin:14px 0 26px;max-width:42ch}
+.bar{border:1.5px solid var(--line);border-radius:22px;display:flex;justify-content:space-around;align-items:center;padding:18px 10px;font-weight:700;font-size:15px;background:var(--surface)}
+.bar span{color:var(--muted);font-weight:500}
+.bar span.on{color:var(--fg);font-weight:700}
+.bar .plus{width:44px;height:44px;border-radius:14px;background:var(--btn);color:var(--btn-fg);display:grid;place-items:center;font-size:26px}
+.band{background:var(--band);color:var(--band-fg)}
+.band .lede,.band .small{color:var(--band-muted)}
+.safe{display:grid;grid-template-columns:1.1fr .9fr;gap:64px;align-items:center}
+.pts{margin-top:36px;display:grid;gap:22px}
+.pts p{color:var(--band-muted);margin-top:4px;font-size:16px}
+.pts h3{color:#fff}
+.small{font-size:14px;margin-top:28px}
+.hold{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center}
+.hb{position:relative;width:168px;height:168px;border-radius:50%;border:0;background:#2c2d30;color:#fff;font-weight:700;font-size:17px;line-height:1.2;font-family:inherit;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+.hb svg{position:absolute;inset:-6px;width:calc(100% + 12px);height:calc(100% + 12px);transform:rotate(-90deg);pointer-events:none}
+.hb circle{fill:none;stroke-width:5}
+.hb .tr{stroke:#3a3b3f}
+.hb .pr{stroke:#fff;stroke-dasharray:540;stroke-dashoffset:540;transition:stroke-dashoffset .15s linear}
+.hb.go .pr{transition:stroke-dashoffset 1.2s linear;stroke-dashoffset:0}
+.hmsg{min-height:48px;max-width:30ch;color:var(--band-muted);font-size:15px}
+.cta{text-align:left}
+.cta h2{max-width:12ch}
+footer{border-top:1px solid var(--line);padding:40px 0 56px;font-size:14px;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;gap:32px;flex-wrap:wrap}
+footer nav{flex-wrap:wrap;gap:8px 22px}
+
+/* address privacy */
+.priv{padding-top:0}
+.priv h2{max-width:20ch}
+.prow{display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;margin-top:44px;align-items:start}
+.stages{display:flex;flex-direction:column;gap:0;border-left:2px solid var(--line)}
+.stages button{text-align:left;background:none;border:0;border-left:2px solid transparent;margin-left:-2px;padding:16px 20px;color:var(--muted);font-family:inherit;font-weight:500;font-size:17px;line-height:1.3;cursor:pointer;transition:color .2s,border-color .2s}
+.stages button[aria-selected="true"]{border-left-color:var(--fg);color:var(--fg);font-weight:700}
+.panel{border:1.5px solid var(--line);border-radius:22px;padding:28px;background:var(--surface);min-height:250px}
+.panel .k{font-size:14px;color:var(--muted);margin-bottom:10px}
+.addr{font-weight:800;font-size:clamp(24px,3.2vw,34px);letter-spacing:-.03em;line-height:1.15;min-height:2.3em}
+.addr .mask{display:inline-block;letter-spacing:.02em;filter:blur(7px);transition:filter .5s ease;user-select:none}
+.addr .mask.shown{filter:none}
+.panel .why{margin-top:18px;color:var(--muted);font-size:16px;max-width:46ch}
+.panel .tag{display:inline-block;margin-top:22px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;background:var(--bg)}
+.sample{margin-top:12px;font-size:13px;color:var(--muted)}
+/* posting demo */
+.post{padding-top:0}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:64px;margin-top:44px;align-items:start}
+.sheet{border:1.5px solid var(--line);border-radius:26px;padding:22px;background:var(--bg);box-shadow:0 30px 60px -36px rgba(0,0,0,.3)}
+.sheet h4{margin:0 0 12px;font-size:18px;font-weight:800;letter-spacing:-.02em}
+.field{border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;min-height:56px;font-size:16px;background:var(--surface)}
+.caret::after{content:"";display:inline-block;width:2px;height:1.1em;background:var(--fg);vertical-align:-.15em;margin-left:2px;animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+.sug{display:grid;gap:0;margin-top:14px;opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s}
+.sug.on{opacity:1;transform:none}
+.sug div{display:flex;justify-content:space-between;gap:16px;padding:11px 2px;border-top:1px solid var(--line);font-size:15px}
+.sug span{color:var(--muted)}
+.sug b{font-weight:700;text-align:right}
+.pay{margin-top:16px}
+.pay .lab{font-size:14px;color:var(--muted);margin-bottom:8px}
+.pills{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.pills button{flex:0 0 auto;min-width:52px;min-height:44px;border-radius:12px;border:1.5px solid var(--line);background:transparent;color:var(--fg);font-family:inherit;font-weight:700;font-size:15px;cursor:pointer}
+.pills button[aria-pressed="true"]{background:var(--btn);color:var(--btn-fg);border-color:var(--btn)}
+.pills button .rec{display:block;font-size:10.5px;font-weight:500;opacity:.8;line-height:1}
+.rule{margin-top:14px;font-size:14px;color:var(--muted)}
+.pnote{margin-top:14px;font-size:14px;color:var(--muted)}
+@media (max-width:860px){.prow,.pgrid{grid-template-columns:1fr;gap:32px}.stages{flex-direction:row;border-left:0;border-bottom:2px solid var(--line);overflow-x:auto}.stages button{border-left:0;border-bottom:2px solid transparent;margin:0 0 -2px;white-space:nowrap;padding:12px 14px;font-size:15px}.stages button[aria-selected="true"]{border-bottom-color:var(--fg)}}
+@media (prefers-reduced-motion:reduce){.caret::after{animation:none}.sug{transition:none}.panel .addr .mask{transition:none}}
+/* legal */
+.view[hidden]{display:none}
+@media (max-width:860px){
+nav{display:none}header .wrap{gap:16px}
+.hero,.split,.safe,.rolebody,.lbody{grid-template-columns:1fr;gap:40px}
+.hero{padding:40px 0 64px}section{padding:64px 0}
+.cats{grid-template-columns:1fr}
+.toc{position:static;flex-direction:row;overflow-x:auto;max-height:none;border-bottom:1px solid var(--line);padding-bottom:8px}
+.toc button{border-left:0;border-bottom:2px solid transparent;white-space:nowrap}
+.toc button[aria-current="true"]{border-bottom-color:var(--fg)}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.dots::after{animation:none;content:"…"}.hb.go .pr{transition:none}.apply{transition:none}}
+</style>
+</head>
+<body>
+<header>
+ <div class="wrap">
+  <a class="logo" href="#top" aria-label="MORT home">MORT</a>
+  <nav aria-label="Primary">
+   <a href="#how">How it works</a><a href="#work">Work</a><a href="#safety">Safety</a><a href="#privacy">Privacy</a><a href="/legal/terms">Legal</a>
+  </nav>
+  <a class="signin" href="/login">Sign in</a>
+  <a class="btn sm" href="/signup">Get started</a>
+ </div>
+</header>
+
+<main>
+<div class="view" id="v-home">
+ <div class="wrap hero" id="top">
+  <div>
+   <h1>Earn nearby. Move smart.</h1>
+   <p class="lede">MORT is a safer way for teens 13–17 to find age-appropriate local work, and for neighbors to hire them.</p>
+   <div class="row"><a class="btn" href="/signup">Create account</a><a class="btn ghost" href="#how">See how it works</a></div>
+   <p class="hint">Safety is built into the experience. Availability varies by location and account.</p>
+  </div>
+  <div class="stage" aria-label="Illustration of the MORT app Home screen">
+   <div class="phone">
+    <h4>Quick jobs</h4>
+    <div class="rail"><div class="chip"><b>Take out bins</b><span>10 min · $10</span></div><div class="chip"><b>Water plants</b><span>15 min · $12</span></div><div class="chip"><b>Carry groceries</b><span>20 min · $15</span></div></div>
+    <div class="job"><div class="top"><span class="dist">0.4 mi</span><span>Dana R. · Verified</span></div><div class="t">Walk Biscuit around the block</div><div class="m">Today, 4:30 PM · 30 min</div><div class="foot"><span class="pay">$20</span><button class="apply" id="ap" data-s="idle">Apply</button></div></div>
+    <div class="job"><div class="top"><span class="dist">0.9 mi</span><span>Marcus T. · Verified</span></div><div class="t">Rake front yard leaves</div><div class="m">Sat, 10:00 AM · 1 hr</div><div class="foot"><span class="pay">$30</span><button class="apply" tabindex="-1" aria-hidden="true">Apply</button></div></div>
+    <div class="tabs"><span class="on">Home</span><span>Explore</span><span>Inbox</span><span>Profile</span></div>
+   </div>
+   <button class="replay" id="rp">Replay Apply</button>
+  </div>
+ </div>
+
+ <section id="how"><div class="wrap split">
+  <h2>From first look to first job.</h2>
+  <div class="steps">
+   <div><h3>See the work</h3><p>Jobs show up the moment you open MORT, with distance, who’s posting, pay, and time up front.</p></div>
+   <div><h3>Apply in one tap</h3><p>Send a short, honest application. The person posting reviews and chooses.</p></div>
+   <div><h3>Do it and build a reputation</h3><p>Agree on the details, follow the job steps, and earn the reliability that opens up better work.</p></div>
+  </div>
+ </div></section>
+
+ <section id="work" style="padding-top:0"><div class="wrap">
+  <h2>Start with what you can do.</h2>
+  <div class="cats">
+   <div class="cat"><h3>Tutoring</h3><p>Help with schoolwork</p></div><div class="cat"><h3>Lawn care</h3><p>Mowing and yard work</p></div>
+   <div class="cat"><h3>Dog walking</h3><p>Pet care nearby</p></div><div class="cat"><h3>Errands</h3><p>Everyday helpful tasks</p></div>
+   <div class="cat"><h3>Car washing</h3><p>Neighborhood car care</p></div><div class="cat"><h3>Moving help</h3><p>Age-appropriate assistance</p></div>
+  </div>
+ </div></section>
+
+ <section class="band" id="safety"><div class="wrap safe">
+  <div>
+   <h2>Safety is part of the job, not an add-on.</h2>
+   <div class="pts">
+    <div><h3>Check-ins that fit the job</h3><p>Short jobs and long jobs both get them.</p></div>
+    <div><h3>Start and finish PINs</h3><p>Both sides confirm when work begins and ends.</p></div>
+    <div><h3>Exact address stays private</h3><p>Listings show distance and area. Details are shared only when needed.</p></div>
+   </div>
+   <p class="small">MORT’s tools aren’t emergency dispatch. In immediate danger, call 911. Features roll out by state and account.</p>
+  </div>
+  <div class="hold">
+   <button class="hb" id="hb" aria-describedby="hm"><svg viewBox="0 0 180 180" aria-hidden="true"><circle class="tr" cx="90" cy="90" r="86"/><circle class="pr" cx="90" cy="90" r="86"/></svg>Hold for help</button>
+   <p class="hmsg" id="hm" aria-live="polite">Help takes a deliberate hold, so it can’t be triggered by accident. Try it.</p>
+  </div>
+ </div></section>
+
+
+ <section class="priv" id="privacy"><div class="wrap">
+  <h2>Your address isn’t a permanent record.</h2>
+  <div class="prow">
+   <div class="stages" role="tablist" aria-label="Job stage">
+    <button role="tab" aria-selected="true" data-i="0">Before anyone is accepted</button>
+    <button role="tab" aria-selected="false" data-i="1">Accepted, before travel</button>
+    <button role="tab" aria-selected="false" data-i="2">On the way and on the job</button>
+    <button role="tab" aria-selected="false" data-i="3">After it’s done</button>
+   </div>
+   <div class="panel" id="pp" data-s="0" role="tabpanel" aria-live="polite">
+    <div class="k" id="pk"></div>
+    <div class="addr" id="pa"></div>
+    <p class="why" id="pw"></p>
+    <span class="tag" id="pt"></span>
+    <p class="sample">Sample address for illustration.</p>
+   </div>
+  </div>
+ </div></section>
+
+ <section class="post" id="post"><div class="wrap">
+  <h2>Posting is a sentence, not a form.</h2>
+  <div class="pgrid">
+   <div>
+    <p class="lede">Say what you need in plain words. MORT suggests the title, category, time, tools, and pay. You confirm or change everything before it goes live.</p>
+    <p class="pnote">The exact address stays private. Teens see the area and distance. Before you publish, you see the real job card a teen will see.</p>
+    <div class="row" style="margin-top:28px"><button class="btn ghost" id="pr">Replay</button></div>
+   </div>
+   <div class="sheet" aria-label="Illustration of the MORT post-a-job flow">
+    <h4>What do you need help with?</h4>
+    <div class="field caret" id="pf" aria-live="polite"></div>
+    <div class="sug" id="ps">
+     <div><span>Title</span><b>Mow the front lawn</b></div>
+     <div><span>Category</span><b>Lawn care</b></div>
+     <div><span>Time needed</span><b>About 1 hr</b></div>
+     <div><span>Tools</span><b>Poster provides mower</b></div>
+    </div>
+    <div class="pay"><div class="lab">Pay · tap to change, or type an amount</div>
+     <div class="pills" id="pp2" role="group" aria-label="Pay amount"></div></div>
+    <p class="rule">Late-cancellation window: set by MORT from the job’s length and effort, shown before you publish.</p>
+   </div>
+  </div>
+ </div></section>
+
+ <section><div class="wrap">
+  <h2>One product, two sides of the street.</h2>
+  <div class="roles">
+   <div class="seg" role="tablist" aria-label="Choose your role"><button role="tab" aria-selected="true" data-r="teen">I’m a teen</button><button role="tab" aria-selected="false" data-r="adult">I’m hiring</button></div>
+   <div class="rolebody" role="tabpanel">
+    <div><h3 id="rt">Turn your time into something.</h3><p id="rp2">Find real, age-appropriate work in your neighborhood, apply in minutes, and build a reputation.</p><a class="btn" id="rc" href="/signup">Create a teen account</a></div>
+    <div class="bar" id="bar" aria-label="App navigation"><span class="on">Home</span><span>Explore</span><span>Inbox</span><span>Profile</span></div>
+   </div>
+  </div>
+ </div></section>
+
+ <section class="band cta"><div class="wrap"><h2>Earn nearby. Move smart.</h2><div class="row" style="margin-top:32px"><a class="btn" style="background:#fff;color:#000;border-color:#fff" href="/signup">Get started</a></div></div></section>
+</div>
+
+</main>
+
+<footer><div class="wrap">
+ <div><b style="color:var(--fg)">MORT</b><br>Local opportunity, with a little more thought behind it.<br>© 2026 MORT. Availability and features vary by location and account status.</div>
+ <nav aria-label="Footer"><a href="/safety">Safety</a><a href="/legal/terms">Terms</a><a href="/legal/privacy">Privacy</a><a href="/account-deletion">Delete account</a><a href="/login">Sign in</a></nav>
+</div></footer>
+
+<script>
+(function(){
+ var $=function(s){return document.querySelector(s)};
+ var rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+ /* Apply sequence */
+ var ap=$("#ap"),timers=[];
+ function set(s,t){ap.dataset.s=s;ap.innerHTML=t}
+ function run(){timers.forEach(clearTimeout);timers=[];
+  set("idle","Apply");
+  timers.push(setTimeout(function(){set("applying",'Applying<span class="dots"></span>')},500));
+  timers.push(setTimeout(function(){set("applied","Applied ✓")},1700));
+  timers.push(setTimeout(function(){set("view","View application")},3000));}
+ ap.addEventListener("click",function(){if(ap.dataset.s==="idle")run()});
+ $("#rp").addEventListener("click",run);
+ setTimeout(run,1200);
+ /* Hold for help (demo only) */
+ var hb=$("#hb"),hm=$("#hm"),ht=null,def=hm.textContent;
+ function start(e){e.preventDefault();hb.classList.add("go");hm.textContent="Keep holding…";
+  ht=setTimeout(function(){hm.textContent="Demo only. This site doesn’t contact anyone. In danger, call 911.";hb.classList.remove("go")},rm?300:1250)}
+ function stop(){clearTimeout(ht);if(hb.classList.contains("go")){hb.classList.remove("go");hm.textContent="Released early, nothing was sent. That’s the point."}}
+ hb.addEventListener("pointerdown",start);["pointerup","pointerleave","pointercancel"].forEach(function(v){hb.addEventListener(v,stop)});
+ hb.addEventListener("keydown",function(e){if((e.key===" "||e.key==="Enter")&&!e.repeat)start(e)});
+ hb.addEventListener("keyup",stop);
+ /* Roles */
+ var R={teen:["Turn your time into something.","Find real, age-appropriate work in your neighborhood, apply in minutes, and build a reputation.","Create a teen account",["Home","Explore","Inbox","Profile"]],
+  adult:["Post it. Pick the right teen.","Describe the job, review applicants, and manage the work from one place. Built for neighbors and local businesses.","Create an adult account",["Home","Explore","+","Inbox","Profile"]]};
+ document.querySelectorAll(".seg button").forEach(function(b){b.addEventListener("click",function(){
+  var r=R[b.dataset.r];document.querySelectorAll(".seg button").forEach(function(x){x.setAttribute("aria-selected",x===b)});
+  $("#rt").textContent=r[0];$("#rp2").textContent=r[1];$("#rc").textContent=r[2];
+  $("#bar").innerHTML=r[3].map(function(t,i){return t==="+"?'<b class="plus" aria-label="Post a job">+</b>':'<span'+(i===0?' class="on"':'')+'>'+t+'</span>'}).join("")})});
+ /* Address privacy stages */
+ var ST=[
+  ["What you see","Broad Ripple area · 1.2 mi","Area and distance only. No street number, map pin, or coordinates.","Exact address: not shown"],
+  ["What you see","Broad Ripple area · 1.2 mi","You’re on the schedule. The exact address stays protected unless it’s needed.","Exact address: protected"],
+  ["While you travel and work",'<span class="mask">1234 Example St</span>',"MORT navigation opens the route. The address appears only while it’s needed.","Exact address: visible for now"],
+  ["In your history","Broad Ripple area · 1.2 mi away","The exact address is gone from history. That protects the teen and the person who posted.","Exact address: removed"]];
+ var pp=$("#pp");
+ function stage(i){document.querySelectorAll(".stages button").forEach(function(b,j){b.setAttribute("aria-selected",j===i)});
+  pp.dataset.s=i;$("#pk").textContent=ST[i][0];$("#pa").innerHTML=ST[i][1];$("#pw").textContent=ST[i][2];$("#pt").textContent=ST[i][3];
+  var m=pp.querySelector(".mask");if(m){if(rm)m.classList.add("shown");else requestAnimationFrame(function(){requestAnimationFrame(function(){m.classList.add("shown")})})}}
+ document.querySelectorAll(".stages button").forEach(function(b){b.addEventListener("click",function(){stage(+b.dataset.i)})});
+ stage(0);
+ /* Post demo */
+ var TXT="Mow my front lawn, it’s about half an acre",pf=$("#pf"),ps=$("#ps"),pay=$("#pp2"),pt=null,amt=30;
+ var AM=[10,20,30,40,50,60,70,80,90,100];
+ function drawPay(){pay.innerHTML="";AM.forEach(function(a){var b=document.createElement("button");b.type="button";b.setAttribute("aria-pressed",a===amt);
+   b.innerHTML="$"+a+(a===30?'<span class="rec">Suggested</span>':"");b.onclick=function(){amt=a;drawPay()};pay.appendChild(b)});
+  var o=document.createElement("button");o.type="button";o.textContent="Other";o.onclick=function(){var i=document.createElement("input");i.type="number";i.min=10;i.inputMode="numeric";i.placeholder="$ amount";i.setAttribute("aria-label","Type a pay amount, minimum 10 dollars");
+   i.style.cssText="width:96px;min-height:44px;border-radius:12px;border:1.5px solid var(--fg);background:var(--bg);color:var(--fg);font-weight:700;font-size:15px;line-height:1;font-family:inherit;padding:0 10px";
+   i.addEventListener("change",function(){var v=Math.floor(+i.value);if(!(v>=10)){v=10;i.value=10}amt=v});pay.replaceChild(i,o);i.focus()};pay.appendChild(o)}
+ function post(){clearInterval(pt);amt=30;ps.classList.remove("on");pf.classList.add("caret");pf.textContent="";drawPay();
+  if(rm){pf.textContent=TXT;pf.classList.remove("caret");ps.classList.add("on");return}
+  var n=0;pt=setInterval(function(){n++;pf.textContent=TXT.slice(0,n);if(n>=TXT.length){clearInterval(pt);pf.classList.remove("caret");setTimeout(function(){ps.classList.add("on")},300)}},32)}
+ $("#pr").addEventListener("click",post);
+ var seen=false;new IntersectionObserver(function(es,o){if(es[0].isIntersecting&&!seen){seen=true;post();o.disconnect()}},{threshold:.35}).observe($("#post"));
+ /* In-page anchors */
+ function route(){if(location.hash.length>1){var el=document.getElementById(location.hash.slice(1));if(el)el.scrollIntoView()}}
+ addEventListener("hashchange",route);route();
+})();
+</script>
+</body>
+</html>
