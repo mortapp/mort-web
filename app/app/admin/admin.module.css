@@ -1,4 +1,4 @@
-/* Scoped MORT editorial system for /app/admin; shared dashboard and app-shell styles remain untouched elsewhere. */
+/* Scoped MORT editorial system for /app/admin; shell sizing and theme are route-scoped in globals.css. */
 .dashboard {
   --admin-bg: #fff;
   --admin-ink: #101113;
@@ -6,10 +6,10 @@
   --admin-line: #dedfe1;
   --admin-soft: #f4f4f3;
   box-sizing: border-box;
-  width: calc(100% + 48px);
+  width: 100%;
   min-height: calc(100vh - 60px);
-  margin: -24px;
-  padding: 48px clamp(24px, 4vw, 64px) 80px;
+  margin: 0;
+  padding: 44px clamp(24px, 3.2vw, 56px) 72px;
   background: var(--admin-bg);
   color: var(--admin-ink);
   font: 400 15px/1.55 "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -253,7 +253,7 @@
 .dashboard :global(:focus-visible) { outline-color: #111; outline-offset: 3px; }
 
 @media (max-width: 900px) {
-  .dashboard { width: calc(100% + 32px); margin: -16px; padding: 34px 22px 56px; }
+  .dashboard { padding: 34px 22px 56px; }
   .dashboard :global(.stats) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .dashboard :global(.metric-card) { min-height: 120px; padding: 18px 16px 18px 0; }
   .dashboard :global(.metric-card:not(:first-child)) { padding-left: 16px; }

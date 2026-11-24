@@ -1314,3 +1314,144 @@ html[data-theme='dark'] .terms-page-shell {
   .terms-article a { color: #111; text-decoration: underline; }
   .terms-footnote { max-width: none; }
 }
+
+
+/* =====================================================================
+   ADMIN HQ — full-width workspace; isolated to /app/admin by AppShell.
+   Keep the navigation and theme toggle, but make the surrounding frame
+   feel like one deliberate surface instead of a dark canvas around a card.
+   ===================================================================== */
+.app-shell.admin-shell {
+  --bg: #f3f3f1;
+  --bg-sunken: #ececea;
+  --el-1: #fff;
+  --el-2: #f4f4f2;
+  --el-3: #e9e9e7;
+  --border: #dedfe1;
+  --border-strong: #c7c9cc;
+  --text: #101113;
+  --muted: #62666b;
+  --muted2: #414449;
+  --primary: #101113;
+  --primary-light: #3a3c3f;
+  --primary-dark: #000;
+  --primary-tint-bg: #f0f0ee;
+  --primary-gradient: linear-gradient(180deg, #101113 0%, #383a3d 100%);
+  --success: #167247;
+  --success-tint: #e7f4ec;
+  --warning: #805700;
+  --warning-tint: #fff4d6;
+  --danger: #a91f31;
+  --danger-tint: #fff0f1;
+  --info: #3c637a;
+  --info-tint: #eaf2f7;
+  --purple: #70508d;
+  --purple-tint: #f1ebf7;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Honor the app theme preference with the same full-bleed editorial layout. */
+html[data-theme="dark"] .app-shell.admin-shell {
+  --bg: #0d0e10;
+  --bg-sunken: #08090a;
+  --el-1: #121315;
+  --el-2: #1a1b1e;
+  --el-3: #232528;
+  --border: #303236;
+  --border-strong: #46494e;
+  --text: #f3f3f2;
+  --muted: #a2a4a8;
+  --muted2: #d0d1d3;
+  --primary: #f3f3f2;
+  --primary-light: #fff;
+  --primary-dark: #d0d1d3;
+  --primary-tint-bg: #232427;
+  --primary-gradient: linear-gradient(180deg, #f3f3f2 0%, #c6c8cb 100%);
+  --success: #78d6a0;
+  --success-tint: #173222;
+  --warning: #f0c66e;
+  --warning-tint: #352a14;
+  --danger: #ff8792;
+  --danger-tint: #35181c;
+  --info: #9ac9e2;
+  --info-tint: #172a34;
+  --purple: #c6a8e2;
+  --purple-tint: #2c2235;
+}
+
+.admin-shell .sidebar {
+  background: var(--el-1);
+  border-right-color: var(--border);
+  color: var(--text);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.admin-shell .sidebar-header,
+.admin-shell .sidebar-user,
+.admin-shell .sidebar-footer { border-color: var(--border); }
+.admin-shell .sidebar-link { color: var(--muted2); }
+.admin-shell .sidebar-link:hover { background: var(--el-2); color: var(--text); }
+.admin-shell .sidebar-link.active {
+  background: var(--primary-tint-bg);
+  color: var(--text);
+}
+.admin-shell .sidebar-link.active::before { background: var(--primary); }
+.admin-shell .sidebar-section { color: var(--muted); }
+.admin-shell .app-main { min-width: 0; background: var(--bg); }
+.admin-shell .app-topbar {
+  background: var(--el-1);
+  border-bottom-color: var(--border);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.admin-shell .app-topbar .btn.ghost {
+  border-color: var(--border-strong);
+  background: var(--el-1);
+  color: var(--text);
+}
+.admin-shell .app-topbar .btn.ghost:hover { background: var(--el-2); }
+.admin-shell .app-content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+html[data-theme="dark"] .admin-shell .mort-admin-dashboard {
+  --admin-bg: #121315;
+  --admin-ink: #f3f3f2;
+  --admin-muted: #a2a4a8;
+  --admin-line: #34363a;
+  --admin-soft: #1b1c1f;
+}
+html[data-theme="dark"] .admin-shell .mort-admin-dashboard .admin-review-card,
+html[data-theme="dark"] .admin-shell .mort-admin-dashboard .table-wrap {
+  border-color: var(--admin-line);
+  background: #17181a;
+  color: var(--admin-ink);
+}
+html[data-theme="dark"] .admin-shell .mort-admin-dashboard .table,
+html[data-theme="dark"] .admin-shell .mort-admin-dashboard .table td {
+  color: var(--admin-ink);
+}
+html[data-theme="dark"] .admin-shell .mort-admin-dashboard .table th {
+  border-bottom-color: var(--admin-line);
+  background: #1d1e21;
+  color: var(--admin-muted);
+}
+html[data-theme="dark"] .admin-shell .mort-admin-dashboard .table td { border-bottom-color: #292a2d; }
+html[data-theme="dark"] .admin-shell .mort-admin-dashboard .table tr:hover td { background: #1d1e21; }
+html[data-theme="dark"] .admin-shell .mort-admin-dashboard .warning-box {
+  border-color: var(--admin-line);
+  background: #1b1c1e;
+  color: var(--admin-ink);
+}
+html[data-theme="dark"] .admin-shell .mort-admin-dashboard .btn.ghost {
+  border-color: var(--admin-line);
+  background: #17181a;
+  color: var(--admin-ink);
+}
+html[data-theme="dark"] .admin-shell .mort-admin-dashboard a:not(.btn) { color: var(--admin-ink); }

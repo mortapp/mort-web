@@ -66,7 +66,7 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
   ].filter(s => s.items.length > 0)
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${pathname === '/app/admin' ? 'admin-shell' : ''}`}>
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">

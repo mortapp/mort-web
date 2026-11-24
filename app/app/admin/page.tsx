@@ -218,7 +218,7 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
   )
 
   return (
-    <div className={styles.dashboard}>
+    <div className={`${styles.dashboard} mort-admin-dashboard`}>
       <PageHeaderWithActions title="Admin HQ" eyebrow="Moderation" description="Review verifications and activation requests; reports and support items are read-only until staff-write RPCs are available." />
       <Toast message={sp?.error || sp?.message} variant={sp?.error ? 'error' : 'default'} />
       {safetyPingsError && <div className="warning-box" role="alert" style={{ marginBottom: 16 }}>Safety pings could not be loaded; the dashboard may be incomplete.</div>}
