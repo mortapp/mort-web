@@ -2,17 +2,36 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { Logomark } from '@/components/logomark'
-import { ThemeToggle } from '@/components/theme-toggle'
-import ui from './mort-marketing-home.module.css'
+import ui from './mort-index-home.module.css'
 
 type ApplyState = 'idle' | 'applying' | 'applied' | 'view'
-type Audience = 'teen' | 'adult'
+type Role = 'teen' | 'adult'
 
-const quickJobs = [
-  { title: 'Take out bins', detail: '10 min · $10' },
-  { title: 'Water plants', detail: '15 min · $12' },
-  { title: 'Carry groceries', detail: '20 min · $15' },
+const stages = [
+  {
+    eyebrow: 'What you see',
+    address: 'Broad Ripple area · 1.2 mi',
+    explanation: 'Area and distance only. No street number, map pin, or coordinates.',
+    status: 'Exact address: not shown',
+  },
+  {
+    eyebrow: 'What you see',
+    address: 'Broad Ripple area · 1.2 mi',
+    explanation: 'You’re on the schedule. The exact address stays protected unless it’s needed.',
+    status: 'Exact address: protected',
+  },
+  {
+    eyebrow: 'While you travel and work',
+    address: '1234 Example St',
+    explanation: 'MORT navigation opens the route. The address appears only while it’s needed.',
+    status: 'Exact address: visible for now',
+  },
+  {
+    eyebrow: 'In your history',
+    address: 'Broad Ripple area · 1.2 mi away',
+    explanation: 'The exact address is gone from history. That protects the teen and the person who posted.',
+    status: 'Exact address: removed',
+  },
 ]
 
 const categories = [
@@ -24,65 +43,44 @@ const categories = [
   ['Moving help', 'Age-appropriate assistance'],
 ]
 
-const privacyStages = [
-  {
-    label: 'Before anyone is accepted',
-    eyebrow: 'What you see',
-    address: 'Broad Ripple area · 1.2 mi',
-    explanation: 'Area and distance only. No street number, map pin, or coordinates.',
-    status: 'Exact address: not shown',
-  },
-  {
-    label: 'Accepted, before travel',
-    eyebrow: 'What you see',
-    address: 'Broad Ripple area · 1.2 mi',
-    explanation: 'You’re on the schedule. The exact address stays protected unless it’s needed.',
-    status: 'Exact address: protected',
-  },
-  {
-    label: 'On the way and on the job',
-    eyebrow: 'While you travel and work',
-    address: '1234 Example St',
-    explanation: 'The sample address is shown only to illustrate a temporary operational view.',
-    status: 'Sample only · not a real address',
-  },
-  {
-    label: 'After it’s done',
-    eyebrow: 'In your history',
-    address: 'Broad Ripple area · 1.2 mi away',
-    explanation: 'The exact address is not part of this sample history view.',
-    status: 'Sample address: not shown',
-  },
-]
-
 const sampleDescription = 'Mow my front lawn, it’s about half an acre'
+const payAmounts = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
 export function MortMarketingHome({ isSignedIn = false }: { isSignedIn?: boolean }) {
   const [applyState, setApplyState] = useState<ApplyState>('idle')
-  const [audience, setAudience] = useState<Audience>('teen')
-  const [privacyStage, setPrivacyStage] = useState(0)
-  const [helpMessage, setHelpMessage] = useState('Help takes a deliberate hold. This demo does not contact anyone.')
+  const [role, setRole] = useState<Role>('teen')
+  const [stageIndex, setStageIndex] = useState(0)
+  const [helpMessage, setHelpMessage] = useState('Help takes a deliberate hold, so it can’t be triggered by accident. Try it.')
   const [isHolding, setIsHolding] = useState(false)
-  const [postText, setPostText] = useState(sampleDescription)
-  const [suggestionsVisible, setSuggestionsVisible] = useState(true)
+  const [postText, setPostText] = useState('')
+  const [suggestionsVisible, setSuggestionsVisible] = useState(false)
   const [selectedPay, setSelectedPay] = useState(30)
-  const [customPay, setCustomPay] = useState('')
+  const [customPay, setCustomPay] = useState<number | ''>('')
   const [showCustomPay, setShowCustomPay] = useState(false)
   const applyTimers = useRef<number[]>([])
-  const helpTimer = useRef<number | null>(null)
+  const holdTimer = useRef<number | null>(null)
   const holdActivated = useRef(false)
   const postTimer = useRef<number | null>(null)
   const postRevealTimer = useRef<number | null>(null)
+  const postRef = useRef<HTMLElement>(null)
   const actionHref = isSignedIn ? '/app' : '/signup'
-  const privacy = privacyStages[privacyStage]
+  const currentStage = stages[stageIndex]
+  const roleContent = role === 'teen'
+    ? {
+        title: 'Turn your time into something.',
+        description: 'Find real, age-appropriate work in your neighborhood, apply in minutes, and build a reputation.',
+        button: 'Create a teen account',
+        tabs: ['Home', 'Explore', 'Inbox', 'Profile'],
+      }
+    : {
+        title: 'Post it. Pick the right teen.',
+        description: 'Describe the job, review applicants, and manage the work from one place. Built for neighbors and local businesses.',
+        button: 'Create an adult account',
+        tabs: ['Home', 'Explore', '+', 'Inbox', 'Profile'],
+      }
 
-  const clearApplyTimers = () => {
+  const runApply = () => {
     applyTimers.current.forEach((timer) => window.clearTimeout(timer))
-    applyTimers.current = []
-  }
-
-  const replayApply = () => {
-    clearApplyTimers()
     setApplyState('idle')
     applyTimers.current = [
       window.setTimeout(() => setApplyState('applying'), 500),
@@ -91,40 +89,43 @@ export function MortMarketingHome({ isSignedIn = false }: { isSignedIn?: boolean
     ]
   }
 
-  useEffect(() => () => clearApplyTimers(), [])
+  useEffect(() => {
+    const timer = window.setTimeout(runApply, 1200)
+    return () => {
+      window.clearTimeout(timer)
+      applyTimers.current.forEach((item) => window.clearTimeout(item))
+    }
+  }, [])
 
   const beginHelpHold = (event: { preventDefault: () => void }) => {
     event.preventDefault()
-    if (helpTimer.current !== null) return
+    if (holdTimer.current !== null) return
     holdActivated.current = false
     setIsHolding(true)
-    setHelpMessage('Keep holding… this sample will not call or alert anyone.')
-    helpTimer.current = window.setTimeout(() => {
+    setHelpMessage('Keep holding…')
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    holdTimer.current = window.setTimeout(() => {
       holdActivated.current = true
       setIsHolding(false)
-      setHelpMessage('Demo only: no alert was sent. In immediate danger, call 911.')
-      helpTimer.current = null
-    }, 1250)
+      setHelpMessage('Demo only. This site doesn’t contact anyone. In danger, call 911.')
+      holdTimer.current = null
+    }, reducedMotion ? 300 : 1250)
   }
 
   const endHelpHold = () => {
-    if (helpTimer.current !== null) {
-      window.clearTimeout(helpTimer.current)
-      helpTimer.current = null
-      setIsHolding(false)
-      if (!holdActivated.current) setHelpMessage('Released early; nothing was sent. This is a demo only.')
-    }
+    if (holdTimer.current === null) return
+    window.clearTimeout(holdTimer.current)
+    holdTimer.current = null
+    setIsHolding(false)
+    if (!holdActivated.current) setHelpMessage('Released early, nothing was sent. That’s the point.')
   }
-
-  useEffect(() => () => {
-    if (helpTimer.current !== null) window.clearTimeout(helpTimer.current)
-    if (postTimer.current !== null) window.clearInterval(postTimer.current)
-    if (postRevealTimer.current !== null) window.clearTimeout(postRevealTimer.current)
-  }, [])
 
   const replayPost = () => {
     if (postTimer.current !== null) window.clearInterval(postTimer.current)
     if (postRevealTimer.current !== null) window.clearTimeout(postRevealTimer.current)
+    setSelectedPay(30)
+    setCustomPay('')
+    setShowCustomPay(false)
     setSuggestionsVisible(false)
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setPostText(sampleDescription)
@@ -145,235 +146,163 @@ export function MortMarketingHome({ isSignedIn = false }: { isSignedIn?: boolean
     postTimer.current = timer
   }
 
+  useEffect(() => {
+    const node = postRef.current
+    if (!node) return
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting) {
+        replayPost()
+        observer.disconnect()
+      }
+    }, { threshold: 0.35 })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => () => {
+    if (holdTimer.current !== null) window.clearTimeout(holdTimer.current)
+    if (postTimer.current !== null) window.clearInterval(postTimer.current)
+    if (postRevealTimer.current !== null) window.clearTimeout(postRevealTimer.current)
+  }, [])
+
   const applyLabel = {
     idle: 'Apply',
-    applying: 'Applying…',
+    applying: 'Applying',
     applied: 'Applied ✓',
     view: 'View application',
   }[applyState]
 
   return (
     <div className={ui.page}>
-      <a className={ui.skipLink} href="#main-content">Skip to content</a>
-      <header className={ui.header}>
-        <div className={`${ui.shell} ${ui.headerInner}`}>
-          <Link className={ui.brand} href="/" aria-label="MORT home">
-            <Logomark size={28} />
-            <span>MORT</span>
-          </Link>
-          <nav className={ui.primaryNav} aria-label="Primary navigation">
-            <a href="#how">How it works</a>
-            <a href="#work">Work</a>
-            <a href="#safety">Safety</a>
-            <a href="#privacy">Privacy</a>
-            <Link href="/legal/terms">Legal</Link>
+      <header>
+        <div className="wrap">
+          <Link className="logo" href="#top" aria-label="MORT home">MORT</Link>
+          <nav aria-label="Primary">
+            <a href="#how">How it works</a><a href="#work">Work</a><a href="#safety">Safety</a><a href="#privacy">Privacy</a><Link href="/legal/terms">Legal</Link>
           </nav>
-          <div className={ui.headerActions}>
-            <ThemeToggle />
-            <Link className={ui.signIn} href={isSignedIn ? '/app' : '/login'}>{isSignedIn ? 'Dashboard' : 'Sign in'}</Link>
-            <Link className={`${ui.button} ${ui.buttonPrimary} ${ui.buttonSmall}`} href={actionHref}>{isSignedIn ? 'Open MORT' : 'Get started'}</Link>
-          </div>
+          <Link className="signin" href={isSignedIn ? '/app' : '/login'}>{isSignedIn ? 'Dashboard' : 'Sign in'}</Link>
+          <Link className="btn sm" href={actionHref}>{isSignedIn ? 'Open MORT' : 'Get started'}</Link>
         </div>
       </header>
 
-      <main id="main-content">
-        <section className={`${ui.shell} ${ui.hero}`} id="top">
-          <div className={ui.heroCopy}>
-            <p className={ui.eyebrow}><span aria-hidden="true" /> Local work. Real opportunity.</p>
-            <h1 className={ui.heroTitle}>Earn nearby.<br /><span>Move smart.</span></h1>
-            <p className={ui.lede}>MORT is a safer way for teens 13–17 to find age-appropriate local work, and for neighbors to hire them.</p>
-            <div className={ui.actionRow}>
-              <Link className={`${ui.button} ${ui.buttonPrimary}`} href={actionHref}>{isSignedIn ? 'Open MORT' : 'Create account'}</Link>
-              <a className={ui.textLink} href="#how">See how it works <span aria-hidden="true">↓</span></a>
-            </div>
-            <p className={ui.hint}>Safety is built into the experience. Availability varies by location and account.</p>
+      <main>
+        <div className="wrap hero" id="top">
+          <div>
+            <h1>Earn nearby. Move smart.</h1>
+            <p className="lede">MORT is a safer way for teens 13–17 to find age-appropriate local work, and for neighbors to hire them.</p>
+            <div className="row"><Link className="btn" href={actionHref}>{isSignedIn ? 'Open MORT' : 'Create account'}</Link><a className="btn ghost" href="#how">See how it works</a></div>
+            <p className="hint">Safety is built into the experience. Availability varies by location and account.</p>
           </div>
-
-          <div className={ui.phoneStage} aria-label="Illustrative MORT app screen">
-            <div className={ui.phone}>
-              <h2 className={ui.phoneTitle}>Quick jobs</h2>
-              <div className={ui.quickRail}>
-                {quickJobs.map((job) => <div className={ui.quickChip} key={job.title}><strong>{job.title}</strong><span>{job.detail}</span></div>)}
-              </div>
-              <article className={ui.jobCard}>
-                <div className={ui.jobTop}><span className={ui.distance}>0.4 mi</span><span>Dana R. · Verified</span></div>
-                <h3>Walk Biscuit around the block</h3>
-                <p>Today, 4:30 PM · 30 min</p>
-                <div className={ui.jobFooter}>
-                  <strong>$20</strong>
-                  {applyState === 'view' ? (
-                    <Link className={ui.applyButton} href={actionHref}>{applyLabel}</Link>
-                  ) : (
-                    <button className={ui.applyButton} type="button" data-state={applyState} onClick={applyState === 'idle' ? replayApply : undefined} disabled={applyState !== 'idle'} aria-live="polite">{applyLabel}</button>
-                  )}
-                </div>
-              </article>
-              <article className={ui.jobCard}>
-                <div className={ui.jobTop}><span className={ui.distance}>0.9 mi</span><span>Marcus T. · Verified</span></div>
-                <h3>Rake front yard leaves</h3>
-                <p>Sat, 10:00 AM · 1 hr</p>
-                <div className={ui.jobFooter}><strong>$30</strong><span className={ui.sampleAction}>Sample job</span></div>
-              </article>
-              <div className={ui.phoneTabs} aria-hidden="true"><span className={ui.activeTab}>Home</span><span>Explore</span><span>Inbox</span><span>Profile</span></div>
+          <div className="stage" aria-label="Illustration of the MORT app Home screen">
+            <div className="phone">
+              <h4>Quick jobs</h4>
+              <div className="rail"><div className="chip"><b>Take out bins</b><span>10 min · $10</span></div><div className="chip"><b>Water plants</b><span>15 min · $12</span></div><div className="chip"><b>Carry groceries</b><span>20 min · $15</span></div></div>
+              <div className="job"><div className="top"><span className="dist">0.4 mi</span><span>Dana R. · Verified</span></div><div className="t">Walk Biscuit around the block</div><div className="m">Today, 4:30 PM · 30 min</div><div className="foot"><span className="pay">$20</span><button className="apply" type="button" data-s={applyState} aria-live="polite" aria-label="Apply to illustrative sample job" onClick={() => { if (applyState === 'idle') runApply() }}>{applyLabel}{applyState === 'applying' && <span className="dots" aria-hidden="true" />}</button></div></div>
+              <div className="job"><div className="top"><span className="dist">0.9 mi</span><span>Marcus T. · Verified</span></div><div className="t">Rake front yard leaves</div><div className="m">Sat, 10:00 AM · 1 hr</div><div className="foot"><span className="pay">$30</span><button className="apply" type="button" tabIndex={-1} aria-hidden="true">Apply</button></div></div>
+              <div className="tabs"><span className="on">Home</span><span>Explore</span><span>Inbox</span><span>Profile</span></div>
             </div>
-            <button className={ui.replayButton} type="button" onClick={replayApply}>Replay Apply</button>
-            <p className={ui.sampleNote}>Illustrative screen with sample names, jobs, and pay. These are not live listings.</p>
+            <button className="replay" type="button" onClick={runApply}>Replay Apply</button>
           </div>
-        </section>
+        </div>
 
-        <section className={`${ui.section} ${ui.howSection}`} id="how">
-          <div className={`${ui.shell} ${ui.split}`}>
-            <h2 className={ui.sectionTitle}>From first look<br />to first job.</h2>
-            <div className={ui.steps}>
-              <article><h3>See the work</h3><p>Jobs show up when you open MORT, with distance, who’s posting, pay, and time up front.</p></article>
-              <article><h3>Apply in one tap</h3><p>Send a short, honest application. The person posting reviews it and chooses.</p></article>
-              <article><h3>Do it and build a reputation</h3><p>Agree on the details, follow the job steps, and build the reliability that opens up better work.</p></article>
+        <section id="how"><div className="wrap split">
+          <h2>From first look to first job.</h2>
+          <div className="steps">
+            <div><h3>See the work</h3><p>Jobs show up the moment you open MORT, with distance, who’s posting, pay, and time up front.</p></div>
+            <div><h3>Apply in one tap</h3><p>Send a short, honest application. The person posting reviews and chooses.</p></div>
+            <div><h3>Do it and build a reputation</h3><p>Agree on the details, follow the job steps, and earn the reliability that opens up better work.</p></div>
+          </div>
+        </div></section>
+
+        <section id="work" className="work"><div className="wrap">
+          <h2>Start with what you can do.</h2>
+          <div className="cats">{categories.map(([title, description]) => <div className="cat" key={title}><h3>{title}</h3><p>{description}</p></div>)}</div>
+        </div></section>
+
+        <section className="band" id="safety"><div className="wrap safe">
+          <div>
+            <h2>Safety is part of the job, not an add-on.</h2>
+            <div className="pts">
+              <div><h3>Check-ins that fit the job</h3><p>Short jobs and long jobs both get them.</p></div>
+              <div><h3>Start and finish PINs</h3><p>Both sides confirm when work begins and ends.</p></div>
+              <div><h3>Exact address stays private</h3><p>Listings show distance and area. Details are shared only when needed.</p></div>
             </div>
+            <p className="small">MORT’s tools aren’t emergency dispatch. In immediate danger, call 911. Features roll out by state and account.</p>
           </div>
-        </section>
+          <div className="hold">
+            <button className={`hb${isHolding ? ' go' : ''}`} type="button" id="hb" aria-describedby="hm" onPointerDown={beginHelpHold} onPointerUp={endHelpHold} onPointerLeave={endHelpHold} onPointerCancel={endHelpHold} onKeyDown={(event) => { if ((event.key === ' ' || event.key === 'Enter') && !event.repeat) beginHelpHold(event) }} onKeyUp={(event) => { if (event.key === ' ' || event.key === 'Enter') endHelpHold() }}>
+              <svg viewBox="0 0 180 180" aria-hidden="true"><circle className="tr" cx="90" cy="90" r="86" /><circle className="pr" cx="90" cy="90" r="86" /></svg>
+              Hold for help
+            </button>
+            <p className="hmsg" id="hm" aria-live="polite">{helpMessage}</p>
+          </div>
+        </div></section>
 
-        <section className={`${ui.section} ${ui.workSection}`} id="work">
-          <div className={ui.shell}>
-            <div className={ui.sectionOverline}><p className={ui.eyebrow}>Real local work</p><span>Local skills. Real experience.</span></div>
-            <h2 className={ui.sectionTitle}>Start with what<br />you can do.</h2>
-            <div className={ui.categoryGrid}>
-              {categories.map(([name, detail], index) => {
-                const next = `/app/teen/jobs?category=${encodeURIComponent(name.toLowerCase())}`
-                return <Link className={ui.category} href={isSignedIn ? next : `/signup?next=${encodeURIComponent(next)}`} key={name}>
-                  <span className={ui.categoryNumber}>{String(index + 1).padStart(2, '0')}</span>
-                  <span className={ui.categoryMark} aria-hidden="true">{['＋', '／', '⌁', '↗', '◌', '▤'][index]}</span>
-                  <h3>{name}</h3><p>{detail}</p><span className={ui.categoryArrow} aria-hidden="true">↗</span>
-                </Link>
-              })}
+        <section className="priv" id="privacy"><div className="wrap">
+          <h2>Your address isn’t a permanent record.</h2>
+          <div className="prow">
+            <div className="stages" role="tablist" aria-label="Job stage">
+              {['Before anyone is accepted', 'Accepted, before travel', 'On the way and on the job', 'After it’s done'].map((label, index) => <button type="button" role="tab" aria-selected={stageIndex === index} onClick={() => setStageIndex(index)} key={label}>{label}</button>)}
+            </div>
+            <div className="panel" role="tabpanel" aria-live="polite">
+              <div className="k">{currentStage.eyebrow}</div>
+              <div className="addr">{stageIndex === 2 ? <span className="mask">{currentStage.address}</span> : currentStage.address}</div>
+              <p className="why">{currentStage.explanation}</p>
+              <span className="tag">{currentStage.status}</span>
+              <p className="sample">Sample address for illustration.</p>
             </div>
           </div>
-        </section>
+        </div></section>
 
-        <section className={ui.safetyBand} id="safety">
-          <div className={`${ui.shell} ${ui.safetyGrid}`}>
+        <section className="post" id="post" ref={postRef}><div className="wrap">
+          <h2>Posting is a sentence, not a form.</h2>
+          <div className="pgrid">
             <div>
-              <p className={ui.eyebrow}>Safety is part of the job</p>
-              <h2 className={ui.sectionTitle}>Safety is part of the job, not an add-on.</h2>
-              <div className={ui.safetyPoints}>
-                <article><h3>Check-ins that fit the job</h3><p>Short jobs and longer jobs have check-in points.</p></article>
-                <article><h3>Start and finish PINs</h3><p>Job milestones can be confirmed by both sides.</p></article>
-                <article><h3>Exact address stays private</h3><p>Listings show an area and distance; exact details are limited to when they are needed.</p></article>
-              </div>
-              <p className={ui.safetyDisclaimer}>MORT is not emergency dispatch. In immediate danger, call 911. Safety features and availability vary by location and account.</p>
+              <p className="lede">Say what you need in plain words. MORT suggests the title, category, time, tools, and pay. You confirm or change everything before it goes live.</p>
+              <p className="pnote">The exact address stays private. Teens see the area and distance. Before you publish, you see the real job card a teen will see.</p>
+              <div className="row replay-row"><button className="btn ghost" type="button" onClick={replayPost}>Replay</button></div>
             </div>
-            <div className={ui.holdDemo}>
-              <button
-                className={`${ui.holdButton} ${isHolding ? ui.holding : ''}`}
-                type="button"
-                aria-describedby="help-demo-message"
-                onPointerDown={beginHelpHold}
-                onPointerUp={endHelpHold}
-                onPointerLeave={endHelpHold}
-                onPointerCancel={endHelpHold}
-                onKeyDown={(event) => { if ((event.key === ' ' || event.key === 'Enter') && !event.repeat) beginHelpHold(event) }}
-                onKeyUp={(event) => { if (event.key === ' ' || event.key === 'Enter') endHelpHold() }}
-              >
-                <svg viewBox="0 0 180 180" aria-hidden="true"><circle className={ui.holdTrack} cx="90" cy="90" r="86" /><circle className={ui.holdProgress} cx="90" cy="90" r="86" /></svg>
-                <span>Hold for<br />help</span>
-              </button>
-              <p className={ui.holdMessage} id="help-demo-message" aria-live="polite">{helpMessage}</p>
-              <p className={ui.sampleNoteDark}>Demonstration only — no call, alert, or message is sent.</p>
-            </div>
-          </div>
-        </section>
-
-        <section className={`${ui.section} ${ui.privacySection}`} id="privacy">
-          <div className={ui.shell}>
-            <p className={ui.eyebrow}>Location privacy</p>
-            <h2 className={ui.sectionTitle}>Your address isn’t a permanent record.</h2>
-            <div className={ui.privacyLayout}>
-              <div className={ui.stageList} role="group" aria-label="Address visibility by job stage">
-                {privacyStages.map((stage, index) => <button className={privacyStage === index ? ui.stageSelected : ''} type="button" aria-pressed={privacyStage === index} onClick={() => setPrivacyStage(index)} key={stage.label}>{stage.label}</button>)}
+            <div className="sheet" aria-label="Illustration of the MORT post-a-job flow">
+              <h4>What do you need help with?</h4>
+              <div className="field" aria-live="polite">{postText}<span className="caret" aria-hidden="true" /></div>
+              <div className={`sug${suggestionsVisible ? ' on' : ''}`}>
+                <div><span>Title</span><b>Mow the front lawn</b></div>
+                <div><span>Category</span><b>Lawn care</b></div>
+                <div><span>Time needed</span><b>About 1 hr</b></div>
+                <div><span>Tools</span><b>Poster provides mower</b></div>
               </div>
-              <div className={ui.privacyPanel} aria-live="polite">
-                <p className={ui.panelEyebrow}>{privacy.eyebrow}</p>
-                <p className={`${ui.sampleAddress} ${privacyStage === 2 ? ui.maskedAddress : ''}`}>{privacy.address}</p>
-                <p className={ui.panelExplanation}>{privacy.explanation}</p>
-                <span className={ui.panelTag}>{privacy.status}</span>
-                <p className={ui.sampleNote}>Sample scenario for illustration; it does not display a real job address.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className={`${ui.section} ${ui.postSection}`} id="post">
-          <div className={ui.shell}>
-            <p className={ui.eyebrow}>For neighbors and local businesses</p>
-            <h2 className={ui.sectionTitle}>Posting is a sentence, not a form.</h2>
-            <div className={ui.postGrid}>
-              <div>
-                <p className={ui.lede}>Describe what you need in plain words. MORT can suggest a title, category, time, tools, and pay for you to review.</p>
-                <p className={ui.postNote}>This sample flow is illustrative. The exact address is not shown in public listings; features and availability vary by location and account.</p>
-                <button className={`${ui.button} ${ui.buttonSecondary}`} type="button" onClick={replayPost}>Replay sample</button>
-              </div>
-              <div className={ui.postSheet} aria-label="Illustrative job-posting flow">
-                <h3>What do you need help with?</h3>
-                <div className={ui.promptField} aria-live="polite">{postText}<span className={ui.caret} aria-hidden="true" /></div>
-                <div className={`${ui.suggestions} ${suggestionsVisible ? ui.suggestionsVisible : ''}`}>
-                  <div><span>Title</span><strong>Mow the front lawn</strong></div>
-                  <div><span>Category</span><strong>Lawn care</strong></div>
-                  <div><span>Time needed</span><strong>About 1 hr</strong></div>
-                  <div><span>Tools</span><strong>Poster provides mower</strong></div>
+              <div className="pay"><div className="lab">Pay · tap to change, or type an amount</div>
+                <div className="pills" role="group" aria-label="Pay amount">
+                  {payAmounts.map((amount) => <button type="button" aria-pressed={!showCustomPay && selectedPay === amount} onClick={() => { setSelectedPay(amount); setShowCustomPay(false) }} key={amount}>${amount}{amount === 30 && <span className="rec">Suggested</span>}</button>)}
+                  {showCustomPay ? <input type="number" min="10" inputMode="numeric" placeholder="$ amount" aria-label="Type a pay amount, minimum 10 dollars" value={customPay} onChange={(event) => { const value = event.target.value; setCustomPay(value === '' ? '' : Math.max(10, Math.floor(Number(value)))) }} /> : <button type="button" onClick={() => setShowCustomPay(true)}>Other</button>}
                 </div>
-                <div className={ui.paySelector}>
-                  <p>Illustrative pay selector · sample amount ${showCustomPay && customPay ? customPay : selectedPay}</p>
-                  <div className={ui.payPills} role="group" aria-label="Sample pay amount">
-                    {[10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((amount) => <button type="button" aria-pressed={!showCustomPay && selectedPay === amount} className={!showCustomPay && selectedPay === amount ? ui.paySelected : ''} onClick={() => { setSelectedPay(amount); setShowCustomPay(false) }} key={amount}>${amount}{amount === 30 && <span>Suggested</span>}</button>)}
-                    <button type="button" aria-pressed={showCustomPay} className={showCustomPay ? ui.paySelected : ''} onClick={() => setShowCustomPay(true)}>Other</button>
-                    {showCustomPay && <label className={ui.customPay}>Custom amount (min $10)<input type="number" min="10" inputMode="numeric" value={customPay} onChange={(event) => setCustomPay(event.target.value)} placeholder="$ amount" /></label>}
-                  </div>
-                </div>
-                <p className={ui.cancellationNote}>Any cancellation window and final job details are shown before a post is published.</p>
               </div>
+              <p className="rule">Late-cancellation window: set by MORT from the job’s length and effort, shown before you publish.</p>
             </div>
           </div>
-        </section>
+        </div></section>
 
-        <section className={`${ui.section} ${ui.rolesSection}`} id="roles">
-          <div className={ui.shell}>
-            <p className={ui.eyebrow}>One product, two sides of the street</p>
-            <h2 className={ui.sectionTitle}>One product, two sides of the street.</h2>
-            <div className={ui.roleSwitch} role="group" aria-label="Choose your perspective">
-              <button type="button" aria-pressed={audience === 'teen'} className={audience === 'teen' ? ui.roleSelected : ''} onClick={() => setAudience('teen')}>I’m a teen</button>
-              <button type="button" aria-pressed={audience === 'adult'} className={audience === 'adult' ? ui.roleSelected : ''} onClick={() => setAudience('adult')}>I’m hiring</button>
+        <section><div className="wrap">
+          <h2>One product, two sides of the street.</h2>
+          <div className="roles">
+            <div className="seg" role="tablist" aria-label="Choose your role">
+              <button type="button" role="tab" aria-selected={role === 'teen'} onClick={() => setRole('teen')}>I’m a teen</button>
+              <button type="button" role="tab" aria-selected={role === 'adult'} onClick={() => setRole('adult')}>I’m hiring</button>
             </div>
-            <div className={ui.roleBody}>
-              <div>
-                <h3>{audience === 'teen' ? 'Turn your time into something.' : 'Post it. Pick the right teen.'}</h3>
-                <p>{audience === 'teen' ? 'Find real, age-appropriate work in your neighborhood, apply in minutes, and build a reputation.' : 'Describe the job, review applicants, and manage the work from one place. Built for neighbors and local businesses.'}</p>
-                <Link className={`${ui.button} ${ui.buttonPrimary}`} href={actionHref}>{audience === 'teen' ? 'Create a teen account' : 'Create an adult account'}</Link>
-              </div>
-              <div className={ui.appNavSample} aria-label="Illustrative app navigation"><span className={ui.appNavActive}>Home</span><span>Explore</span>{audience === 'adult' && <strong aria-label="Post a job">+</strong>}<span>Inbox</span><span>Profile</span></div>
+            <div className="rolebody" role="tabpanel">
+              <div><h3>{roleContent.title}</h3><p>{roleContent.description}</p><Link className="btn" href={actionHref}>{isSignedIn ? 'Open MORT' : roleContent.button}</Link></div>
+              <div className="bar" aria-label="App navigation">{roleContent.tabs.map((tab, index) => tab === '+' ? <b className="plus" aria-label="Post a job" key={`${tab}-${index}`}>+</b> : <span className={index === 0 ? 'on' : ''} key={tab}>{tab}</span>)}</div>
             </div>
           </div>
-        </section>
+        </div></section>
 
-        <section className={ui.finalCta}>
-          <div className={`${ui.shell} ${ui.finalInner}`}>
-            <p className={ui.eyebrow}>Start the crossing</p>
-            <h2>Earn nearby.<br />Move smart.</h2>
-            <Link className={`${ui.button} ${ui.buttonLight}`} href={actionHref}>{isSignedIn ? 'Open MORT' : 'Get started'}</Link>
-          </div>
-        </section>
+        <section className="band cta"><div className="wrap"><h2>Earn nearby. Move smart.</h2><div className="row" style={{ marginTop: 32 }}><Link className="btn" style={{ background: '#fff', color: '#000', borderColor: '#fff' }} href={actionHref}>{isSignedIn ? 'Open MORT' : 'Get started'}</Link></div></div></section>
       </main>
 
-      <footer className={ui.footer}>
-        <div className={`${ui.shell} ${ui.footerInner}`}>
-          <div className={ui.footerBrand}>
-            <Link className={ui.brand} href="/" aria-label="MORT home"><Logomark size={26} /><span>MORT</span></Link>
-            <p>Local opportunity, with a little more thought behind it.</p>
-            <span>© 2026 MORT. Availability and features vary by location and account status.</span>
-          </div>
-          <nav className={ui.footerNav} aria-label="Footer navigation">
-            <Link href="#how">How it works</Link><Link href="/safety">Safety</Link><Link href="/legal/terms">Terms</Link><Link href="/legal/privacy">Privacy</Link><Link href="/account-deletion">Delete account</Link><Link href={isSignedIn ? '/app' : '/login'}>{isSignedIn ? 'Dashboard' : 'Sign in'}</Link>
-          </nav>
-        </div>
-      </footer>
+      <footer><div className="wrap">
+        <div><b>MORT</b><br />Local opportunity, with a little more thought behind it.<br />© 2026 MORT. Availability and features vary by location and account status.</div>
+        <nav aria-label="Footer"><Link href="/safety">Safety</Link><Link href="/legal/terms">Terms</Link><Link href="/legal/privacy">Privacy</Link><Link href="/account-deletion">Delete account</Link><Link href={isSignedIn ? '/app' : '/login'}>{isSignedIn ? 'Dashboard' : 'Sign in'}</Link></nav>
+      </div></footer>
     </div>
   )
 }
