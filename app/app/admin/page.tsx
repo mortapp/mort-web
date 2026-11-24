@@ -6,6 +6,7 @@ import { reviewRoleRequest, reviewVerificationCase } from './actions'
 import { SubmitButton } from '@/components/submit-button'
 import { PROOF_BUCKET } from '@/lib/mort'
 import { Toast } from '@/components/toast'
+import styles from './admin.module.css'
 export const dynamic = 'force-dynamic'
 
 export default async function Admin({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
@@ -217,10 +218,8 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
   )
 
   return (
-    <>
-      <PageHeaderWithActions title="Admin HQ" eyebrow="Moderation">
-        <p>Review verifications and activation requests; reports and support items are read-only until staff-write RPCs are available.</p>
-      </PageHeaderWithActions>
+    <div className={styles.dashboard}>
+      <PageHeaderWithActions title="Admin HQ" eyebrow="Moderation" description="Review verifications and activation requests; reports and support items are read-only until staff-write RPCs are available." />
       <Toast message={sp?.error || sp?.message} variant={sp?.error ? 'error' : 'default'} />
       {safetyPingsError && <div className="warning-box" role="alert" style={{ marginBottom: 16 }}>Safety pings could not be loaded; the dashboard may be incomplete.</div>}
 
@@ -251,6 +250,6 @@ export default async function Admin({ searchParams }: { searchParams?: Promise<R
           { key: 'users', label: 'Users', icon: '👤', badge: pendingRoleRequests.length, content: usersContent },
         ]}
       />
-    </>
+    </div>
   )
 }

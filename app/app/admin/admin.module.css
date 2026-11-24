@@ -1,0 +1,278 @@
+/* Scoped MORT editorial system for /app/admin; shared dashboard and app-shell styles remain untouched elsewhere. */
+.dashboard {
+  --admin-bg: #fff;
+  --admin-ink: #101113;
+  --admin-muted: #62666b;
+  --admin-line: #dedfe1;
+  --admin-soft: #f4f4f3;
+  box-sizing: border-box;
+  width: calc(100% + 48px);
+  min-height: calc(100vh - 60px);
+  margin: -24px;
+  padding: 48px clamp(24px, 4vw, 64px) 80px;
+  background: var(--admin-bg);
+  color: var(--admin-ink);
+  font: 400 15px/1.55 "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dashboard :global(.page-header) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin: 0 0 34px;
+  padding: 0 0 28px;
+  border-bottom: 1px solid var(--admin-line);
+}
+.dashboard :global(.page-header-eyebrow) {
+  margin-bottom: 12px;
+  color: var(--admin-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+.dashboard :global(.page-header h1) {
+  color: var(--admin-ink);
+  font-size: clamp(40px, 6vw, 68px);
+  line-height: .98;
+  letter-spacing: -.055em;
+}
+.dashboard :global(.page-header-desc) {
+  max-width: 70ch;
+  margin-top: 14px;
+  color: var(--admin-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.dashboard :global(h2),
+.dashboard :global(h3),
+.dashboard :global(strong) { color: var(--admin-ink); }
+.dashboard :global(p) { color: inherit; }
+
+/* Four plain figures, separated by hairlines instead of floating cards. */
+.dashboard :global(.stats) {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: 0 0 36px;
+  border-top: 1px solid var(--admin-line);
+  border-bottom: 1px solid var(--admin-line);
+}
+.dashboard :global(.metric-card) {
+  min-width: 0;
+  min-height: 142px;
+  padding: 22px 24px 20px 0;
+  border: 0;
+  border-right: 1px solid var(--admin-line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.dashboard :global(.metric-card:not(:first-child)) { padding-left: 24px; }
+.dashboard :global(.metric-card:last-child) { border-right: 0; }
+.dashboard :global(.metric-card-icon) { display: none; }
+.dashboard :global(.metric-card .small) {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--admin-muted);
+  font-size: 11px;
+  letter-spacing: .11em;
+}
+.dashboard :global(.metric-card strong) {
+  display: block;
+  color: var(--admin-ink) !important;
+  font-size: clamp(32px, 4vw, 46px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.055em;
+}
+.dashboard :global(.metric-card-sub),
+.dashboard :global(.metric-card-trend) { color: var(--admin-muted); }
+
+/* Queue navigation keeps the same five tabs and badges, but uses an editorial underline. */
+.dashboard :global(.segmented-tabs) {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  margin: 0 0 26px !important;
+  padding: 0;
+  overflow-x: auto;
+  border: 0;
+  border-bottom: 1px solid var(--admin-line);
+  border-radius: 0;
+  background: transparent;
+  scrollbar-width: thin;
+}
+.dashboard :global(.segmented-tabs-indicator) { display: none; }
+.dashboard :global(.segmented-tab) {
+  flex: 0 0 auto;
+  min-height: 48px;
+  gap: 8px;
+  margin-bottom: -1px;
+  padding: 0 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--admin-muted);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: none;
+}
+.dashboard :global(.segmented-tab > span:first-child) { display: none; }
+.dashboard :global(.segmented-tab.active) {
+  border-bottom-color: var(--admin-ink);
+  background: transparent;
+  color: var(--admin-ink);
+  box-shadow: none;
+}
+.dashboard :global(.tab-badge) {
+  min-width: 22px;
+  padding: 2px 7px;
+  border: 1px solid var(--admin-line);
+  border-radius: 999px;
+  background: var(--admin-soft);
+  color: var(--admin-ink);
+  font-size: 11px;
+}
+
+/* Review records use quiet ruled surfaces; semantic status chips remain visible. */
+.dashboard :global(.grid.two) { gap: 14px; }
+.dashboard :global(.admin-review-card) {
+  min-width: 0;
+  padding: 20px;
+  gap: 14px;
+  border: 1px solid var(--admin-line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: none;
+}
+.dashboard :global(.admin-review-card-header) {
+  align-items: flex-start;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--admin-line);
+}
+.dashboard :global(.admin-review-card-header > div:first-child > .job-card-icon) { display: none; }
+.dashboard :global(.admin-review-card h3) {
+  font-size: 17px;
+  line-height: 1.25;
+  letter-spacing: -.025em;
+}
+.dashboard :global(.admin-review-card p) { color: var(--admin-muted); }
+.dashboard :global(.admin-review-card .muted) { color: var(--admin-muted); }
+.dashboard :global(.status) { flex: 0 0 auto; }
+
+/* Tables keep the existing columns and data while improving scanability. */
+.dashboard :global(.table-wrap) {
+  overflow-x: auto;
+  border: 1px solid var(--admin-line);
+  border-radius: 14px;
+  background: #fff;
+}
+.dashboard :global(.table) {
+  min-width: 720px;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--admin-ink);
+  font-size: 13px;
+}
+.dashboard :global(.table th) {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--admin-line);
+  background: var(--admin-soft);
+  color: var(--admin-muted);
+  font-size: 10px;
+  letter-spacing: .12em;
+  white-space: nowrap;
+}
+.dashboard :global(.table td) {
+  padding: 15px 16px;
+  border-bottom: 1px solid #e9e9e9;
+  color: var(--admin-ink);
+  vertical-align: top;
+}
+.dashboard :global(.table tr:last-child td) { border-bottom: 0; }
+.dashboard :global(.table tr:hover td) { background: #fafafa; }
+.dashboard :global(.avatar-tile) { flex: 0 0 auto; }
+
+/* Monochrome controls; danger/success statuses keep their established meaning. */
+.dashboard :global(.btn) {
+  min-height: 40px;
+  border: 1px solid var(--admin-ink);
+  border-radius: 10px;
+  background: var(--admin-ink);
+  color: #fff;
+  font-family: inherit;
+  font-weight: 650;
+  box-shadow: none;
+}
+.dashboard :global(.btn:hover) { background: #303236; color: #fff; }
+.dashboard :global(.btn.ghost) {
+  border-color: var(--admin-line);
+  background: #fff;
+  color: var(--admin-ink);
+}
+.dashboard :global(.btn.ghost:hover) { background: var(--admin-soft); }
+.dashboard :global(.btn.danger),
+.dashboard :global(.btn.sos) { border-color: #b42332; background: #b42332; color: #fff; }
+.dashboard :global(input:not([type="hidden"])) {
+  min-width: 150px;
+  min-height: 40px;
+  border: 1px solid #cfd0d2;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--admin-ink);
+  font: inherit;
+}
+.dashboard :global(input::placeholder) { color: #74777b; }
+.dashboard :global(.row-actions) { align-items: center; gap: 8px; }
+.dashboard :global(.row-actions input[name="note"]) { flex: 1 1 100%; }
+
+/* Notices stay prominent and retain their explanatory copy. */
+.dashboard :global(.warning-box) {
+  border: 1px solid var(--admin-line);
+  border-left: 3px solid #8a5a00;
+  border-radius: 10px;
+  background: #f8f7f4;
+  color: #252629;
+}
+.dashboard :global(.warning-box p) { color: var(--admin-muted); }
+.dashboard :global(.sos-card) {
+  border: 1px solid #232428;
+  border-radius: 14px;
+  background: #17181a;
+  color: #fff;
+  box-shadow: none;
+}
+.dashboard :global(.sos-card h3) { color: #fff !important; }
+.dashboard :global(.sos-card div) { color: #e4e5e7; }
+.dashboard :global(.status) { font-weight: 700; }
+.dashboard :global(a) { text-underline-offset: 3px; }
+.dashboard :global(a:not(.btn)) { color: #202124; }
+.dashboard :global(a:not(.btn):hover) { text-decoration: underline; }
+.dashboard :global(:focus-visible) { outline-color: #111; outline-offset: 3px; }
+
+@media (max-width: 900px) {
+  .dashboard { width: calc(100% + 32px); margin: -16px; padding: 34px 22px 56px; }
+  .dashboard :global(.stats) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard :global(.metric-card) { min-height: 120px; padding: 18px 16px 18px 0; }
+  .dashboard :global(.metric-card:not(:first-child)) { padding-left: 16px; }
+  .dashboard :global(.metric-card:nth-child(2)) { border-right: 0; }
+  .dashboard :global(.metric-card:nth-child(-n+2)) { border-bottom: 1px solid var(--admin-line); }
+  .dashboard :global(.grid.two) { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 540px) {
+  .dashboard { padding: 28px 16px 48px; }
+  .dashboard :global(.page-header) { margin-bottom: 24px; padding-bottom: 22px; }
+  .dashboard :global(.page-header h1) { font-size: clamp(38px, 11vw, 52px); }
+  .dashboard :global(.metric-card) { min-height: 108px; padding-right: 10px; }
+  .dashboard :global(.metric-card:not(:first-child)) { padding-left: 10px; }
+  .dashboard :global(.metric-card .small) { font-size: 9px; letter-spacing: .08em; }
+  .dashboard :global(.metric-card strong) { font-size: 34px; }
+  .dashboard :global(.admin-review-card) { padding: 16px; }
+  .dashboard :global(.admin-review-card-header) { flex-direction: column; }
+  .dashboard :global(.row-actions) { align-items: stretch; }
+  .dashboard :global(.row-actions input:not([type="hidden"])) { width: 100%; }
+  .dashboard :global(.segmented-tab) { padding-inline: 12px; }
+}
