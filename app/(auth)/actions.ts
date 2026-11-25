@@ -74,7 +74,7 @@ export async function signUp(formData: FormData) {
     revalidatePath('/', 'layout')
     redirect(onboardingPath)
   }
-  msg('/login', 'Check your email and click the verification link to activate your MORT account.')
+  msg(`/login?next=${encodeURIComponent(next)}`, 'Check your email and click the verification link to activate your MORT account.')
 }
 
 export async function login(formData: FormData) {

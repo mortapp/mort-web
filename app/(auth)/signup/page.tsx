@@ -6,7 +6,7 @@ import { Toast } from '@/components/toast'
 import { SubmitButton } from '@/components/submit-button'
 
 function requestedDestination(value: string | undefined) {
-  return value?.startsWith('/app/') && !value.startsWith('//') ? value : '/app/teen/jobs'
+  return value === '/app' || value?.startsWith('/app/') ? value : '/app/teen/jobs'
 }
 
 function minimumEligibleDob() {
@@ -23,13 +23,14 @@ export default async function Signup({ searchParams }: { searchParams?: Promise<
 
   return (
     <AuthShell
+      mode="signup"
       kicker="Join MORT"
       title="Start your local hustle."
       description="MORT is for people age 13 and older. Teens find safe local work. Adults post jobs. Guardians keep everyone safe."
       bullets={[
-        { icon: '🔥', text: 'Teens: find dog walking, lawn care, errands, and more' },
-        { icon: '💼', text: 'Adults: post jobs and hire verified teens nearby' },
-        { icon: '🛡️', text: 'Guardians: stay connected with safety controls' },
+        { icon: '↗', text: 'Teens: find dog walking, lawn care, errands, and more' },
+        { icon: '□', text: 'Adults: post jobs and hire verified teens nearby' },
+        { icon: '◎', text: 'Guardians: stay connected with safety controls' },
       ]}
     >
       <div className="auth-form-heading">

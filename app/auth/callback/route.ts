@@ -20,6 +20,13 @@ function callbackRedirect(request: NextRequest, path: string) {
   return response
 }
 
+function signupErrorRedirect(request: NextRequest, next: string, message: string) {
+  const url = new URL('/signup', request.url)
+  url.searchParams.set('next', next)
+  url.searchParams.set('message', message)
+  return callbackRedirect(request, `${url.pathname}${url.search}`)
+}
+
 function ageFromDateOfBirth(value: string | null): number | null {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null
   const [year, month, day] = value.split('-').map(Number)
@@ -56,7 +63,7 @@ export async function GET(request: NextRequest) {
             const message = age !== null && age < 13
               ? 'MORT is only available to people age 13 or older.'
               : 'The date of birth step was missing. Please restart signup.'
-            return callbackRedirect(request, `/signup?message=${encodeURIComponent(message)}`)
+            return signupErrorRedirect(request, next, message)
           }
           const { data: savedDob, error: dobError } = await supabase.rpc('save_my_initial_dob_v1', {
             p_date_of_birth: signupDob,
@@ -66,7 +73,7 @@ export async function GET(request: NextRequest) {
             const message = savedDob?.code === 'minimum_age_required'
               ? 'MORT is only available to people age 13 or older.'
               : 'We could not save your date of birth. Please restart signup or contact MORT support.'
-            return callbackRedirect(request, `/signup?message=${encodeURIComponent(message)}`)
+            return signupErrorRedirect(request, next, message)
           }
         }
 
@@ -85,7 +92,7 @@ export async function GET(request: NextRequest) {
         if (!profile?.date_of_birth) {
           if (isSignup) {
             await supabase.auth.signOut()
-            return callbackRedirect(request, '/signup?message=Date%20of%20birth%20is%20required%20to%20join%20MORT.')
+            return signupErrorRedirect(request, next, 'Date of birth is required to join MORT.')
           }
           const onboardingUrl = new URL('/app/onboarding', requestUrl.origin)
           onboardingUrl.searchParams.set('next', next)
@@ -109,5 +116,6 @@ export async function GET(request: NextRequest) {
   if (user) return callbackRedirect(request, next)
   const loginUrl = new URL('/login', requestUrl.origin)
   loginUrl.searchParams.set('message', 'That verification link was already used or has expired. Try signing in — if your email is not verified yet, we will send you a fresh link.')
+  loginUrl.searchParams.set('next', next)
   return callbackRedirect(request, `${loginUrl.pathname}${loginUrl.search}`)
 }

@@ -1,4 +1,4 @@
-// Calibrated Liquid Glass: sign-in is a focused continuation of the public journey, with a compact form and a reliable return path.
+// Sign-in is a focused continuation of the public journey with a reliable in-app return path.
 import Link from 'next/link'
 import { login, signInWithGoogle } from '@/app/(auth)/actions'
 import { AuthShell } from '@/components/auth-shell'
@@ -6,7 +6,7 @@ import { Toast } from '@/components/toast'
 import { SubmitButton } from '@/components/submit-button'
 
 function requestedDestination(value: string | undefined) {
-  return value?.startsWith('/app/') && !value.startsWith('//') ? value : '/app'
+  return value === '/app' || value?.startsWith('/app/') ? value : '/app'
 }
 
 export default async function Login({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
@@ -15,6 +15,7 @@ export default async function Login({ searchParams }: { searchParams?: Promise<R
 
   return (
     <AuthShell
+      mode="login"
       kicker="Welcome back"
       title="Back to the hustle."
       description="Your jobs, applications, earnings, and safety tools are waiting for you."

@@ -87,6 +87,20 @@ test('website signup enforces the 13+ DOB screen before creating accounts', () =
   assert.match(callback, /age < 13/)
 })
 
+test('login and signup preserve exact /app through email and auth callbacks', () => {
+  const login = read('../app/(auth)/login/page.tsx')
+  const signup = read('../app/(auth)/signup/page.tsx')
+  const actions = read('../app/(auth)/actions.ts')
+  const callback = read('../app/auth/callback/route.ts')
+  assert.match(login, /value === '\/app'/)
+  assert.match(signup, /value === '\/app'/)
+  assert.match(signup, /name="next" value=\{next\}/)
+  assert.match(actions, /const onboardingPath = `\/app\/onboarding\?next=\$\{encodeURIComponent\(next\)\}`/)
+  assert.match(actions, /msg\(`\/login\?next=\$\{encodeURIComponent\(next\)\}`/)
+  assert.match(callback, /function signupErrorRedirect\(request: NextRequest, next: string, message: string\)/)
+  assert.match(callback, /loginUrl\.searchParams\.set\('next', next\)/)
+})
+
 test('all authenticated website pages require DOB while onboarding remains reachable', () => {
   const auth = read('../lib/auth.ts')
   const layout = read('../app/app/layout.tsx')

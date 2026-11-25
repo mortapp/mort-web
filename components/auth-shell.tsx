@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import { Logomark } from '@/components/logomark'
 
-// Calibrated Liquid Glass: the auth shell keeps one confident visual plane on desktop
-// while collapsing to a clear, low-distraction form on small screens.
+// Editorial auth shell: the brand panel leads on desktop while the form stays
+// calm and readable on every screen size.
 type AuthBullet = { icon: string; text: string }
 
 interface AuthShellProps {
+  mode?: 'login' | 'signup'
   kicker: string
   title: string
   description: string
@@ -13,15 +14,18 @@ interface AuthShellProps {
   children: React.ReactNode
 }
 
-export function AuthShell({ kicker, title, description, bullets, children }: AuthShellProps) {
+export function AuthShell({ mode = 'login', kicker, title, description, bullets, children }: AuthShellProps) {
   return (
-    <main className="auth-shell">
+    <main className="auth-shell" data-auth-mode={mode}>
       <aside className="auth-brand-panel">
         <div className="auth-brand-halo" aria-hidden="true" />
-        <Link href="/" className="logo auth-logo">
-          <Logomark size={30} />
-          <span>MORT</span>
-        </Link>
+        <div className="auth-brand-masthead">
+          <Link href="/" className="logo auth-logo">
+            <Logomark size={30} />
+            <span>MORT</span>
+          </Link>
+          <span className="auth-brand-tag">LOCAL OPPORTUNITY NETWORK</span>
+        </div>
         <div className="auth-brand-content">
           <div className="kicker">{kicker}</div>
           <h1 className="hero-title">{title}</h1>
