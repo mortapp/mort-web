@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { requireAuthenticatedUser } from '@/lib/auth'
 import { PageHeaderWithActions } from '@/components/ui'
 import { OnboardingForm } from '@/components/onboarding-form'
+import { MortSocialLinks } from '@/components/mort-social-links'
 import { Toast } from '@/components/toast'
 
 export const dynamic = 'force-dynamic'
@@ -75,17 +76,20 @@ export default async function Onboarding({ searchParams }: { searchParams?: Prom
         </section>
       )}
       {completed ? (
-        <section className="card">
-          <h2>Setup complete</h2>
-          {profile?.account_status === 'active' ? (
-            <>
-              <p>Your onboarding is complete.</p>
-              <Link href={roleHome[profile.role] || '/app'} className="btn primary">Continue to MORT</Link>
-            </>
-          ) : (
-            <p>Your information and required acknowledgements are saved. Your account remains pending review. Completing onboarding does not by itself verify your account, and payments are not currently processed.</p>
-          )}
-        </section>
+        <>
+          <section className="card">
+            <h2>Setup complete</h2>
+            {profile?.account_status === 'active' ? (
+              <>
+                <p>Your onboarding is complete.</p>
+                <Link href={roleHome[profile.role] || '/app'} className="btn primary">Continue to MORT</Link>
+              </>
+            ) : (
+              <p>Your information and required acknowledgements are saved. Your account remains pending review. Completing onboarding does not by itself verify your account, and payments are not currently processed.</p>
+            )}
+          </section>
+          <MortSocialLinks className="mort-social-card--standalone" />
+        </>
       ) : (
         <>
           {progress?.ok !== true && (

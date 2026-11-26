@@ -8,6 +8,7 @@ import {
   saveOnboardingSafety,
   saveOnboardingWork,
 } from '@/app/app/actions'
+import { MortSocialLinks } from '@/components/mort-social-links'
 import { SubmitButton } from '@/components/submit-button'
 
 type Requirement = {
@@ -51,10 +52,16 @@ function isAdultDateOfBirth(value: string) {
 
 const stepOrder = ['account', 'work_preferences', 'safety_support', 'review']
 const stepTitle: Record<string, string> = {
-  account: '1. Your account',
-  work_preferences: '2. Work preferences',
-  safety_support: '3. Safety and support',
-  review: '4. Review and finish',
+  account: 'Your account',
+  work_preferences: 'Work preferences',
+  safety_support: 'Safety and support',
+  review: 'Review and finish',
+}
+const stepDescription: Record<string, string> = {
+  account: 'Your date of birth determines which account options appear.',
+  work_preferences: 'Only the work preferences for your account type appear here.',
+  safety_support: 'Choose a notification preference and review available support.',
+  review: 'Check your details and read any required current documents.',
 }
 
 export function OnboardingForm({
@@ -68,19 +75,64 @@ export function OnboardingForm({
   const [dateOfBirth, setDateOfBirth] = useState(profile?.date_of_birth || '')
   const adultByDob = isAdultDateOfBirth(dateOfBirth)
   const currentStep = stepOrder.includes(step) ? step : 'account'
+  const currentStepIndex = stepOrder.indexOf(currentStep)
+  const currentStepNumber = currentStepIndex + 1
+  const progressPercentage = (currentStepNumber / stepOrder.length) * 100
   const outstanding = requirements.filter((item) => item.required && !item.acceptance_id)
   const needsSignature = outstanding.some((item) => item.requires_electronic_signature)
   const role = profile?.role
 
   return (
-    <div className="form">
-      <div className="card">
-        <p className="eyebrow">STEP {stepOrder.indexOf(currentStep) + 1} OF 4</p>
-        <h2>{stepTitle[currentStep]}</h2>
-        <div className="progress-track" aria-label="Onboarding progress">
-          <div className="progress-fill" style={{ width: `${((stepOrder.indexOf(currentStep) + 1) / 4) * 100}%` }} />
-        </div>
-      </div>
+    <div className="onboarding-layout">
+      <aside className="onboarding-sidebar" aria-label="Onboarding guide">
+        <section className="card onboarding-guide" aria-labelledby="onboarding-guide-title">
+          <p className="eyebrow">YOUR SETUP</p>
+          <h2 id="onboarding-guide-title">One step at a time.</h2>
+          <p className="onboarding-guide-copy">See what is ahead and where you are now.</p>
+          <ol className="onboarding-steps" aria-label="Onboarding steps">
+            {stepOrder.map((stepName, index) => {
+              const isCurrent = index === currentStepIndex
+              const isComplete = index < currentStepIndex
+              return (
+                <li
+                  key={stepName}
+                  className={`onboarding-step${isCurrent ? ' current' : ''}${isComplete ? ' complete' : ''}`}
+                  aria-current={isCurrent ? 'step' : undefined}
+                >
+                  <span className="onboarding-step-marker" aria-hidden="true">{isComplete ? '✓' : index + 1}</span>
+                  <span className="onboarding-step-copy">
+                    <strong>{stepTitle[stepName]}</strong>
+                    <span>{stepDescription[stepName]}</span>
+                  </span>
+                  <span className="onboarding-step-state">{isCurrent ? 'In progress' : isComplete ? 'Complete' : 'Up next'}</span>
+                </li>
+              )
+            })}
+          </ol>
+        </section>
+        <MortSocialLinks />
+      </aside>
+
+      <div className="onboarding-content">
+        <section className="card onboarding-current-step" aria-labelledby="onboarding-current-title">
+          <div className="onboarding-current-meta">
+            <p className="eyebrow">STEP {currentStepNumber} OF {stepOrder.length}</p>
+            <span>In progress</span>
+          </div>
+          <h2 id="onboarding-current-title">{stepTitle[currentStep]}</h2>
+          <p className="onboarding-current-description">{stepDescription[currentStep]}</p>
+          <div
+            className="progress-track"
+            role="progressbar"
+            aria-label="Onboarding progress"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progressPercentage}
+            aria-valuetext={`Step ${currentStepNumber} of ${stepOrder.length}: ${stepTitle[currentStep]}`}
+          >
+            <div className="progress-fill" style={{ width: `${progressPercentage}%` }} />
+          </div>
+        </section>
 
       {currentStep === 'account' && (
         <form action={saveOnboardingAccount} className="form">
@@ -248,6 +300,7 @@ export function OnboardingForm({
           )}
         </form>
       )}
+      </div>
     </div>
   )
 }
