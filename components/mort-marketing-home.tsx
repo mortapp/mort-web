@@ -212,15 +212,47 @@ export function MortMarketingHome({ isSignedIn = false }: { isSignedIn?: boolean
             <div className="row"><Link className="btn" href={actionHref}>{isSignedIn ? 'Open MORT' : roleContent.button}</Link><a className="btn ghost" href="#how">See how it works</a></div>
             <p className="hint">Safety is built into the experience. Availability varies by location and account.</p>
           </div>
-          <div className="stage" aria-label="Illustration of the MORT app Home screen">
-            <div className="phone">
-              <h4>Quick jobs</h4>
-              <div className="rail"><div className="chip"><b>Take out bins</b><span>10 min · $10</span></div><div className="chip"><b>Water plants</b><span>15 min · $12</span></div><div className="chip"><b>Carry groceries</b><span>20 min · $15</span></div></div>
-              <div className="job"><div className="top"><span className="dist">0.4 mi</span><span>Dana R. · Verified</span></div><div className="t">Walk Biscuit around the block</div><div className="m">Today, 4:30 PM · 30 min</div><div className="foot"><span className="pay">$20</span><button className="apply" type="button" data-s={applyState} aria-live="polite" aria-label="Apply to illustrative sample job" onClick={() => { if (applyState === 'idle') runApply() }}>{applyLabel}{applyState === 'applying' && <span className="dots" aria-hidden="true" />}</button></div></div>
-              <div className="job"><div className="top"><span className="dist">0.9 mi</span><span>Marcus T. · Verified</span></div><div className="t">Rake front yard leaves</div><div className="m">Sat, 10:00 AM · 1 hr</div><div className="foot"><span className="pay">$30</span><button className="apply" type="button" tabIndex={-1} aria-hidden="true">Apply</button></div></div>
-              <div className="tabs"><span className="on">Home</span><span>Explore</span><span>Inbox</span><span>Profile</span></div>
+          <div
+            className="stage"
+            role="group"
+            aria-label={role === 'teen' ? 'Illustrative teen job-search app preview' : 'Illustrative adult job-posting app preview'}
+          >
+            <div className={`phone${role === 'adult' ? ` ${ui.phoneAdult}` : ''}`} data-audience={role} key={role}>
+              {role === 'teen' ? (
+                <>
+                  <h4>Quick jobs</h4>
+                  <div className="rail"><div className="chip"><b>Take out bins</b><span>10 min · $10</span></div><div className="chip"><b>Water plants</b><span>15 min · $12</span></div><div className="chip"><b>Carry groceries</b><span>20 min · $15</span></div></div>
+                  <div className="job"><div className="top"><span className="dist">0.4 mi</span><span>Dana R. · Verified</span></div><div className="t">Walk Biscuit around the block</div><div className="m">Today, 4:30 PM · 30 min</div><div className="foot"><span className="pay">$20</span><button className="apply" type="button" data-s={applyState} aria-live="polite" aria-label="Apply to illustrative sample job" onClick={() => { if (applyState === 'idle') runApply() }}>{applyLabel}{applyState === 'applying' && <span className="dots" aria-hidden="true" />}</button></div></div>
+                  <div className="job"><div className="top"><span className="dist">0.9 mi</span><span>Marcus T. · Verified</span></div><div className="t">Rake front yard leaves</div><div className="m">Sat, 10:00 AM · 1 hr</div><div className="foot"><span className="pay">$30</span><button className="apply" type="button" tabIndex={-1} aria-hidden="true">Apply</button></div></div>
+                </>
+              ) : (
+                <>
+                  <div className={ui.phoneDraftTop}><span>JOB POST</span><span>EXAMPLE DRAFT</span></div>
+                  <h4 className={ui.phoneTitle}>Tell MORT what you need</h4>
+                  <div className={ui.phonePrompt}>
+                    <span className={ui.phonePromptLabel}>YOUR DESCRIPTION</span>
+                    <p>“{sampleDescription}”</p>
+                  </div>
+                  <div className={ui.phoneDraftHeader}><strong>Suggested details</strong><span>Review each one</span></div>
+                  <div className={ui.phoneDraftRows}>
+                    <div className={ui.phoneDraftRow}><span>Title</span><b>Mow the front lawn</b></div>
+                    <div className={ui.phoneDraftRow}><span>Category</span><b>Lawn care</b></div>
+                    <div className={ui.phoneDraftRow}><span>Time</span><b>About 1 hr</b></div>
+                    <div className={ui.phoneDraftRow}><span>Tools</span><b>Poster provides mower</b></div>
+                  </div>
+                  <div className={ui.phoneDraftPay}><span>Suggested pay</span><strong>$30</strong></div>
+                  <p className={ui.phoneDraftNote}>Review and edit every detail before it goes live.</p>
+                </>
+              )}
+              <div className="tabs">
+                {roleContent.tabs.map((tab, index) => tab === '+' ? (
+                  <b className="plus on" aria-label="Post a job" key={`${tab}-${index}`}>+</b>
+                ) : (
+                  <span className={role === 'teen' && index === 0 ? 'on' : ''} key={tab}>{tab}</span>
+                ))}
+              </div>
             </div>
-            <button className="replay" type="button" onClick={runApply}>Replay Apply</button>
+            {role === 'teen' && <button className="replay" type="button" onClick={runApply}>Replay Apply</button>}
           </div>
         </div>
 
