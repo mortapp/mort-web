@@ -63,16 +63,24 @@ export function MortMarketingHome({ isSignedIn = false }: { isSignedIn?: boolean
   const postTimer = useRef<number | null>(null)
   const postRevealTimer = useRef<number | null>(null)
   const postRef = useRef<HTMLElement>(null)
-  const actionHref = isSignedIn ? '/app' : '/signup'
+  const nextPath = role === 'teen' ? '/app/teen/jobs' : '/app'
+  const signupHref = `/signup?role=${role}&next=${encodeURIComponent(nextPath)}`
+  const actionHref = isSignedIn ? '/app' : signupHref
   const currentStage = stages[stageIndex]
   const roleContent = role === 'teen'
     ? {
+        heroHeadline: 'Earn nearby.',
+        heroDescription: 'MORT helps teens 13–17 find age-appropriate local work, with safety built into the experience.',
+        navCta: 'Start as a teen',
         title: 'Turn your time into something.',
         description: 'Find real, age-appropriate work in your neighborhood, apply in minutes, and build a reputation.',
         button: 'Create a teen account',
         tabs: ['Home', 'Explore', 'Inbox', 'Profile'],
       }
     : {
+        heroHeadline: 'Hire nearby.',
+        heroDescription: 'Post a local job in plain words, review applicants, and manage the work from one place.',
+        navCta: 'Start hiring',
         title: 'Post it. Pick the right teen.',
         description: 'Describe the job, review applicants, and manage the work from one place. Built for neighbors and local businesses.',
         button: 'Create an adult account',
@@ -181,16 +189,27 @@ export function MortMarketingHome({ isSignedIn = false }: { isSignedIn?: boolean
             <a href="#how">How it works</a><a href="#work">Work</a><a href="#safety">Safety</a><a href="#privacy">Privacy</a><Link href="/legal/terms">Legal</Link>
           </nav>
           <Link className="signin" href={isSignedIn ? '/app' : '/login'}>{isSignedIn ? 'Dashboard' : 'Sign in'}</Link>
-          <Link className="btn sm" href={actionHref}>{isSignedIn ? 'Open MORT' : 'Get started'}</Link>
+          <Link className="btn sm" href={actionHref}>{isSignedIn ? 'Open MORT' : roleContent.navCta}</Link>
         </div>
       </header>
 
       <main>
         <div className="wrap hero" id="top">
-          <div>
-            <h1>Earn nearby. Move smart.</h1>
-            <p className="lede">MORT is a safer way for teens 13–17 to find age-appropriate local work, and for neighbors to hire them.</p>
-            <div className="row"><Link className="btn" href={actionHref}>{isSignedIn ? 'Open MORT' : 'Create account'}</Link><a className="btn ghost" href="#how">See how it works</a></div>
+          <div className={ui.heroPanel}>
+            <h1>{roleContent.heroHeadline}<br />Move smart.</h1>
+            <p className="lede" aria-live="polite">{roleContent.heroDescription}</p>
+            <div className={ui.heroChooser}>
+              <p className={ui.heroChooserPrompt}>I’m here to…</p>
+              <div className={ui.heroChooserOptions} role="group" aria-label="Choose the side of MORT you’re here for">
+                <button className={ui.heroChooserOption} type="button" aria-pressed={role === 'teen'} onClick={() => setRole('teen')}>
+                  <strong>I’m a teen</strong><span>Find nearby work</span>
+                </button>
+                <button className={ui.heroChooserOption} type="button" aria-pressed={role === 'adult'} onClick={() => setRole('adult')}>
+                  <strong>I’m hiring</strong><span>Post a local job</span>
+                </button>
+              </div>
+            </div>
+            <div className="row"><Link className="btn" href={actionHref}>{isSignedIn ? 'Open MORT' : roleContent.button}</Link><a className="btn ghost" href="#how">See how it works</a></div>
             <p className="hint">Safety is built into the experience. Availability varies by location and account.</p>
           </div>
           <div className="stage" aria-label="Illustration of the MORT app Home screen">

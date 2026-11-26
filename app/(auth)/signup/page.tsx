@@ -17,9 +17,15 @@ function minimumEligibleDob() {
   return `${year}-${month}-${day}`
 }
 
+function requestedRole(value: string | undefined): 'teen' | 'adult' | 'guardian' {
+  if (value === 'adult' || value === 'guardian') return value
+  return 'teen'
+}
+
 export default async function Signup({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
   const next = requestedDestination(sp?.next)
+  const role = requestedRole(sp?.role)
 
   return (
     <AuthShell
@@ -52,7 +58,7 @@ export default async function Signup({ searchParams }: { searchParams?: Promise<
         </label>
         <label>
           I am a...
-          <select name="role" defaultValue="teen">
+          <select name="role" defaultValue={role}>
             <option value="teen">Teen worker (ages 13–17)</option>
             <option value="adult">Adult / customer / business</option>
             <option value="guardian">Guardian / parent</option>

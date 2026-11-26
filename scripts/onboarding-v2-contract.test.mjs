@@ -87,6 +87,15 @@ test('website signup enforces the 13+ DOB screen before creating accounts', () =
   assert.match(callback, /age < 13/)
 })
 
+test('homepage routes teen and adult intent into a role-matched signup with safe return paths', () => {
+  const home = read('../components/mort-marketing-home.tsx')
+  const signup = read('../app/(auth)/signup/page.tsx')
+  assert.match(home, /const nextPath = role === 'teen' \? '\/app\/teen\/jobs' : '\/app'/)
+  assert.match(home, /`\/signup\?role=\$\{role\}&next=\$\{encodeURIComponent\(nextPath\)\}`/)
+  assert.match(signup, /function requestedRole\(value: string \| undefined\)/)
+  assert.match(signup, /defaultValue=\{role\}/)
+})
+
 test('login and signup preserve exact /app through email and auth callbacks', () => {
   const login = read('../app/(auth)/login/page.tsx')
   const signup = read('../app/(auth)/signup/page.tsx')
