@@ -29,3 +29,9 @@ Feature commit `0cea045486322603e662898010a804c6b04fd177` is on `origin/main`; V
 - [x] Run typecheck, lint, production-config/contract tests, and production build; push without force-pushing; verify the matching Vercel production deployment is READY and inspect the live signup page.
 
 Shipping evidence: feature commit `9d71807174ce66ed39d5c733fc52d7018fffbdd1` is on `origin/main`; Vercel deployment `dpl_x7PBuU9TJ84pYNRgJGQ2AC41qY1z` is `READY` for production aliases `mortapp.org` and `www.mortapp.org`. Live signup returned HTTP 200 and included the teen, adult, and guardian choices, approved-school-email requirement, DOB guidance, and existing DOB/email/password fields. Validation passed: typecheck; lint (0 errors, one pre-existing Google Fonts warning); production-config and contract tests (35/35); production build; legal publication verification.
+
+## Follow-up — bulk-select required acknowledgements
+
+- [x] On the onboarding Review and finish step, when the legal service is available and required document acknowledgements are outstanding, show an explicit “Accept all required” button.
+- [x] Clicking it selects only the required acknowledgement checkboxes currently shown (including the teen summary checkbox when present); it does not select optional or already-recorded items, submit the form, mark acceptance complete, or fill the electronic signature. Keep individual checkboxes, published document text/version/hash display, server-side legal validation, any required electronic signature, and the separate “Finish setup” submission unchanged.
+- [ ] Run typecheck, lint, production-config/contract tests, and production build; push without force-pushing; verify the matching Vercel production deployment is READY and confirm the live onboarding review includes the button.

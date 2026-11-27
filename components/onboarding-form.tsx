@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type MouseEvent } from 'react'
 
 import {
   completeOnboarding,
@@ -48,6 +48,15 @@ function isAdultDateOfBirth(value: string) {
   let age = today.getFullYear() - year
   if (today.getMonth() + 1 < month || (today.getMonth() + 1 === month && today.getDate() < day)) age -= 1
   return age >= 18
+}
+
+function selectAllRequiredAcknowledgements(event: MouseEvent<HTMLButtonElement>) {
+  const acknowledgements = event.currentTarget.form?.querySelectorAll<HTMLInputElement>(
+    'input[name="accepted_version_ids"][required], input[name="teen_summary_viewed"][required]'
+  )
+  acknowledgements?.forEach((acknowledgement) => {
+    if (!acknowledgement.checked) acknowledgement.click()
+  })
 }
 
 const stepOrder = ['account', 'work_preferences', 'safety_support', 'review']
@@ -291,6 +300,12 @@ export function OnboardingForm({
                     <input name="electronic_signature" minLength={3} maxLength={200} required placeholder="Type your full name" />
                   </label>
                 )}
+                <div className="legal-accept-controls">
+                  <button type="button" className="btn ghost" onClick={selectAllRequiredAcknowledgements}>
+                    Accept all required
+                  </button>
+                  <p className="muted">Selects the required acknowledgements only. Finish setup remains separate; enter an electronic signature yourself if required.</p>
+                </div>
               </>
             )}
             <p className="muted">Browsing does not count as acceptance. Each required acknowledgement is an explicit action.</p>

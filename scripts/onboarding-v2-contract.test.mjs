@@ -59,6 +59,22 @@ test('web onboarding preserves all four server-defined steps and legal clickwrap
   assert.match(actions, /onboarding_work_preferences_required:/)
 })
 
+test('review bulk-select checks required acknowledgements only and leaves submission and signature separate', () => {
+  const form = read('../components/onboarding-form.tsx')
+  const actions = read('../app/app/actions.ts')
+  const handler = form.match(/function selectAllRequiredAcknowledgements\([\s\S]*?\n\}/)?.[0]
+
+  assert.ok(handler, 'missing required acknowledgement bulk-select handler')
+  assert.match(handler, /input\[name="accepted_version_ids"\]\[required\], input\[name="teen_summary_viewed"\]\[required\]/)
+  assert.match(handler, /if \(!acknowledgement\.checked\) acknowledgement\.click\(\)/)
+  assert.doesNotMatch(handler, /\b(?:submit|requestSubmit)\s*\(/)
+  assert.match(form, /<button type="button" className="btn ghost" onClick=\{selectAllRequiredAcknowledgements\}>[\s\S]*?Accept all required/)
+  assert.match(form, /Finish setup remains separate; enter an electronic signature yourself if required\./)
+  assert.match(actions, /const expectedIds = outstanding\.map[\s\S]*?formData\.getAll\('accepted_version_ids'\)/)
+  assert.match(actions, /outstanding\.some\(\(item: any\) => item\.requires_electronic_signature === true\) && signature\.trim\(\)\.length < 3/)
+  assert.match(actions, /profile\?\.role === 'teen' && outstanding\.length > 0 && !teenSummaryViewed/)
+})
+
 test('pending and incomplete accounts cannot reach role dashboards', () => {
   const auth = read('../lib/auth.ts')
   assert.match(auth, /onboarding_completed_at/)

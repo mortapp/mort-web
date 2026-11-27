@@ -1628,6 +1628,17 @@ html[data-theme="dark"] .admin-shell .mort-admin-dashboard a:not(.btn) { color: 
 .onboarding-content > .form { display: grid; gap: var(--sp-4); min-width: 0; }
 .onboarding-content > .form > .card { padding: var(--sp-6); }
 .onboarding-content > .form > .btn { align-self: flex-start; min-height: 48px; }
+.legal-accept-controls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+.legal-accept-controls > .btn { min-height: 48px; }
+.legal-accept-controls > .muted { margin: 0; font-size: var(--text-xs); }
 
 .mort-social-card { display: grid; gap: var(--sp-3); padding: var(--sp-5); }
 .mort-social-card h3 { margin-top: var(--sp-1); }
@@ -1692,6 +1703,8 @@ html[data-theme="dark"] .admin-shell .mort-admin-dashboard a:not(.btn) { color: 
   .onboarding-current-step h2 { font-size: 21px; }
   .onboarding-content > .form > .card { padding: var(--sp-4); }
   .onboarding-content > .form > .btn { width: 100%; justify-content: center; white-space: normal; }
+  .legal-accept-controls { grid-template-columns: minmax(0, 1fr); }
+  .legal-accept-controls > .btn { width: 100%; justify-content: center; }
   .mort-social-card { padding: var(--sp-4); }
 }
 
