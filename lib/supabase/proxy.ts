@@ -1,8 +1,13 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request })
+export async function updateSession(request: NextRequest, originalAppPath?: string) {
+  const forwardRequest = () => {
+    const headers = new Headers(request.headers)
+    if (originalAppPath) headers.set('x-mort-request-path', originalAppPath)
+    return NextResponse.next({ request: { headers } })
+  }
+  let response = forwardRequest()
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
   if (!url || !key) return response
@@ -14,7 +19,7 @@ export async function updateSession(request: NextRequest) {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-        response = NextResponse.next({ request })
+        response = forwardRequest()
         cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
       }
     }

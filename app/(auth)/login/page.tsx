@@ -12,18 +12,32 @@ function requestedDestination(value: string | undefined) {
 export default async function Login({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
   const sp = await searchParams
   const next = requestedDestination(sp?.next)
+  const isOnboardingReturn = next === '/app/onboarding' || next.startsWith('/app/onboarding?')
 
   return (
     <AuthShell
       mode="login"
-      kicker="Welcome back"
-      title="Back to the hustle."
-      description="Your jobs, applications, earnings, and safety tools are waiting for you."
-      bullets={[
+      kicker={isOnboardingReturn ? 'Pick up where you left off' : 'Welcome back'}
+      title={isOnboardingReturn ? 'Your setup is waiting.' : 'Back to the hustle.'}
+      description={isOnboardingReturn
+        ? 'Sign in to continue setting up your MORT account. We’ll bring you straight back to onboarding.'
+        : 'Your jobs, applications, earnings, and safety tools are waiting for you.'}
+      bullets={isOnboardingReturn ? [
+        { icon: '✓', text: 'Resume your MORT account setup' },
+        { icon: '✓', text: 'Keep your requested page saved' },
+        { icon: '✓', text: 'Continue toward dashboard access' },
+      ] : [
         { icon: '✓', text: 'Browse local jobs near you' },
         { icon: '✓', text: 'Track applications and earnings' },
         { icon: '✓', text: 'Check in safely on active jobs' },
       ]}
+      journey={isOnboardingReturn ? {
+        label: 'YOUR NEXT STEPS',
+        title: 'Sign in. Resume setup. Keep moving.',
+        steps: ['Sign in', 'Onboarding', 'Review'],
+        currentStep: 0,
+        description: 'Your original onboarding destination is saved. Marketplace access follows completed setup and account review.'
+      } : undefined}
     >
       <div className="auth-form-heading">
         <h2>Sign in to MORT</h2>

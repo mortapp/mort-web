@@ -4,6 +4,13 @@ import { Logomark } from '@/components/logomark'
 // Editorial auth shell: the brand panel leads on desktop while the form stays
 // calm and readable on every screen size.
 type AuthBullet = { icon: string; text: string }
+type AuthJourney = {
+  label: string
+  title: string
+  steps: string[]
+  currentStep: number
+  description: string
+}
 
 interface AuthShellProps {
   mode?: 'login' | 'signup'
@@ -11,10 +18,11 @@ interface AuthShellProps {
   title: string
   description: string
   bullets: AuthBullet[]
+  journey?: AuthJourney
   children: React.ReactNode
 }
 
-export function AuthShell({ mode = 'login', kicker, title, description, bullets, children }: AuthShellProps) {
+export function AuthShell({ mode = 'login', kicker, title, description, bullets, journey, children }: AuthShellProps) {
   return (
     <main className="auth-shell" data-auth-mode={mode}>
       <aside className="auth-brand-panel">
@@ -38,6 +46,25 @@ export function AuthShell({ mode = 'login', kicker, title, description, bullets,
               </li>
             ))}
           </ul>
+          {journey && (
+            <section className="auth-journey" aria-labelledby="auth-journey-title">
+              <p className="auth-journey-kicker">{journey.label}</p>
+              <h2 id="auth-journey-title">{journey.title}</h2>
+              <ol className="auth-journey-path">
+                {journey.steps.map((step, index) => (
+                  <li
+                    key={step}
+                    className={index === journey.currentStep ? 'current' : index < journey.currentStep ? 'complete' : ''}
+                    aria-current={index === journey.currentStep ? 'step' : undefined}
+                  >
+                    <span className="auth-journey-marker" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="auth-journey-step-label">{step}</span>
+                  </li>
+                ))}
+              </ol>
+              <p className="auth-journey-description">{journey.description}</p>
+            </section>
+          )}
         </div>
         <p className="auth-brand-note">MORT — Teen-safe local hustle marketplace</p>
       </aside>

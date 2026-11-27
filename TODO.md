@@ -1,0 +1,6 @@
+# MORT Auth Flow — Outcomes
+
+- [ ] Preserve the requested destination across protected app entry and authentication. When an unauthenticated visitor opens `/app` or `/app/...` (including onboarding), keep the safe in-app path as `next` on login/signup and preserve it through existing email/Google auth callbacks; reject destinations outside `/app`.
+- [ ] Make the MORT journey clear across signup and login. Signup shows account creation → onboarding → review-gated access. When login is returning to `/app/onboarding`, show a compact, accessible cue that sign-in will return the visitor to onboarding; retain the existing MORT visual identity and responsive behavior.
+- [ ] Preserve account and safety contracts. Keep signup DOB minimum-age enforcement, role handling, field names and order, OAuth state, login/signup form actions, all four onboarding steps, legal acknowledgements, pending-review wording, and dashboard authorization behavior unchanged.
+- [ ] Ship one substantial UX improvement to the live MORT website. Run `npm run typecheck`, `npm run lint`, `npm run test:production-config`, and `npm run build`; commit and push to `origin/main` without force-pushing, then confirm the matching production deployment is READY.

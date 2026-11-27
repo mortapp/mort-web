@@ -2,7 +2,11 @@ import { type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/proxy'
 
 export async function proxy(request: NextRequest) {
-  return updateSession(request)
+  const { pathname, search } = request.nextUrl
+  const appPath = pathname === '/app' || pathname.startsWith('/app/')
+    ? `${pathname}${search}`
+    : undefined
+  return updateSession(request, appPath)
 }
 
 export const config = {

@@ -38,6 +38,13 @@ export default async function Signup({ searchParams }: { searchParams?: Promise<
         { icon: '□', text: 'Adults: post jobs and hire verified teens nearby' },
         { icon: '◎', text: 'Guardians: stay connected with safety controls' },
       ]}
+      journey={{
+        label: 'YOUR PATH INTO MORT',
+        title: 'Create. Set up. Get reviewed.',
+        steps: ['Account', 'Setup', 'Review'],
+        currentStep: 0,
+        description: 'Complete onboarding and account review before marketplace access opens.'
+      }}
     >
       <div className="auth-form-heading">
         <h2>Create your account</h2>

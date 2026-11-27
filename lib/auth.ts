@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
@@ -50,9 +50,28 @@ export async function getSessionProfile() {
   return { supabase, user, profile }
 }
 
+async function requestedAppDestination() {
+  const value = (await headers()).get('x-mort-request-path')
+  if (!value || value.length > 2048) return '/app'
+  try {
+    const url = new URL(value, 'https://mort.internal')
+    if (url.origin !== 'https://mort.internal') return '/app'
+    if (url.pathname !== '/app' && !url.pathname.startsWith('/app/')) return '/app'
+    return `${url.pathname}${url.search}`
+  } catch {
+    return '/app'
+  }
+}
+
 export async function requireAuthenticatedUser() {
   const ctx = await getSessionProfile()
-  if (!ctx.user) redirect('/login?message=Sign in first')
+  if (!ctx.user) {
+    const params = new URLSearchParams({
+      next: await requestedAppDestination(),
+      message: 'Sign in to continue where you left off.'
+    })
+    redirect(`/login?${params.toString()}`)
+  }
   if (!ctx.user.email_confirmed_at) {
     await ctx.supabase.auth.signOut()
     redirect('/login?message=' + encodeURIComponent('Verify your email before using MORT. Check your inbox for the verification link.'))
