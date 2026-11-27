@@ -23,7 +23,9 @@ Feature commit `0cea045486322603e662898010a804c6b04fd177` is on `origin/main`; V
 
 ## Follow-up — signup paths before account details
 
-- [ ] Before entering signup details, visitors can choose the visible “I’m a teen”, “I’m an adult”, or “I’m a guardian / parent” path; preserve the existing `teen`, `adult`, and `guardian` role values and role-matched signup defaults.
-- [ ] Show teens before signup that teen accounts require a verified school email address on an approved school domain to continue teen onboarding.
-- [ ] Keep date of birth authoritative: reject anyone under 13; derive teen status for ages 13–17 regardless of selected role; sanitize adult role choices so an adult cannot self-assign the teen role. Preserve the DOB check for email and Google signup, the account fields, and the existing onboarding/review gates.
-- [ ] Run typecheck, lint, production-config/contract tests, and production build; push without force-pushing; verify the matching Vercel production deployment is READY and inspect the live signup page.
+- [x] Before entering signup details, visitors can choose the visible “I’m a teen”, “I’m an adult”, or “I’m a guardian / parent” path; preserve the existing `teen`, `adult`, and `guardian` role values and role-matched signup defaults.
+- [x] Show teens before signup that teen accounts require a verified school email address on an approved school domain to continue teen onboarding.
+- [x] Keep date of birth authoritative: reject anyone under 13; derive teen status for ages 13–17 regardless of selected role; sanitize adult role choices so an adult cannot self-assign the teen role. Preserve the DOB check for email and Google signup, the account fields, and the existing onboarding/review gates.
+- [x] Run typecheck, lint, production-config/contract tests, and production build; push without force-pushing; verify the matching Vercel production deployment is READY and inspect the live signup page.
+
+Shipping evidence: feature commit `9d71807174ce66ed39d5c733fc52d7018fffbdd1` is on `origin/main`; Vercel deployment `dpl_x7PBuU9TJ84pYNRgJGQ2AC41qY1z` is `READY` for production aliases `mortapp.org` and `www.mortapp.org`. Live signup returned HTTP 200 and included the teen, adult, and guardian choices, approved-school-email requirement, DOB guidance, and existing DOB/email/password fields. Validation passed: typecheck; lint (0 errors, one pre-existing Google Fonts warning); production-config and contract tests (35/35); production build; legal publication verification.
