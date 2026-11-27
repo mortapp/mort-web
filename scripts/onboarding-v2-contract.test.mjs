@@ -87,13 +87,38 @@ test('website signup enforces the 13+ DOB screen before creating accounts', () =
   assert.match(callback, /age < 13/)
 })
 
+test('signup shows teen, adult, and guardian paths plus the approved-school-email requirement before account details', () => {
+  const signup = read('../app/(auth)/signup/page.tsx')
+  const actions = read('../app/(auth)/actions.ts')
+  const formStart = signup.indexOf('<form action={signUp}')
+  const roleChoicesEnd = signup.indexOf('<label>\n          Date of birth')
+  const dobField = signup.indexOf('name="date_of_birth"')
+  const displayNameField = signup.indexOf('name="display_name"')
+  const emailField = signup.indexOf('name="email"')
+
+  assert.ok(formStart >= 0 && roleChoicesEnd > formStart)
+  assert.ok(dobField > roleChoicesEnd && displayNameField > dobField && emailField > displayNameField)
+  assert.match(signup, /<fieldset className="signup-path-fieldset">[\s\S]*?legend>Choose your path/)
+  assert.match(signup, /name="role" value="teen" defaultChecked=\{role === 'teen'\}/)
+  assert.match(signup, /name="role" value="adult" defaultChecked=\{role === 'adult'\}/)
+  assert.match(signup, /name="role" value="guardian" defaultChecked=\{role === 'guardian'\}/)
+  assert.match(signup, /I’m a teen/)
+  assert.match(signup, /I’m an adult/)
+  assert.match(signup, /I’m a guardian \/ parent/)
+  assert.match(signup, /To continue teen onboarding,[\s\S]*?verified school email address on an approved school domain/)
+  assert.match(signup, /Your date of birth—not this selection—determines your age group/)
+  assert.match(actions, /function signupRole\(formData: FormData, age: number\)[\s\S]*?if \(age < 18\) return 'teen'[\s\S]*?sanitizeRole\(formData\.get\('role'\)\)[\s\S]*?selected === 'teen' \? 'adult' : selected/)
+  assert.match(actions, /checkedSignupDob\(formData, `\/signup\?next=/)
+})
+
 test('homepage routes teen and adult intent into a role-matched signup with safe return paths', () => {
   const home = read('../components/mort-marketing-home.tsx')
   const signup = read('../app/(auth)/signup/page.tsx')
   assert.match(home, /const nextPath = role === 'teen' \? '\/app\/teen\/jobs' : '\/app'/)
   assert.match(home, /`\/signup\?role=\$\{role\}&next=\$\{encodeURIComponent\(nextPath\)\}`/)
   assert.match(signup, /function requestedRole\(value: string \| undefined\)/)
-  assert.match(signup, /defaultValue=\{role\}/)
+  assert.match(signup, /defaultChecked=\{role === 'teen'\}/)
+  assert.match(signup, /defaultChecked=\{role === 'adult'\}/)
 })
 
 test('login and signup preserve exact /app through email and auth callbacks', () => {

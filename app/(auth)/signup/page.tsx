@@ -54,22 +54,42 @@ export default async function Signup({ searchParams }: { searchParams?: Promise<
       <form action={signUp} className="form">
         <input type="hidden" name="source" value="signup" />
         <input type="hidden" name="next" value={next} />
+        <fieldset className="signup-path-fieldset">
+          <legend>Choose your path</legend>
+          <p className="signup-path-intro">Pick what brings you to MORT. Your date of birth—not this selection—determines your age group. MORT is for ages 13 and older.</p>
+          <div className="signup-path-options">
+            <label className="signup-path-option">
+              <input type="radio" name="role" value="teen" defaultChecked={role === 'teen'} />
+              <span className="signup-path-option-panel">
+                <span className="signup-path-option-heading"><span>I’m a teen</span><span className="signup-path-option-age">13–17</span></span>
+                <span className="signup-path-option-description">Find safe local work and build experience.</span>
+                <span className="signup-path-school-note"><strong>School email required:</strong> To continue teen onboarding, you’ll need a verified school email address on an approved school domain.</span>
+              </span>
+            </label>
+            <label className="signup-path-option">
+              <input type="radio" name="role" value="adult" defaultChecked={role === 'adult'} />
+              <span className="signup-path-option-panel">
+                <span className="signup-path-option-heading"><span>I’m an adult</span><span className="signup-path-option-age">18+</span></span>
+                <span className="signup-path-option-description">Post local jobs and hire teens nearby.</span>
+              </span>
+            </label>
+            <label className="signup-path-option">
+              <input type="radio" name="role" value="guardian" defaultChecked={role === 'guardian'} />
+              <span className="signup-path-option-panel">
+                <span className="signup-path-option-heading"><span>I’m a guardian / parent</span><span className="signup-path-option-age">18+</span></span>
+                <span className="signup-path-option-description">Stay connected and help support your teen.</span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
         <label>
           Date of birth
           <input name="date_of_birth" type="date" autoComplete="bday" required max={minimumEligibleDob()} />
         </label>
-        <p className="muted">MORT requires every member to be at least 13. Your date of birth determines whether you enter as a teen or an adult.</p>
+        <p className="muted">Your date of birth confirms your age: people ages 13–17 enter as teens; adults 18+ can use the adult or guardian path.</p>
         <label>
           Display name
           <input name="display_name" autoComplete="name" required placeholder="Santiago, Mike, Keke..." />
-        </label>
-        <label>
-          I am a...
-          <select name="role" defaultValue={role}>
-            <option value="teen">Teen worker (ages 13–17)</option>
-            <option value="adult">Adult / customer / business</option>
-            <option value="guardian">Guardian / parent</option>
-          </select>
         </label>
         <button type="submit" formAction={signInWithGoogle} formNoValidate className="btn ghost full lg google-auth-button">
           <span aria-hidden="true">G</span> Sign up with Google

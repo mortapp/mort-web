@@ -20,3 +20,10 @@
 - [x] Run the production checks, push the scoped change to `origin/main` without force-pushing, and verify the matching `mort-web` production deployment is READY and the live onboarding route still preserves the guard message.
 
 Feature commit `0cea045486322603e662898010a804c6b04fd177` is on `origin/main`; Vercel deployment `dpl_25M1EHJdp1Ny8V2xxAKm5PkpGmHK` is `READY` for production aliases `mortapp.org` and `www.mortapp.org`. The live onboarding URL returns HTTP 307 to login with the original setup message encoded in `next`. Validation passed: typecheck; lint (0 errors, one pre-existing Google Fonts warning); production-config and contract tests (34/34); production build and legal verification.
+
+## Follow-up — signup paths before account details
+
+- [ ] Before entering signup details, visitors can choose the visible “I’m a teen”, “I’m an adult”, or “I’m a guardian / parent” path; preserve the existing `teen`, `adult`, and `guardian` role values and role-matched signup defaults.
+- [ ] Show teens before signup that teen accounts require a verified school email address on an approved school domain to continue teen onboarding.
+- [ ] Keep date of birth authoritative: reject anyone under 13; derive teen status for ages 13–17 regardless of selected role; sanitize adult role choices so an adult cannot self-assign the teen role. Preserve the DOB check for email and Google signup, the account fields, and the existing onboarding/review gates.
+- [ ] Run typecheck, lint, production-config/contract tests, and production build; push without force-pushing; verify the matching Vercel production deployment is READY and inspect the live signup page.
