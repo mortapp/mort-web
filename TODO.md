@@ -17,4 +17,6 @@
 
 - [x] When the signed-in visitor arrives with `Finish setting up your MORT account to continue.` and the progress contract is available, replace that auto-dismissing toast with a persistent checkpoint panel that identifies the server-selected current step and explains that marketplace access still follows account review.
 - [x] Give the visitor a direct “Continue setup” link to the active onboarding step while preserving the four existing server actions, form fields, DOB/role safeguards, legal acknowledgements, and dashboard/review gates; leave every other message on the existing toast behavior.
-- [ ] Run the production checks, push the scoped change to `origin/main` without force-pushing, and verify the matching `mort-web` production deployment is READY and the live onboarding route still preserves the guard message.
+- [x] Run the production checks, push the scoped change to `origin/main` without force-pushing, and verify the matching `mort-web` production deployment is READY and the live onboarding route still preserves the guard message.
+
+Feature commit `0cea045486322603e662898010a804c6b04fd177` is on `origin/main`; Vercel deployment `dpl_25M1EHJdp1Ny8V2xxAKm5PkpGmHK` is `READY` for production aliases `mortapp.org` and `www.mortapp.org`. The live onboarding URL returns HTTP 307 to login with the original setup message encoded in `next`. Validation passed: typecheck; lint (0 errors, one pre-existing Google Fonts warning); production-config and contract tests (34/34); production build and legal verification.
