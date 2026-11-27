@@ -40,6 +40,14 @@ export default async function Onboarding({ searchParams }: { searchParams?: Prom
   }
 
   const completed = Boolean(profile?.onboarding_completed_at)
+  const resumeStepByKey: Record<string, { number: number; title: string }> = {
+    account: { number: 1, title: 'Your account' },
+    work_preferences: { number: 2, title: 'Work preferences' },
+    safety_support: { number: 3, title: 'Safety and support' },
+    review: { number: 4, title: 'Review and finish' },
+  }
+  const resumeStep = resumeStepByKey[String(progress?.active_step || 'account')] || resumeStepByKey.account
+  const isResumeNudge = !completed && progress?.ok === true && sp?.message === 'Finish setting up your MORT account to continue.'
   const roleHome: Record<string, string> = {
     teen: '/app/teen/jobs',
     adult: '/app/adult',
@@ -53,7 +61,18 @@ export default async function Onboarding({ searchParams }: { searchParams?: Prom
         eyebrow="Onboarding"
         description="Four steps. Your account role is determined by your date of birth, and safety controls stay separate from marketplace access."
       />
-      <Toast message={sp?.message} />
+      <Toast message={isResumeNudge ? undefined : sp?.message} />
+      {isResumeNudge && (
+        <section className="onboarding-resume" aria-labelledby="onboarding-resume-title">
+          <span className="onboarding-resume-index" aria-hidden="true">0{resumeStep.number}<small>/04</small></span>
+          <div className="onboarding-resume-copy">
+            <p className="eyebrow">YOUR NEXT STEP</p>
+            <h2 id="onboarding-resume-title">Continue your MORT setup.</h2>
+            <p>Step {resumeStep.number} of 4: <strong>{resumeStep.title}</strong>. Complete onboarding first; marketplace access still follows account review.</p>
+          </div>
+          <Link href="#onboarding-current-title" className="btn primary">Continue setup</Link>
+        </section>
+      )}
       {verification?.ok === true && (
         <section className="card" aria-labelledby="verification-requirements-title">
           <h2 id="verification-requirements-title">Identity verification requirements</h2>

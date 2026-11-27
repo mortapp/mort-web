@@ -29,3 +29,7 @@ Highest-risk change: request path propagation across Supabase cookie refresh. Ke
 ## Verification and delivery
 
 Run typecheck, lint, production-config tests, and build; commit the scoped change and push to `origin/main` without force-pushing. Verify the resulting production deployment before reporting it as live.
+
+## Follow-up: onboarding re-entry from the dashboard gate
+
+Mode: Redesign · Preserve (focused extension). Preserve MORT's ink/silver identity, the existing page hierarchy, server-authoritative active step, four onboarding actions, legal clickwrap, verification notices, and account-review gate. Improve the signed-in return path by replacing only the exact dashboard-gate message (`Finish setting up your MORT account to continue.`) with a persistent checkpoint panel that names the actual next step and links directly to the current step heading. Keep all other success/error messages on the existing toast behavior. Remove the transient, auto-dismissing version of this one guard message; do not invent progress or claim marketplace activation. Highest risk: stale or unavailable RPC progress; show the persistent panel only when the progress contract is `ok`, and keep the existing fallback warning otherwise. Rollback: remove the conditional panel and restore the guard message to the generic toast.

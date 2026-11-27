@@ -119,7 +119,7 @@ export function OnboardingForm({
             <p className="eyebrow">STEP {currentStepNumber} OF {stepOrder.length}</p>
             <span>In progress</span>
           </div>
-          <h2 id="onboarding-current-title">{stepTitle[currentStep]}</h2>
+          <h2 id="onboarding-current-title" tabIndex={-1}>{stepTitle[currentStep]}</h2>
           <p className="onboarding-current-description">{stepDescription[currentStep]}</p>
           <div
             className="progress-track"

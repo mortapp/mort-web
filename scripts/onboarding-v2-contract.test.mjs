@@ -156,3 +156,14 @@ test('protected app routes preserve an in-app destination through the auth gate'
   assert.match(signup, /Complete onboarding and account review before marketplace access opens/)
   assert.match(shell, /aria-current=\{index === journey\.currentStep \? 'step' : undefined\}/)
 })
+
+test('dashboard gate returns show a persistent active-step onboarding resume panel', () => {
+  const onboarding = read('../app/app/onboarding/page.tsx')
+  assert.match(onboarding, /sp\?\.message === 'Finish setting up your MORT account to continue\.'/)
+  assert.match(onboarding, /progress\?\.active_step/)
+  assert.match(onboarding, /<Toast message=\{isResumeNudge \? undefined : sp\?\.message\} \/>/)
+  assert.match(onboarding, /className="onboarding-resume"/)
+  assert.match(onboarding, /Step \{resumeStep\.number\} of 4/)
+  assert.match(onboarding, /href="#onboarding-current-title"/)
+  assert.match(onboarding, /marketplace access still follows account review/)
+})
