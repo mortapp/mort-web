@@ -25,6 +25,7 @@ const navItems: NavItem[] = [
   { href: '/app/guardian', icon: 'shield', label: 'Guardian', roles: ['guardian','admin'] },
   { href: '/app/messages', icon: 'message', label: 'Messages' },
   { href: '/app/safety', icon: 'alert', label: 'Safety center' },
+  { href: '/app/verify', icon: 'shield', label: 'Identity verification' },
   { href: '/app/payments', icon: 'card', label: 'Payment prefs' },
   { href: '/app/profile', icon: 'user', label: 'Profile' },
   { href: '/app/support', icon: 'headset', label: 'Support' },
@@ -61,7 +62,7 @@ export function AppShell({ children, role = 'none', displayName, xp = 0, verific
     { label: 'Main', items: visibleItems.filter(i => ['Dashboard','Browse jobs','Applications','Active jobs','Saved jobs','Earnings','Challenges','Team hustles','Adult home','Post a job','My jobs','Applicants'].includes(i.label)) },
     { label: 'Adult', items: visibleItems.filter(i => ['Adult home','Post a job','My jobs','Applicants'].includes(i.label)) },
     { label: 'Guardian', items: visibleItems.filter(i => ['Guardian'].includes(i.label)) },
-    { label: 'Account', items: visibleItems.filter(i => ['Messages','Safety center','Payment prefs','Profile','Support','Report issue'].includes(i.label)) },
+    { label: 'Account', items: visibleItems.filter(i => ['Messages','Safety center','Identity verification','Payment prefs','Profile','Support','Report issue'].includes(i.label)) },
     { label: 'Admin', items: visibleItems.filter(i => ['Admin'].includes(i.label)) },
   ].filter(s => s.items.length > 0)
 

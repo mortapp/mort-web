@@ -3,6 +3,7 @@ import { PageHeaderWithActions, Status } from '@/components/ui'
 import { acceptGuardianInvite, createGuardianInvite, uploadVerificationEvidence } from './actions'
 import { Toast } from '@/components/toast'
 import { SubmitButton } from '@/components/submit-button'
+import { VerificationUploader } from '@/components/verification-uploader'
 export const dynamic = 'force-dynamic'
 
 export default async function Verify({ searchParams }: { searchParams?: Promise<Record<string,string>> }) {
@@ -32,24 +33,13 @@ export default async function Verify({ searchParams }: { searchParams?: Promise<
       )}
 
       <div className="grid two">
-        <form action={uploadVerificationEvidence} className="card form">
-          <div className="card-icon-tile">{isTeen ? '🎓' : '💼'}</div>
-          <h3>{isTeen ? 'Teen identity evidence' : 'Adult identity evidence'}</h3>
-          <p style={{fontSize:13,marginBottom:4}}>
-            {isTeen
-              ? 'Upload a current school-issued photo ID, or official enrollment confirmation if your school has no photo ID. MORT staff review every submission.'
-              : 'Upload a valid, unexpired government-issued photo ID (driver license, state ID, or passport). MORT staff review every submission.'}
-          </p>
-          <input type="hidden" name="verification_type" value={evidenceType} />
-          <label>Document (JPG, PNG, HEIC, or PDF, max 10 MB)<input name="evidence" type="file" accept=".jpg,.jpeg,.png,.heic,.pdf,image/jpeg,image/png,image/heic,application/pdf" required /></label>
-          {hasPendingCase ? (
-            <p className="muted">You already have a submission under review. You can submit again after it is decided.</p>
-          ) : null}
-          {canSubmitEvidence ? (
-            <SubmitButton pendingLabel="Uploading…">Submit for review</SubmitButton>
-          ) : null}
-          <p className="muted">Do not email identity documents to MORT support. Uploads go to a private bucket only you and MORT reviewers can access.</p>
-        </form>
+        <VerificationUploader
+          action={uploadVerificationEvidence}
+          verificationType={evidenceType}
+          isAdult={!isTeen}
+          canSubmitEvidence={canSubmitEvidence}
+          hasPendingCase={hasPendingCase}
+        />
 
         <div className="card">
           <div className="card-icon-tile blue">📄</div>

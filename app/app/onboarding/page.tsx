@@ -90,6 +90,12 @@ export default async function Onboarding({ searchParams }: { searchParams?: Prom
             <>
               <p><strong>Adult accounts (18+)</strong> require a valid, unexpired government-issued photo ID, such as a driver&apos;s license, state ID card, or passport.</p>
               <p className="muted">Submit a valid government-issued photo ID through account verification on the Verify page. MORT staff review each submission and update your status. Do not email identity documents to MORT support.</p>
+              <div className="verification-requirements-cta">
+                <Link href="/app/verify" className="btn primary">
+                  {['pending', 'needs_review', 'approved', 'verified'].includes(String(profile?.verification_status || '').toLowerCase()) ? 'View verification status' : 'Upload your ID'}
+                </Link>
+                <span className="field-hint">Use your computer files or camera on the ID verification page.</span>
+              </div>
             </>
           )}
         </section>

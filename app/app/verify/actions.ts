@@ -9,6 +9,7 @@ function rpcText(data: any, fallback = 'The backend rejected this request.') { r
 const ALLOWED_TYPES: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
+  'image/webp': 'webp',
   'image/heic': 'heic',
   'application/pdf': 'pdf',
 }
@@ -36,10 +37,14 @@ export async function acceptGuardianInvite(formData: FormData) {
 
 export async function uploadVerificationEvidence(formData: FormData) {
   const { supabase, user } = await requireUser()
-  const file = formData.get('evidence')
+  const evidenceFiles = formData.getAll('evidence').filter((entry): entry is File => entry instanceof File && entry.size > 0)
   const evidenceType = String(formData.get('verification_type') || '')
 
-  if (!(file instanceof File) || file.size === 0) {
+  if (evidenceFiles.length > 1) {
+    redirect('/app/verify?message=' + encodeURIComponent('Choose one file, or select two JPG, PNG, or WebP images so MORT can combine them on your device.'))
+  }
+  const file = evidenceFiles[0]
+  if (!file) {
     redirect('/app/verify?message=' + encodeURIComponent('Choose a file to upload.'))
   }
   if (!(evidenceType in { school_id: 1, identity: 1 })) {
@@ -47,7 +52,7 @@ export async function uploadVerificationEvidence(formData: FormData) {
   }
   const ext = ALLOWED_TYPES[file.type]
   if (!ext) {
-    redirect('/app/verify?message=' + encodeURIComponent('Upload a JPG, PNG, HEIC image or a PDF.'))
+    redirect('/app/verify?message=' + encodeURIComponent('Upload a JPG, PNG, WebP, HEIC image or a PDF.'))
   }
   if (file.size > MAX_BYTES) {
     redirect('/app/verify?message=' + encodeURIComponent('Files must be 10 MB or smaller.'))
